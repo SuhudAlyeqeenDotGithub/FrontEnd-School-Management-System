@@ -23,3 +23,7 @@ export const InputComponent = ({
     />
   );
 };
+
+export const ErrorDiv = ({ children }: { children: React.ReactNode }) => {
+  return <div className="text-red-500 text-sm bg-red-50 border border-red-400 p-2 rounded">{children}</div>;
+};

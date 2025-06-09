@@ -51,6 +51,12 @@ button:hover {
   opacity: 0.8;
 }
 
+button:disabled {
+  background-color: var(--color-foregroundColor-50);
+  color: var(--color-backgroundColor);
+  cursor: not-allowed;
+}
+
 h1 {
   color: var(--color-foregroundColor);
   font-size: 2rem;
