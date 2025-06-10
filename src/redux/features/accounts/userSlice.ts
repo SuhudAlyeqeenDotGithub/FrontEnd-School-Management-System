@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { signUp, signIn } from "./userThunk";
+import { signUp, signIn } from "./accountThunks";
 
 interface ThemeType {
   backgroundColor: string;
@@ -67,38 +67,6 @@ export const userSlice = createSlice({
         state.user = action.payload;
       })
       .addCase(signUp.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.errorMessage = action.payload as string;
-      })
-      .addCase(login.pending, (state) => {
-        state.isLoading = true;
-        state.isSuccess = false;
-        state.isError = false;
-        state.errorMessage = "";
-      })
-      .addCase(login.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.user = action.payload;
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.errorMessage = action.payload as string;
-      })
-      .addCase(getUserProfile.pending, (state) => {
-        state.isLoading = true;
-        state.isSuccess = false;
-        state.isError = false;
-        state.errorMessage = "";
-      })
-      .addCase(getUserProfile.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.user = action.payload;
-      })
-      .addCase(getUserProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.errorMessage = action.payload as string;

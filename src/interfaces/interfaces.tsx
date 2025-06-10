@@ -9,6 +9,7 @@ export interface InputComponentType {
 export interface OrgSignUpType {
   organisationName: string;
   organisationEmail: string;
+  organisationPhone: string;
   organisationPassword: string;
   organisationConfirmPassword: string;
 }
@@ -18,6 +19,13 @@ export interface OrgSignInType {
 }
 
 export interface OrgType {
+  _id: string;
   organisationName: string;
-  organisationEmail: string;
+  organisationPhone: string;
+  organisationPassword: string;
+  organisationImage: string;
+  themes: {
+    backgroundColor: string;
+    foregroundColor: string;
+  };
 }
