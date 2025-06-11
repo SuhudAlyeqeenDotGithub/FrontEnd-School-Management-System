@@ -6,10 +6,12 @@ const orgSignUp = createAsyncThunk<OrgType, OrgSignUpType>(
   "orgaccount/signup",
   async (orgData, { rejectWithValue }) => {
     try {
-      const response = await axios.post("alyeqeenschoolapp/api/orgaccount/signup", orgData, { withCredentials: true });
+      const response = await axios.post("http://localhost:5000/alyeqeenschoolapp/api/orgaccount/signup", orgData, {
+        withCredentials: true
+      });
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data.message || error.message);
+      return rejectWithValue(error.response?.data.message || error.message || "An error occurred during signup");
     }
   }
 );
@@ -18,7 +20,9 @@ const orgSignIn = createAsyncThunk<OrgType, OrgSignInType>(
   "orgaccount/signin",
   async (orgData, { rejectWithValue }) => {
     try {
-      const response = await axios.post("alyeqeenschoolapp/api/orgaccount/signin", orgData, { withCredentials: true });
+      const response = await axios.post("http://localhost:5000/api/orgaccount/signin", orgData, {
+        withCredentials: true
+      });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data.message || error.message);

@@ -3,17 +3,25 @@ import { useState } from "react";
 import { InputComponent, ErrorDiv } from "@/component/smallComponents";
 import Link from "next/link";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
+import { orgSignUp } from "@/redux/features/accounts/accountThunks";
+import { useAppDispatch } from "@/redux/hooks";
+import { useAppSelector } from "@/redux/hooks";
+import { useRouter } from "next/navigation";
 
 const signUpPage = () => {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { isLoading, isSuccess, isError, errorMessage } = useAppSelector((state) => state.orgAccountData);
   const [inputData, setInputData] = useState({
     organisationName: "",
     organisationEmail: "",
     organisationPhone: "",
-    password: "",
-    confirmPassword: ""
+    organisationPassword: "",
+    organisationConfirmPassword: ""
   });
-  const [errorMessage, setErrorMessage] = useState("");
-  const { organisationName, organisationEmail, organisationPhone, password, confirmPassword } = inputData;
+  const [error, setError] = useState("");
+  const { organisationName, organisationEmail, organisationPhone, organisationPassword, organisationConfirmPassword } =
+    inputData;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -28,51 +36,58 @@ const signUpPage = () => {
       !organisationName.trim() ||
       !organisationEmail.trim() ||
       !organisationPhone.trim() ||
-      !password ||
-      !confirmPassword
+      !organisationPassword ||
+      !organisationConfirmPassword
     ) {
-      setErrorMessage("Please fill in all required fields.");
+      setError("Please fill in all required fields.");
       return;
     }
 
     if (organisationName.length < 3) {
-      setErrorMessage("Organisation name must be at least 3 characters long.");
+      setError("Organisation name must be at least 3 characters long.");
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(organisationEmail)) {
-      setErrorMessage("Please enter a valid email address.");
+      setError("Please enter a valid email address.");
       return;
     }
 
     // Use libphonenumber-js to validate phone number
     const phoneNumber = parsePhoneNumberFromString(organisationPhone);
     if (!phoneNumber || !phoneNumber.isValid()) {
-      setErrorMessage("Please enter a valid phone number.");
+      setError("Please enter a valid phone number.");
       return;
     }
 
     const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
-    if (!passwordStrengthRegex.test(password)) {
-      setErrorMessage(
+    if (!passwordStrengthRegex.test(organisationPassword)) {
+      setError(
         "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character."
       );
       return;
     }
 
-    if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match.");
+    if (organisationPassword !== organisationConfirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
-    setErrorMessage("");
+    setError("");
     return true;
   };
-  
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validationPassed()) {
-      alert("Sign Up Successful!"); // Replace with actual sign-up logic
+      try {
+        const response = await dispatch(orgSignUp(inputData)).unwrap();
+        if (response) {
+          router.push("/main");
+        }
+      } catch (error: any) {
+        setError(error.response?.data.message || error.message || error || "An error occurred during signup");
+      }
     }
   };
   return (
@@ -82,7 +97,7 @@ const signUpPage = () => {
         <div className="flex flex-col gap-5 border border-foregroundColor-20 p-8 rounded-lg shadow justify-center items-center w-3/4">
           <h2>Sign Up</h2>
           <h3>Please provide your organisation details</h3>
-          {errorMessage && <ErrorDiv>{errorMessage}</ErrorDiv>}
+          {error && <ErrorDiv>{error}</ErrorDiv>}
           <form className="flex flex-col gap-4 w-full items-center" onSubmit={handleSubmit}>
             <InputComponent
               placeholder="Organisation Name *"
@@ -109,22 +124,28 @@ const signUpPage = () => {
             <InputComponent
               type="password"
               placeholder="Password *"
-              name="password"
-              value={password}
+              name="organisationPassword"
+              value={organisationPassword}
               required={true}
               onChange={handleInputChange}
             />
             <InputComponent
               type="password"
               placeholder="Confirm Password *"
-              name="confirmPassword"
-              value={confirmPassword}
+              name="organisationConfirmPassword"
+              value={organisationConfirmPassword}
               required={true}
               onChange={handleInputChange}
             />
             <button
               type="submit"
-              disabled={!organisationName || !organisationEmail || !organisationPhone || !password || !confirmPassword}
+              disabled={
+                !organisationName ||
+                !organisationEmail ||
+                !organisationPhone ||
+                !organisationPassword ||
+                !organisationConfirmPassword
+              }
               className="w-full"
             >
               Sign Up

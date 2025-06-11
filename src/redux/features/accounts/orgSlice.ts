@@ -20,6 +20,13 @@ const initialState: OrgState = {
     themes: {
       backgroundColor: "",
       foregroundColor: ""
+    },
+    roleData: {
+      _id: "",
+      roleName: "",
+      roleDescription: "",
+      absoluteAdmin: false,
+      tabAccess: {}
     }
   },
   isSuccess: false,

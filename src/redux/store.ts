@@ -1,9 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userAccountReducer from "./features/accounts/userSlice";
 import orgAccountReducer from "./features/accounts/orgSlice";
 
 export const makeStore = () => {
-  return configureStore({ reducer: { userData: userAccountReducer, orgData: orgAccountReducer } });
+  return configureStore({ reducer: { orgAccountData: orgAccountReducer } });
 };
 
 export type AppStore = ReturnType<typeof makeStore>;

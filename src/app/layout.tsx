@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Hind } from "next/font/google";
 import "./globals.css";
+import StoreProvider from "./StoreProvider";
 
 const fontHind = Hind({
   variable: "--font-hind-sans",
@@ -33,7 +34,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${fontHind.variable} antialiased`}>{children}</body>
+      <body className={`${fontHind.variable} antialiased`}>
+        <StoreProvider>{children}</StoreProvider>
+      </body>
     </html>
   );
 }

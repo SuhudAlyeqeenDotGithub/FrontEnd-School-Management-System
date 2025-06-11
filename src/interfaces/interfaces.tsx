@@ -28,4 +28,11 @@ export interface OrgType {
     backgroundColor: string;
     foregroundColor: string;
   };
+  roleData: {
+    _id: string;
+    roleName: string;
+    roleDescription: string;
+    absoluteAdmin: boolean;
+    tabAccess: {};
+  };
 }
