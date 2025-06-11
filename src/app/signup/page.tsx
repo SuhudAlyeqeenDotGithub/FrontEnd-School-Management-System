@@ -60,10 +60,10 @@ const signUpPage = () => {
       return;
     }
 
-    const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
+    const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&~*]).{8,}$/;
     if (!passwordStrengthRegex.test(organisationPassword)) {
       setError(
-        "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character."
+        "Password must be at least 8 characters long and include uppercase, lowercase, number, and at least one special character [!@#$%^&~*]."
       );
       return;
     }
@@ -98,7 +98,7 @@ const signUpPage = () => {
           <h2>Sign Up</h2>
           <h3>Please provide your organisation details</h3>
           {error && <ErrorDiv>{error}</ErrorDiv>}
-          <form className="flex flex-col gap-4 w-full items-center" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-4 mt-5 w-full items-center" onSubmit={handleSubmit}>
             <InputComponent
               placeholder="Organisation Name *"
               name="organisationName"

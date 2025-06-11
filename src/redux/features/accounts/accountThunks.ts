@@ -1,8 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { OrgSignInType, OrgSignUpType, OrgType } from "@/interfaces/interfaces";
+import { SignInType, OrgSignUpType, AccountType } from "@/interfaces/interfaces";
 import axios from "axios";
 
-const orgSignUp = createAsyncThunk<OrgType, OrgSignUpType>(
+const orgSignUp = createAsyncThunk<AccountType, OrgSignUpType>(
   "orgaccount/signup",
   async (orgData, { rejectWithValue }) => {
     try {
@@ -16,11 +16,11 @@ const orgSignUp = createAsyncThunk<OrgType, OrgSignUpType>(
   }
 );
 
-const orgSignIn = createAsyncThunk<OrgType, OrgSignInType>(
+const signIn = createAsyncThunk<AccountType, SignInType>(
   "orgaccount/signin",
-  async (orgData, { rejectWithValue }) => {
+  async (signInData, { rejectWithValue }) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/orgaccount/signin", orgData, {
+      const response = await axios.post("http://localhost:5000/api/orgaccount/signin", signInData, {
         withCredentials: true
       });
       return response.data;
@@ -30,4 +30,4 @@ const orgSignIn = createAsyncThunk<OrgType, OrgSignInType>(
   }
 );
 
-export { orgSignUp, orgSignIn };
+export { orgSignUp, signIn };

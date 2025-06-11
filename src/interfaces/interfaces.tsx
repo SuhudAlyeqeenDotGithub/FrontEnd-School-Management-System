@@ -13,26 +13,35 @@ export interface OrgSignUpType {
   organisationPassword: string;
   organisationConfirmPassword: string;
 }
-export interface OrgSignInType {
-  organisationEmail: string;
-  organisationPassword: string;
+export interface SignInType {
+  email: string;
+  password: string;
 }
 
-export interface OrgType {
-  _id: string;
-  organisationName: string;
-  organisationPhone: string;
-  organisationPassword: string;
-  organisationImage: string;
+export interface AccountType {
+  accountId: string;
+  accountType: string;
+  accountName: string;
+  accountEmail: string;
+  accountPhone: string;
+  organisationId: string;
   themes: {
     backgroundColor: string;
     foregroundColor: string;
   };
-  roleData: {
+  roleId: {
+    tabAccess: {
+      adminTab: string[];
+      courseTab: string[];
+      studentTab: string[];
+      enrollmentTab: string[];
+      attendanceTab: string[];
+      staffTab: string[];
+    };
     _id: string;
+    organisationId: string;
     roleName: string;
     roleDescription: string;
     absoluteAdmin: boolean;
-    tabAccess: {};
   };
 }

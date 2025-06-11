@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { orgSignUp, orgSignIn } from "./accountThunks";
-import { OrgType } from "@/interfaces/interfaces";
+import { orgSignUp } from "./accountThunks";
+import { AccountType } from "@/interfaces/interfaces";
 
 interface OrgState {
-  orgData: OrgType;
+  accountData: AccountType;
   isSuccess: boolean;
   isLoading: boolean;
   isError: boolean;
@@ -11,22 +11,31 @@ interface OrgState {
 }
 
 const initialState: OrgState = {
-  orgData: {
-    _id: "",
-    organisationName: "",
-    organisationPhone: "",
-    organisationPassword: "",
-    organisationImage: "",
+  accountData: {
+    accountId: "",
+    accountType: "",
+    accountName: "",
+    accountEmail: "",
+    accountPhone: "",
+    organisationId: "",
     themes: {
       backgroundColor: "",
       foregroundColor: ""
     },
-    roleData: {
+    roleId: {
+      tabAccess: {
+        adminTab: [],
+        courseTab: [],
+        studentTab: [],
+        enrollmentTab: [],
+        attendanceTab: [],
+        staffTab: []
+      },
       _id: "",
+      organisationId: "",
       roleName: "",
       roleDescription: "",
-      absoluteAdmin: false,
-      tabAccess: {}
+      absoluteAdmin: false
     }
   },
   isSuccess: false,
@@ -55,7 +64,7 @@ export const orgAccountSlice = createSlice({
       .addCase(orgSignUp.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.orgData = action.payload;
+        state.accountData = action.payload;
       })
       .addCase(orgSignUp.rejected, (state, action) => {
         state.isLoading = false;

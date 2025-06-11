@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import orgAccountReducer from "./features/accounts/orgSlice";
+import orgAccountReducer from "./features/accounts/accountSlice";
 
 export const makeStore = () => {
   return configureStore({ reducer: { orgAccountData: orgAccountReducer } });
