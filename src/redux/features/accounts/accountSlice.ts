@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { orgSignUp } from "./accountThunks";
+import { orgSignUp, signIn } from "./accountThunks";
 import { AccountType } from "@/interfaces/interfaces";
 
 interface OrgState {
@@ -67,6 +67,22 @@ export const orgAccountSlice = createSlice({
         state.accountData = action.payload;
       })
       .addCase(orgSignUp.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.errorMessage = action.payload as string;
+      })
+      .addCase(signIn.pending, (state) => {
+        state.isLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.errorMessage = "";
+      })
+      .addCase(signIn.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.accountData = action.payload;
+      })
+      .addCase(signIn.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.errorMessage = action.payload as string;

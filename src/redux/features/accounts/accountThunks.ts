@@ -20,7 +20,7 @@ const signIn = createAsyncThunk<AccountType, SignInType>(
   "orgaccount/signin",
   async (signInData, { rejectWithValue }) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/orgaccount/signin", signInData, {
+      const response = await axios.post("http://localhost:5000/alyeqeenschoolapp/api/orgaccount/signin", signInData, {
         withCredentials: true
       });
       return response.data;

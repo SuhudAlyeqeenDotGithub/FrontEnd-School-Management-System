@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { InputComponent, ErrorDiv } from "@/component/smallComponents";
 import Link from "next/link";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { signIn } from "@/redux/features/accounts/accountThunks";
 import { useAppDispatch } from "@/redux/hooks";
 import { useAppSelector } from "@/redux/hooks";
@@ -49,7 +48,7 @@ const signInPage = () => {
       try {
         const response = await dispatch(signIn(inputData)).unwrap();
         if (response) {
-          router.push("/main");
+          router.push("/");
         }
       } catch (error: any) {
         setError(error.response?.data.message || error.message || error || "An error occurred during signIn");
