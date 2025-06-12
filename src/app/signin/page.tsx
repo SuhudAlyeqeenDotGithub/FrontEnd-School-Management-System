@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv } from "@/component/smallComponents";
+import { InputComponent, ErrorDiv, LoaderDiv } from "@/component/smallComponents";
 import Link from "next/link";
 import { signIn } from "@/redux/features/accounts/accountThunks";
 import { useAppDispatch } from "@/redux/hooks";
@@ -90,7 +90,19 @@ const signInPage = () => {
             </div>
 
             <button type="submit" disabled={!password || !email} className="w-full mt-5">
-              Sign In
+              <span className="flex justify-center gap-20 items-center">
+                {isLoading ? (
+                  <LoaderDiv
+                    type="spinnerText"
+                    borderColor="backgroundColor"
+                    text="Signing In..."
+                    textColor="backgroundColor"
+                    dimension="w-6 h-6"
+                  />
+                ) : (
+                  "Sign In"
+                )}
+              </span>
             </button>
           </form>
 

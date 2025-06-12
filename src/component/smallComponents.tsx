@@ -27,3 +27,24 @@ export const InputComponent = ({
 export const ErrorDiv = ({ children }: { children: React.ReactNode }) => {
   return <div className="text-red-500 text-sm bg-red-50 border border-red-400 p-2 rounded">{children}</div>;
 };
+
+export const LoaderDiv = ({
+  type = "spinner",
+  borderColor,
+  text,
+  textColor,
+  dimension
+}: {
+  type?: string;
+  borderColor: string;
+  text?: string;
+  textColor?: string;
+  dimension: string;
+}) => {
+  return (
+    <div className="flex justify-center gap-10 items-center">
+      {type !== "spinner" && <span className={`ml-2 text-${textColor} animate-pulse`}>{text}</span>}
+      <div className={`animate-spin rounded-full ${dimension} border-b-2 border-r-2 ${borderColor}`}></div>
+    </div>
+  );
+};
