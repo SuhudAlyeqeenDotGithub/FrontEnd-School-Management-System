@@ -18,7 +18,7 @@ const signInPage = () => {
   const [error, setError] = useState("");
   const { email, password } = inputData;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setInputData((prevData) => ({
       ...prevData,
@@ -75,7 +75,7 @@ const signInPage = () => {
 
             <div className="flex flex-col gap-1 w-full">
               <div className="flex justify-end">
-                <Link href="/forgotpassword" className="hover:text-foregroundColor-70 hover:underline text-sm">
+                <Link href="/resetPassword" className="hover:text-foregroundColor-70 hover:underline text-sm">
                   Forgot Password?
                 </Link>
               </div>

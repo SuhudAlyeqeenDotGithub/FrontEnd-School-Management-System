@@ -50,7 +50,7 @@ export const LoaderDiv = ({
 };
 
 export const LoaderButton = ({
-  type,
+  type = "button",
   buttonText,
   loadingButtonText,
   disabled = false,
