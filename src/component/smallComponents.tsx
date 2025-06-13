@@ -48,3 +48,39 @@ export const LoaderDiv = ({
     </div>
   );
 };
+
+export const LoaderButton = ({
+  type,
+  buttonText,
+  loadingButtonText,
+  disabled = false,
+  buttonStyle,
+  isLoading,
+  spinnerDimension = "w-6 h-6"
+}: {
+  type?: "button" | "submit" | "reset";
+  buttonText: string;
+  loadingButtonText: string;
+  disabled?: boolean;
+  buttonStyle?: string;
+  isLoading?: boolean;
+  spinnerDimension?: string;
+}) => {
+  return (
+    <button type={type} disabled={disabled} className={buttonStyle}>
+      <span className="flex justify-center gap-5 items-center">
+        {isLoading ? (
+          <LoaderDiv
+            type="spinnerText"
+            borderColor="backgroundColor"
+            text={loadingButtonText}
+            textColor="backgroundColor"
+            dimension={spinnerDimension}
+          />
+        ) : (
+          buttonText
+        )}
+      </span>
+    </button>
+  );
+};

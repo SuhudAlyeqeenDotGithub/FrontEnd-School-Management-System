@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, LoaderDiv } from "@/component/smallComponents";
+import { InputComponent, ErrorDiv, LoaderButton } from "@/component/smallComponents";
 import Link from "next/link";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { orgSignUp } from "@/redux/features/accounts/accountThunks";
@@ -137,8 +137,11 @@ const signUpPage = () => {
               required={true}
               onChange={handleInputChange}
             />
-            <button
+
+            <LoaderButton
               type="submit"
+              buttonText="Sign Up"
+              loadingButtonText="Signing Up..."
               disabled={
                 !organisationName ||
                 !organisationEmail ||
@@ -146,24 +149,9 @@ const signUpPage = () => {
                 !organisationPassword ||
                 !organisationConfirmPassword
               }
-              className="w-full"
-            >
-              <span className="flex justify-center gap-20 items-center">
-                <span className="flex justify-center gap-20 items-center">
-                  {isLoading ? (
-                    <LoaderDiv
-                      type="spinnerText"
-                      borderColor="backgroundColor"
-                      text="Signing In..."
-                      textColor="backgroundColor"
-                      dimension="w-6 h-6"
-                    />
-                  ) : (
-                    "Sign Up"
-                  )}
-                </span>
-              </span>
-            </button>
+              buttonStyle="w-full"
+              isLoading={isLoading}
+            />
           </form>
 
           <Link href="/signin" className="hover:text-foregroundColor-70 hover:underline">
