@@ -70,7 +70,6 @@ h2 {
 }
 
 h3 {
-  color: var(--color-foregroundColor-50);
+  color: var(--color-foregroundColor-70);
   font-size: 1rem;
-  font-weight: bold;
 }

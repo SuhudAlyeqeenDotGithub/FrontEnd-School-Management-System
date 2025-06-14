@@ -10,7 +10,7 @@ export const InputComponent = ({
   onChange
 }: InputComponentType) => {
   const inputStyle =
-    "border border-foregroundColor-25 rounded p-2 outline-none focus:border-2 focus:border-foregroundColor-40 w-full";
+    "border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full";
   return (
     <input
       type={type}
@@ -26,6 +26,10 @@ export const InputComponent = ({
 
 export const ErrorDiv = ({ children }: { children: React.ReactNode }) => {
   return <div className="text-red-500 text-sm bg-red-50 border border-red-400 p-2 rounded">{children}</div>;
+};
+
+export const SuccessDiv = ({ children }: { children: React.ReactNode }) => {
+  return <div className="text-green-600 text-sm bg-green-50 border border-green-600 p-2 rounded">{children}</div>;
 };
 
 export const LoaderDiv = ({

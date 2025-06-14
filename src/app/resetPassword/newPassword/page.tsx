@@ -62,12 +62,12 @@ const signUpPage = () => {
     e.preventDefault();
     if (validationPassed()) {
       try {
-        const response = await dispatch(orgSignUp(inputData)).unwrap();
-        if (response) {
-          router.push("/main");
-        }
+        const response = await axios.post("http://localhost:5000/alyeqeenschoolapp/api/orgaccount/signin", signInData, {
+          withCredentials: true
+        });
+        return response.data;
       } catch (error: any) {
-        setError(error.response?.data.message || error.message || error || "An error occurred during signup");
+        ;
       }
     }
   };

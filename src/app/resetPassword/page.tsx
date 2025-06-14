@@ -1,17 +1,16 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, LoaderButton } from "@/component/smallComponents";
-import { signIn } from "@/redux/features/accounts/accountThunks";
-import { useAppDispatch } from "@/redux/hooks";
-import { useAppSelector } from "@/redux/hooks";
+import { InputComponent, ErrorDiv, SuccessDiv, LoaderButton } from "@/component/smallComponents";
+import axios from "axios";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-const signInPage = () => {
-  const dispatch = useAppDispatch();
+const SendResetCode = () => {
   const router = useRouter();
-  const { isLoading, isSuccess, isError, errorMessage } = useAppSelector((state) => state.orgAccountData);
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const validationPassed = () => {
     if (!email.trim()) {
@@ -31,15 +30,27 @@ const signInPage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
     if (validationPassed()) {
+      setSuccess("");
+      setError("");
       try {
-        const response = await dispatch(signIn(email)).unwrap();
+        const response = await axios.post(
+          "http://localhost:5000/alyeqeenschoolapp/api/orgaccount/resetpassword",
+          { email },
+          {
+            withCredentials: true
+          }
+        );
         if (response) {
-          router.push("/");
+          localStorage.setItem("accountEmail", email);
+          setSuccess(response.data.message);
+          router.push("/resetPassword/entercode");
         }
       } catch (error: any) {
-        setError(error.response?.data.message || error.message || error || "An error occurred during signIn");
+        setError(error.response?.data.message || error.message || "Error sending verification code");
       }
+      setIsLoading(false);
     }
   };
   return (
@@ -47,6 +58,7 @@ const signInPage = () => {
       <h2>Reset Password - Provide Email</h2>
       <h3>Please provide the associated email, you will receive and email with a code and be redirected</h3>
       {error && <ErrorDiv>{error}</ErrorDiv>}
+      {success && <SuccessDiv>{success}</SuccessDiv>}
       <form className="flex flex-col gap-2 mt-5 w-full items-center" onSubmit={handleSubmit}>
         <InputComponent
           type="email"
@@ -68,8 +80,17 @@ const signInPage = () => {
           isLoading={isLoading}
         />
       </form>
+
+      <div className="flex flex-col gap-1">
+        <Link href="/signup" className="hover:text-foregroundColor-70 hover:underline">
+          Go back to Sign Up
+        </Link>
+        <Link href="/signin" className="hover:text-foregroundColor-70 hover:underline">
+          Go back to Sign In
+        </Link>
+      </div>
     </div>
   );
 };
 
-export default signInPage;
+export default SendResetCode;

@@ -1,17 +1,18 @@
 "use client";
 import { useState } from "react";
 import { InputComponent, ErrorDiv, LoaderButton } from "@/component/smallComponents";
-import { signIn } from "@/redux/features/accounts/accountThunks";
-import { useAppDispatch } from "@/redux/hooks";
-import { useAppSelector } from "@/redux/hooks";
+import axios from "axios";
+
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const signInPage = () => {
-  const dispatch = useAppDispatch();
   const router = useRouter();
-  const { isLoading, isSuccess, isError, errorMessage } = useAppSelector((state) => state.orgAccountData);
+
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const validationPassed = () => {
     if (!code.trim()) {
@@ -25,21 +26,33 @@ const signInPage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
     if (validationPassed()) {
+      setSuccess("");
+      setError("");
       try {
-        const response = await dispatch(signIn(code)).unwrap();
+        const email = localStorage.getItem("accountEmail");
+        const response = await axios.post(
+          "http://localhost:5000/alyeqeenschoolapp/api/orgaccount/resetpassword/verifycode",
+          { code, email },
+          {
+            withCredentials: true
+          }
+        );
         if (response) {
-          router.push("/");
+          setSuccess(response.data.message);
+          router.push("/resetPassword/newpassword");
         }
       } catch (error: any) {
-        setError(error.response?.data.message || error.message || error || "An error occurred during signIn");
+        setError(error.response?.data.message || error.message || "Error sending verification code");
       }
+      setIsLoading(false);
     }
   };
   return (
     <div className="flex flex-col gap-5 border border-foregroundColor-20 p-8 rounded-lg shadow justify-center items-center w-3/4">
       <h2>Reset Password - Enter Code</h2>
-      <h3>Please provide the code you received through code</h3>
+      <h3>Please provide the code you received through email</h3>
       {error && <ErrorDiv>{error}</ErrorDiv>}
       <form className="flex flex-col gap-2 mt-5 w-full items-center" onSubmit={handleSubmit}>
         <InputComponent
@@ -62,6 +75,9 @@ const signInPage = () => {
           isLoading={isLoading}
         />
       </form>
+      <Link href="/resetPassword" className="hover:text-foregroundColor-70 hover:underline">
+        Resend Code
+      </Link>
     </div>
   );
 };
