@@ -31,7 +31,7 @@ export const signIn = createAsyncThunk<AccountType, SignInType>(
 );
 
 export const setNewPassword = createAsyncThunk<AccountType, ResetPasswordType>(
-  "orgaccount/signin",
+  "orgaccount/setnewpassword",
   async (newPasswordData, { rejectWithValue }) => {
     try {
       const response = await axios.post(

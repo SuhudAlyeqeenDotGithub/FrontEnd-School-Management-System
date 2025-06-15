@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, LoaderButton, SuccessDiv } from "@/component/smallComponents";
+import { InputComponent, ErrorDiv, LoaderButton, SuccessDiv } from "@/component/compLibrary";
 import axios from "axios";
 
 import { useRouter } from "next/navigation";

@@ -34,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${fontHind.variable} antialiased`}>
+      <body className={`${fontHind.variable} antialiased text-foregroundColor bg-backgroundColor`}>
         <StoreProvider>{children}</StoreProvider>
       </body>
     </html>
