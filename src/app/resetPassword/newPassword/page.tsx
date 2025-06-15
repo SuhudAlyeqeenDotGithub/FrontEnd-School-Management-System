@@ -1,12 +1,11 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, LoaderButton } from "@/component/smallComponents";
+import { InputComponent, ErrorDiv, LoaderButton, SuccessDiv } from "@/component/smallComponents";
 import Link from "next/link";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
-import { orgSignUp } from "@/redux/features/accounts/accountThunks";
 import { useAppDispatch } from "@/redux/hooks";
 import { useAppSelector } from "@/redux/hooks";
 import { useRouter } from "next/navigation";
+import { setNewPassword } from "@/redux/features/accounts/accountThunks";
 
 const signUpPage = () => {
   const dispatch = useAppDispatch();
@@ -41,7 +40,7 @@ const signUpPage = () => {
       return;
     }
 
-    const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&~*]).{8,}$/;
+    const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&~*+-]).{8,}$/;
     if (!passwordStrengthRegex.test(organisationPassword)) {
       setError(
         "Password must be at least 8 characters long and include uppercase, lowercase, number, and at least one special character [!@#$%^&~*]."
@@ -57,17 +56,27 @@ const signUpPage = () => {
     setError("");
     return true;
   };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validationPassed()) {
+      const code = localStorage.getItem("resetCode");
+      if (!code) {
+        setError("Reset code is missing. Please restart the password reset process. You will not be redirected");
+        setTimeout(() => {
+          router.push("/resetPassword");
+        }, 3000);
+        return;
+      }
+      const resetPasswordData = { ...inputData, code };
       try {
-        const response = await axios.post("http://localhost:5000/alyeqeenschoolapp/api/orgaccount/signin", signInData, {
-          withCredentials: true
-        });
-        return response.data;
+        const response = await dispatch(setNewPassword(resetPasswordData)).unwrap();
+        if (response) {
+          localStorage.removeItem("resetCode");
+          localStorage.removeItem("accountEmail");
+          router.push("/");
+        }
       } catch (error: any) {
-        ;
+        setError(error.response?.data.message || error.message || error || "An error occurred during password reset");
       }
     }
   };
@@ -112,6 +121,12 @@ const signUpPage = () => {
           isLoading={isLoading}
         />
       </form>
+      <Link href="/signup" className="hover:text-foregroundColor-70 hover:underline">
+        Have no account? Sign Up
+      </Link>
+      <Link href="/resetPassword" className="hover:text-foregroundColor-70 hover:underline">
+        Resend Code
+      </Link>
     </div>
   );
 };

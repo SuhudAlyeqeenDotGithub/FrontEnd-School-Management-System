@@ -13,6 +13,13 @@ export interface OrgSignUpType {
   organisationPassword: string;
   organisationConfirmPassword: string;
 }
+
+export interface ResetPasswordType {
+  organisationEmail: string;
+  organisationPassword: string;
+  organisationConfirmPassword: string;
+  code: string;
+}
 export interface SignInType {
   email: string;
   password: string;

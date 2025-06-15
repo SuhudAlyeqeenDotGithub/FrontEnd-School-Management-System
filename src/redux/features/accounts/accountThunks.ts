@@ -1,8 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { SignInType, OrgSignUpType, AccountType } from "@/interfaces/interfaces";
+import { SignInType, OrgSignUpType, AccountType, ResetPasswordType } from "@/interfaces/interfaces";
 import axios from "axios";
 
-const orgSignUp = createAsyncThunk<AccountType, OrgSignUpType>(
+export const orgSignUp = createAsyncThunk<AccountType, OrgSignUpType>(
   "orgaccount/signup",
   async (orgData, { rejectWithValue }) => {
     try {
@@ -16,7 +16,7 @@ const orgSignUp = createAsyncThunk<AccountType, OrgSignUpType>(
   }
 );
 
-const signIn = createAsyncThunk<AccountType, SignInType>(
+export const signIn = createAsyncThunk<AccountType, SignInType>(
   "orgaccount/signin",
   async (signInData, { rejectWithValue }) => {
     try {
@@ -30,4 +30,20 @@ const signIn = createAsyncThunk<AccountType, SignInType>(
   }
 );
 
-export { orgSignUp, signIn };
+export const setNewPassword = createAsyncThunk<AccountType, ResetPasswordType>(
+  "orgaccount/signin",
+  async (newPasswordData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/alyeqeenschoolapp/api/orgaccount/resetpassword/newpassword",
+        newPasswordData,
+        {
+          withCredentials: true
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data.message || error.message);
+    }
+  }
+);

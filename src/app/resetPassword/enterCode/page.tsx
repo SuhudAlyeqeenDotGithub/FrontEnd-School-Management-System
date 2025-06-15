@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, LoaderButton } from "@/component/smallComponents";
+import { InputComponent, ErrorDiv, LoaderButton, SuccessDiv } from "@/component/smallComponents";
 import axios from "axios";
 
 import { useRouter } from "next/navigation";
@@ -41,7 +41,10 @@ const signInPage = () => {
         );
         if (response) {
           setSuccess(response.data.message);
-          router.push("/resetPassword/newpassword");
+          localStorage.setItem("resetCode", code);
+          setTimeout(() => {
+            router.push("/resetPassword/newpassword");
+          }, 3000);
         }
       } catch (error: any) {
         setError(error.response?.data.message || error.message || "Error sending verification code");
@@ -54,6 +57,7 @@ const signInPage = () => {
       <h2>Reset Password - Enter Code</h2>
       <h3>Please provide the code you received through email</h3>
       {error && <ErrorDiv>{error}</ErrorDiv>}
+      {success && <SuccessDiv>{success}</SuccessDiv>}
       <form className="flex flex-col gap-2 mt-5 w-full items-center" onSubmit={handleSubmit}>
         <InputComponent
           type="code"

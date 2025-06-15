@@ -45,7 +45,9 @@ const SendResetCode = () => {
         if (response) {
           localStorage.setItem("accountEmail", email);
           setSuccess(response.data.message);
-          router.push("/resetPassword/entercode");
+          setTimeout(() => {
+            router.push("/resetPassword/entercode");
+          }, 3000);
         }
       } catch (error: any) {
         setError(error.response?.data.message || error.message || "Error sending verification code");
