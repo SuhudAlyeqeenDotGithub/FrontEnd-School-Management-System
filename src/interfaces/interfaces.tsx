@@ -1,3 +1,6 @@
+import { ReactNode } from "react";
+
+
 export interface InputComponentType {
   type?: string;
   placeholder: string;
@@ -46,4 +49,11 @@ export interface AccountType {
     roleDescription: string;
     absoluteAdmin: boolean;
   };
+}
+
+export interface TabObject {
+  icon?: ReactNode;
+  title: string;
+  subTitle?: string;
+  url: string;
 }

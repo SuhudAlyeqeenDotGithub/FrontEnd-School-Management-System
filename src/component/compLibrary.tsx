@@ -1,5 +1,7 @@
 "use client";
 import { InputComponentType } from "@/interfaces/interfaces";
+import { TabObject } from "@/interfaces/interfaces";
+import Link from "next/link";
 
 export const InputComponent = ({
   type = "text",
@@ -88,5 +90,30 @@ export const LoaderButton = ({
         )}
       </span>
     </button>
+  );
+};
+
+export const SubTabLink = ({ icon, title, subTitle, url }: TabObject) => {
+  return (
+    <Link
+      href={url}
+      className="flex flex-col gap-1 items-center justify-center hover:bg-foregroundColor-5 hover:border border-foregroundColor-15 rounded-lg p-2"
+    >
+      <span className="text-[30px]">{icon}</span>
+      <div className="flex flex-col items-center justify-center">
+        {" "}
+        <span>{title}</span>
+        <span className="text-[13px] text-foregroundColor-50">{subTitle}</span>
+      </div>
+    </Link>
+  );
+};
+export const SubTabNav = ({ tabs }: { tabs: TabObject[] }) => {
+  return (
+    <div className="flex gap-5 border-b border-foregroundColor-15 py-1 px-4 h-[100px] mt-2">
+      {tabs.map(({ icon, title, subTitle, url }) => (
+        <SubTabLink key={title} icon={icon} title={title} subTitle={subTitle} url={url} />
+      ))}
+    </div>
   );
 };
