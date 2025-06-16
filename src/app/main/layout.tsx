@@ -1,16 +1,37 @@
 "use client";
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
 import { LoaderButton } from "@/component/compLibrary";
 import Link from "next/link";
 import { ImBrightnessContrast } from "react-icons/im";
 import { useState, useEffect } from "react";
+import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { fetchAccount } from "@/redux/features/accounts/accountThunks";
+import axios from "axios";
+import { ErrorDiv } from "@/component/compLibrary";
+import { resetAccount } from "@/redux/features/accounts/accountSlice";
+import { useRouter } from "next/navigation";
 
 const layout = ({ children }: { children: ReactNode }) => {
+  const dispatch = useAppDispatch();
   const router = useRouter();
+  const { accountData } = useAppSelector((state) => state.orgAccountData);
+  const { accountName, accountEmail, organisationId } = accountData;
   const [openProfile, setOpenProfile] = useState(false);
   const [lightTheme, setLightTheme] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchAccountFunc = async () => {
+      try {
+        await dispatch(fetchAccount());
+      } catch (err: any) {
+        throw err;
+      }
+    };
+
+    fetchAccountFunc();
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -22,6 +43,20 @@ const layout = ({ children }: { children: ReactNode }) => {
       root.style.setProperty("--foregroundColor", "#000000");
     }
   }, [lightTheme]);
+
+  const handleSignout = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/alyeqeenschoolapp/api/orgaccount/signout", {
+        withCredentials: true
+      });
+      if (response) {
+        dispatch(resetAccount());
+        router.push("/signin");
+      }
+    } catch (error: any) {
+      setError(error.response?.data.message || error.message || "Error signing out");
+    }
+  };
 
   const simulatedRole = {
     _id: "666abc123def456789abcd01",
@@ -74,7 +109,8 @@ const layout = ({ children }: { children: ReactNode }) => {
   };
 
   const profileDialog = (
-    <div className="flex flex-col border border-foregroundColor-20 w-[400px] h-[200px] p-5 mt-1 gap-5 rounded-lg shadow-md absolute top-[100%] right-5 z-20 bg-backgroundColor">
+    <div className="flex flex-col border border-foregroundColor-20 w-[400px] max-h-[80vh] p-5 mt-1 gap-5 rounded-lg shadow-md absolute top-[100%] right-5 z-20 bg-backgroundColor">
+      {error && <ErrorDiv>{error}</ErrorDiv>}
       <div className="w-full flex justify-end">
         <LoaderButton
           buttonText="Sign Out"
@@ -82,6 +118,7 @@ const layout = ({ children }: { children: ReactNode }) => {
           disabled={false}
           buttonStyle="w-1/2"
           isLoading={false}
+          onClick={handleSignout}
         />
       </div>
       <div className="flex gap-5 justify-between items-center mx-5">
@@ -89,9 +126,9 @@ const layout = ({ children }: { children: ReactNode }) => {
           OR
         </div>
         <div className="flex flex-col gap-1 justify-center items-center">
-          <span className="text-[18px] font-bold">Organisation Name</span>
-          <span className="text-[15px] font-semibold text-foregroundColor-90">Account Name</span>
-          <span className="text-[15px] text-foregroundColor-60">user@gmail.com</span>
+          <span className="text-[18px] font-bold">{organisationId.accountName}</span>
+          <span className="text-[15px] font-semibold text-foregroundColor-90">{accountName}</span>
+          <span className="text-[15px] text-foregroundColor-60">{accountEmail}</span>
         </div>
       </div>
     </div>
@@ -114,6 +151,7 @@ const layout = ({ children }: { children: ReactNode }) => {
 
           {tabs.map((tab) => (
             <Link
+              key={tab[0]}
               href={`${name_PathMap[tab[0] as keyof typeof name_PathMap]}`}
               className={`${
                 pathToNameValue === tab[0] ? "border-b-3" : ""
@@ -137,8 +175,8 @@ const layout = ({ children }: { children: ReactNode }) => {
             onClick={() => setOpenProfile(!openProfile)}
           >
             <div className="flex flex-col">
-              <span className="font-semibold">Organisation Name</span>
-              <span className="text-[13px]">Account Name</span>
+              <span className="font-semibold">{organisationId.accountName}</span>
+              <span className="text-[13px]">{accountName}</span>
             </div>
             <div className="h-10 w-10 rounded-full bg-foregroundColor-10 flex items-center justify-center text-foregroundColor-50 font-bold">
               OR

@@ -26,25 +26,20 @@ export interface SignInType {
 }
 
 export interface AccountType {
-  accountId: string;
+  accountId: any;
+  staffId: any;
+  accountStatus: string;
   accountType: string;
   accountName: string;
   accountEmail: string;
   accountPhone: string;
-  organisationId: string;
+  organisationId: any;
   themes: {
     backgroundColor: string;
     foregroundColor: string;
   };
   roleId: {
-    tabAccess: {
-      adminTab: string[];
-      courseTab: string[];
-      studentTab: string[];
-      enrollmentTab: string[];
-      attendanceTab: string[];
-      staffTab: string[];
-    };
+    tabAccess: {};
     _id: string;
     organisationId: string;
     roleName: string;

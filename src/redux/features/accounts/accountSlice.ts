@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { orgSignUp, signIn, setNewPassword } from "./accountThunks";
+import { orgSignUp, signIn, setNewPassword, fetchAccount } from "./accountThunks";
 import { AccountType } from "@/interfaces/interfaces";
 
 interface OrgState {
@@ -12,25 +12,20 @@ interface OrgState {
 
 const initialState: OrgState = {
   accountData: {
-    accountId: "",
+    accountId: {},
+    accountStatus: "",
+    staffId: {},
     accountType: "",
     accountName: "",
     accountEmail: "",
     accountPhone: "",
-    organisationId: "",
+    organisationId: {},
     themes: {
       backgroundColor: "",
       foregroundColor: ""
     },
     roleId: {
-      tabAccess: {
-        adminTab: [],
-        courseTab: [],
-        studentTab: [],
-        enrollmentTab: [],
-        attendanceTab: [],
-        staffTab: []
-      },
+      tabAccess: {},
       _id: "",
       organisationId: "",
       roleName: "",
@@ -48,7 +43,7 @@ export const orgAccountSlice = createSlice({
   name: "orgaccount",
   initialState,
   reducers: {
-    resetOrgAccount: (state) => {
+    resetAccount: (state) => {
       Object.assign(state, initialState);
     }
   },
@@ -102,9 +97,25 @@ export const orgAccountSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.errorMessage = action.payload as string;
+      })
+      .addCase(fetchAccount.pending, (state) => {
+        state.isLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.errorMessage = "";
+      })
+      .addCase(fetchAccount.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.accountData = action.payload;
+      })
+      .addCase(fetchAccount.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.errorMessage = action.payload as string;
       });
   }
 });
 
-export const { resetOrgAccount } = orgAccountSlice.actions;
+export const { resetAccount } = orgAccountSlice.actions;
 export default orgAccountSlice.reducer;

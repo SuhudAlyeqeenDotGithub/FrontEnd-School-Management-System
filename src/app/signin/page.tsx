@@ -48,7 +48,7 @@ const signInPage = () => {
       try {
         const response = await dispatch(signIn(inputData)).unwrap();
         if (response) {
-          router.push("/");
+          router.push("/main");
         }
       } catch (error: any) {
         setError(error.response?.data.message || error.message || error || "An error occurred during signIn");

@@ -30,6 +30,17 @@ export const signIn = createAsyncThunk<AccountType, SignInType>(
   }
 );
 
+export const fetchAccount = createAsyncThunk<AccountType>("orgaccount/fetchAccount", async (_, { rejectWithValue }) => {
+  try {
+    const response = await axios.get("http://localhost:5000/alyeqeenschoolapp/api/orgaccount/fetchAccount", {
+      withCredentials: true
+    });
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data.message || error.message);
+  }
+});
+
 export const setNewPassword = createAsyncThunk<AccountType, ResetPasswordType>(
   "orgaccount/setnewpassword",
   async (newPasswordData, { rejectWithValue }) => {

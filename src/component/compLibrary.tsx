@@ -60,7 +60,8 @@ export const LoaderButton = ({
   disabled = false,
   buttonStyle,
   isLoading,
-  spinnerDimension = "w-6 h-6"
+  spinnerDimension = "w-6 h-6",
+  onClick
 }: {
   type?: "button" | "submit" | "reset";
   buttonText: string;
@@ -69,9 +70,10 @@ export const LoaderButton = ({
   buttonStyle?: string;
   isLoading?: boolean;
   spinnerDimension?: string;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }) => {
   return (
-    <button type={type} disabled={disabled} className={buttonStyle}>
+    <button type={type} disabled={disabled} className={buttonStyle} onClick={onClick}>
       <span className="flex justify-center gap-5 items-center">
         {isLoading ? (
           <LoaderDiv
