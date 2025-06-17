@@ -1,0 +1,61 @@
+import axios from "axios";
+
+export const handleApiRequest = async (method: "get" | "post" | "put" | "delete", url: string, data?: any) => {
+  console.log("initial request");
+  try {
+    const response = await axios.request({
+      method,
+      url,
+      data,
+      withCredentials: true
+    });
+    if (response.data) {
+      return response.data;
+    }
+  } catch (err: any) {
+    const status = err.response?.status;
+    const isUnauthenticated = status === 401 || status === 403;
+
+    if (isUnauthenticated) {
+      console.log("access token refresh request");
+      try {
+        const refreshResponse = await axios.post(
+          "http://localhost:5000/alyeqeenschoolapp/api/orgaccount/refreshaccesstoken",
+          {},
+          {
+            withCredentials: true
+          }
+        );
+        if (refreshResponse.data) {
+          console.log("retrial request after access token refresh");
+          const requestRetrial = await axios.request({
+            method,
+            url,
+            data,
+            withCredentials: true
+          });
+          if (requestRetrial.data) {
+            return requestRetrial.data;
+          }
+        }
+      } catch (refreshErr: any) {
+        console.log("error refreshing access token", refreshErr);
+        const status = refreshErr.response?.status;
+        const unAuthorisedRefresh = status === 401 || status === 403;
+        try {
+          const response = await axios.get("http://localhost:5000/alyeqeenschoolapp/api/orgaccount/signout", {
+            withCredentials: true
+          });
+          if (response) {
+            if (unAuthorisedRefresh) window.location.href = "/signin";
+            throw refreshErr;
+          }
+        } catch (error: any) {
+          throw new (error.response?.data.message || error.message || "Error signing out")();
+        }
+      }
+    }
+
+    throw err;
+  }
+};

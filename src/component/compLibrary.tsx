@@ -110,7 +110,7 @@ export const SubTabLink = ({ icon, title, subTitle, url }: TabObject) => {
 };
 export const SubTabNav = ({ tabs }: { tabs: TabObject[] }) => {
   return (
-    <div className="flex gap-5 border-b border-foregroundColor-15 py-1 px-4 h-[100px] mt-2">
+    <div className="flex gap-2 border-b border-foregroundColor-15 py-1 px-4 h-[100px] mt-2">
       {tabs.map(({ icon, title, subTitle, url }) => (
         <SubTabLink key={title} icon={icon} title={title} subTitle={subTitle} url={url} />
       ))}

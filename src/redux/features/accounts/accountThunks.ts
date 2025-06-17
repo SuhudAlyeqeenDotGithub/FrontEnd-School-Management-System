@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { SignInType, OrgSignUpType, AccountType, ResetPasswordType } from "@/interfaces/interfaces";
 import axios from "axios";
+import { handleApiRequest } from "@/axios/axiosClient";
 
 export const orgSignUp = createAsyncThunk<AccountType, OrgSignUpType>(
   "orgaccount/signup",
@@ -32,9 +33,10 @@ export const signIn = createAsyncThunk<AccountType, SignInType>(
 
 export const fetchAccount = createAsyncThunk<AccountType>("orgaccount/fetchAccount", async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.get("http://localhost:5000/alyeqeenschoolapp/api/orgaccount/fetchAccount", {
-      withCredentials: true
-    });
+    const response = await handleApiRequest(
+      "get",
+      "http://localhost:5000/alyeqeenschoolapp/api/orgaccount/fetchAccount"
+    );
     return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data.message || error.message);
