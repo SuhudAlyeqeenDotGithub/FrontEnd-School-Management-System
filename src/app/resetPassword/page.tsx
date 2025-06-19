@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, SuccessDiv, LoaderButton } from "@/component/compLibrary";
+import { InputComponent, ErrorDiv, SuccessDiv, LoaderButton } from "@/lib/component/compLibrary";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";

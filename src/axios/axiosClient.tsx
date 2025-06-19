@@ -1,7 +1,6 @@
 import axios from "axios";
 
 export const handleApiRequest = async (method: "get" | "post" | "put" | "delete", url: string, data?: any) => {
-  console.log("initial request");
   try {
     const response = await axios.request({
       method,
@@ -10,14 +9,13 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
       withCredentials: true
     });
     if (response.data) {
-      return response.data;
+      return response;
     }
   } catch (err: any) {
     const status = err.response?.status;
     const isUnauthenticated = status === 401 || status === 403;
 
     if (isUnauthenticated) {
-      console.log("access token refresh request");
       try {
         const refreshResponse = await axios.post(
           "http://localhost:5000/alyeqeenschoolapp/api/orgaccount/refreshaccesstoken",
@@ -35,11 +33,10 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
             withCredentials: true
           });
           if (requestRetrial.data) {
-            return requestRetrial.data;
+            return requestRetrial;
           }
         }
       } catch (refreshErr: any) {
-        console.log("error refreshing access token", refreshErr);
         const status = refreshErr.response?.status;
         const unAuthorisedRefresh = status === 401 || status === 403;
         try {

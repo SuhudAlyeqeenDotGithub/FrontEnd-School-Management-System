@@ -1,14 +1,14 @@
 "use client";
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { LoaderButton } from "@/component/compLibrary";
+import { LoaderButton } from "@/lib/component/compLibrary";
 import Link from "next/link";
 import { ImBrightnessContrast } from "react-icons/im";
 import { useState, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { fetchAccount } from "@/redux/features/accounts/accountThunks";
 import axios from "axios";
-import { ErrorDiv } from "@/component/compLibrary";
+import { ErrorDiv } from "@/lib/component/compLibrary";
 import { resetAccount } from "@/redux/features/accounts/accountSlice";
 import { useRouter } from "next/navigation";
 
@@ -16,8 +16,6 @@ const layout = ({ children }: { children: ReactNode }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { accountData } = useAppSelector((state) => state.orgAccountData);
-  const { accountName, accountEmail, organisationId, roleId } = accountData;
-  const { absoluteAdmin, tabAccess } = roleId;
   const [openProfile, setOpenProfile] = useState(false);
   const [lightTheme, setLightTheme] = useState(true);
   const [error, setError] = useState("");
@@ -25,7 +23,9 @@ const layout = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchAccountFunc = async () => {
       try {
-        await dispatch(fetchAccount());
+        if (!accountData.accountEmail || !accountData.accountName) {
+          await dispatch(fetchAccount());
+        }
       } catch (err: any) {
         throw err;
       }
@@ -59,6 +59,9 @@ const layout = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const { accountName, accountEmail, organisationId, roleId } = accountData;
+  const { absoluteAdmin, tabAccess } = roleId;
+
   const tabs = Object.entries(tabAccess).filter(
     ([key, value]) => (Array.isArray(value) && value.length > 0) || absoluteAdmin
   );
@@ -68,7 +71,7 @@ const layout = ({ children }: { children: ReactNode }) => {
   const path_NameMap = {
     "/main": "Home",
     "/main/admin": "Admin",
-    "/main/admin/rolesandaccess": "Admin",
+    "/main/admin/users": "Admin",
     "/main/admin/activitylog": "Admin",
     "/main/course": "Course",
     "/main/student": "Student",
@@ -127,7 +130,7 @@ const layout = ({ children }: { children: ReactNode }) => {
             href={`${name_PathMap["Home" as keyof typeof name_PathMap]}`}
             className={`${
               pathToNameValue === "Home" ? "border-b-3" : ""
-            } hover:cursor-pointer hover:text-foregroundColor-80`}
+            } hover:cursor-pointer hover:border-b-3 hover:border-foregroundColor-30`}
           >
             Home
           </Link>
@@ -138,7 +141,7 @@ const layout = ({ children }: { children: ReactNode }) => {
               href={`${name_PathMap[tab[0] as keyof typeof name_PathMap]}`}
               className={`${
                 pathToNameValue === tab[0] ? "border-b-3" : ""
-              } hover:cursor-pointer hover:text-foregroundColor-80`}
+              } hover:cursor-pointer hover:border-b-3 hover:border-foregroundColor-30`}
             >
               {tab[0]}
             </Link>

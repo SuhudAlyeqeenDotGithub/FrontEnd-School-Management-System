@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, LoaderButton, SuccessDiv } from "@/component/compLibrary";
+import { InputComponent, ErrorDiv, LoaderButton, SuccessDiv } from "@/lib/component/compLibrary";
 import Link from "next/link";
 import { useAppDispatch } from "@/redux/hooks";
 import { useAppSelector } from "@/redux/hooks";
@@ -73,7 +73,7 @@ const signUpPage = () => {
         if (response) {
           localStorage.removeItem("resetCode");
           localStorage.removeItem("accountEmail");
-          router.push("/");
+          router.push("/main");
         }
       } catch (error: any) {
         setError(error.response?.data.message || error.message || error || "An error occurred during password reset");

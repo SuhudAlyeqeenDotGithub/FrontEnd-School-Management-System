@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, LoaderButton } from "@/component/compLibrary";
+import { InputComponent, ErrorDiv, LoaderButton } from "@/lib/component/compLibrary";
 import Link from "next/link";
 import { signIn } from "@/redux/features/accounts/accountThunks";
 import { useAppDispatch } from "@/redux/hooks";

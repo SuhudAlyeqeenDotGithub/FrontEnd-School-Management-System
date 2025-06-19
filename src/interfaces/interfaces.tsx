@@ -1,5 +1,5 @@
+"use client";
 import { ReactNode } from "react";
-
 
 export interface InputComponentType {
   type?: string;
@@ -56,4 +56,30 @@ export interface TabObject {
   title: string;
   subTitle?: string;
   url: string;
+}
+
+export interface DataTableType {
+  title: string;
+  subTitle: string;
+  searchPlaceholder: string;
+  actionButtonText: string;
+  headers: string[];
+  outerDivStyle: string;
+  innerDivStyle: string;
+  valueDivStyle: string;
+  divSkeletonType: string;
+  data: any[]; // [{accountId: "123", accountName: "boy"}, {accountId: "123", accountName: "boy"}, {accountId: "123", accountName: "boy"}]
+  IdKey?: any;
+  key1?: any;
+  key2?: any;
+  key3?: any;
+  key4?: any;
+  key5?: any;
+  key6?: any;
+  key7?: any;
+  key8?: any;
+  searchKey?: any;
+  onNewActionClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onDeleteClick?: (e: React.MouseEvent<SVGElement>) => void;
+  onDivClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }

@@ -37,7 +37,8 @@ export const fetchAccount = createAsyncThunk<AccountType>("orgaccount/fetchAccou
       "get",
       "http://localhost:5000/alyeqeenschoolapp/api/orgaccount/fetchAccount"
     );
-    return response.data;
+
+    return response?.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data.message || error.message);
   }
