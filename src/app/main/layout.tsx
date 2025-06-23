@@ -1,7 +1,7 @@
 "use client";
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { LoaderButton, UnsavedChangeDialog } from "@/lib/component/compLibrary";
+import { LoaderButton, YesNoDialog } from "@/lib/component/compLibrary";
 import Link from "next/link";
 import { ImBrightnessContrast } from "react-icons/im";
 import { useState, useEffect } from "react";
@@ -135,7 +135,8 @@ const layout = ({ children }: { children: ReactNode }) => {
   return (
     <div>
       {triggerUnsavedDialog && (
-        <UnsavedChangeDialog
+        <YesNoDialog
+          warningText="You have unsaved changes. Are you sure you want to proceed?"
           onYes={() => {
             handleNavigation(proceedUrl, true);
           }}

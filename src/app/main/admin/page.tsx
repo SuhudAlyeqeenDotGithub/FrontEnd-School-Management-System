@@ -47,19 +47,22 @@ const RolesAccess = () => {
 
   return (
     <div className="px-8 py-6">
-      {error && <ErrorDiv>{error}</ErrorDiv>}
+      {error && <ErrorDiv>{error}</ErrorDiv>}{" "}
+      {openRoleDialog && (
+        <div className="absolute flex items-center justify-center inset-0 bg-foregroundColor-90">
+          <RoleDialog
+            onClose={(open: boolean) => {
+              document.body.style.overflow = "";
+              setOpenRoleDialog(!open);
+              return {};
+            }}
+          />
+        </div>
+      )}
       {/* data table section */}
       <div>
         {/* data table div */}
         <div className="flex flex-col gap-4">
-          {openRoleDialog && (
-            <RoleDialog
-              onClose={(open: boolean) => {
-                setOpenRoleDialog(!open);
-                return {};
-              }}
-            />
-          )}
           {/* title */}
           <div className="flex flex-col gap-2 mb-5">
             <h2>Role and Access</h2>
@@ -118,6 +121,7 @@ const RolesAccess = () => {
                     <div
                       key={roleId}
                       onClick={() => {
+                        document.body.style.overflow = "hidden";
                         setOpenRoleDialog(true);
                         dispatch(setOnOpenRoleData(doc));
                       }}

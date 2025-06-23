@@ -46,7 +46,7 @@ export const ContainerComponent = ({
   id?: string;
 }) => {
   return (
-    <div id={id} className={`border border-foregroundColor-20 shadow-md rounded-md p-4 ${style} `}>
+    <div id={id} className={`bg-backgroundColor order border-foregroundColor-20 shadow-md rounded-md p-4 ${style} `}>
       {children}
     </div>
   );
@@ -119,11 +119,19 @@ export const LoaderButton = ({
   );
 };
 
-export const UnsavedChangeDialog = ({ onYes, onNo }: { onYes: () => void; onNo: () => void }) => {
+export const YesNoDialog = ({
+  onYes,
+  onNo,
+  warningText
+}: {
+  onYes: () => void;
+  onNo: () => void;
+  warningText: string;
+}) => {
   return (
     <div className="w-[100%] h-[100%] bg-foregroundColor-80 items-center justify-center flex absolute inset-0">
       <ContainerComponent style="w-[500px] h-[150px] z-50 flex flex-col bg-backgroundColor gap-10 items-center justify-center">
-        <h3>You have unsaved changes. Are you sure you want to proceed?</h3>
+        <span>{warningText}</span>
         <div className="w-full flex justify-between px-30 items-center">
           <button onClick={onYes}>Yes</button> <button onClick={onNo}>No</button>
         </div>

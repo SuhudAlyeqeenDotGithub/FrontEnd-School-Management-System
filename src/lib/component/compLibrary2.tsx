@@ -11,7 +11,7 @@ import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { checkDataType } from "../shortFunctions/shortFunctions";
-import { UnsavedChangeDialog } from "./compLibrary";
+import { YesNoDialog } from "./compLibrary";
 
 export const TabActionDialog = ({
   tabData,
@@ -29,26 +29,27 @@ export const TabActionDialog = ({
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
   console.log("localActions", localActions);
   return (
-    <div className="flex justify-center items-center absolute bg-foregroundColor-70 w-full h-full overflow-auto">
-      {openUnsavedDialog && (
-        <UnsavedChangeDialog
-          onNo={() => {
-            const container = document.getElementById("roleDialogContainer");
-            if (container) {
-              container.style.overflow = "";
-            }
-            setOpenUnsavedDialog(false);
-          }}
-          onYes={() => {
-            const container = document.getElementById("roleDialogContainer");
-            if (container) {
-              container.style.overflow = "";
-            }
-            onClose(true);
-          }}
-        />
-      )}
-      <ContainerComponent style="w-[700px] h-[600px] gap-10 flex flex-col z-40 bg-backgroundColor">
+    <div className="flex justify-center items-center absolute bg-foregroundColor-70 inset-0">
+      <ContainerComponent style="w-[700px] h-[600px] gap-10 flex flex-col z-40 bg-backgroundColor overflow-auto">
+        {openUnsavedDialog && (
+          <YesNoDialog
+            warningText="You have unsaved changes. Are you sure you want to proceed?"
+            onNo={() => {
+              const container = document.getElementById("roleDialogContainer");
+              if (container) {
+                container.style.overflow = "";
+              }
+              setOpenUnsavedDialog(false);
+            }}
+            onYes={() => {
+              const container = document.getElementById("roleDialogContainer");
+              if (container) {
+                container.style.overflow = "";
+              }
+              onClose(true);
+            }}
+          />
+        )}
         {/* top div */}
         <div className="flex flex-col gap-1">
           <div className="flex justify-between items-center">
@@ -216,10 +217,7 @@ export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose:
     "border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full h-[100px] overflow-auto";
 
   return (
-    <ContainerComponent
-      id="roleDialogContainer"
-      style="w-[800px] h-[800px] gap-10 overflow-auto flex flex-col relative"
-    >
+    <ContainerComponent id="roleDialogContainer" style="w-[60%] h-[90%] gap-10 overflow-auto flex flex-col">
       {openTabActionDialog && (
         <TabActionDialog
           tabData={tabActionDialogData}
@@ -242,15 +240,20 @@ export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose:
         />
       )}
       {openUnsavedDialog && (
-        <UnsavedChangeDialog
+        <YesNoDialog
+          warningText="You have unsaved changes. Are you sure you want to proceed?"
           onNo={() => {
             const container = document.getElementById("roleDialogContainer");
             if (container) {
               container.style.overflow = "";
             }
+            handleUnload("remove");
             setOpenUnsavedDialog(false);
           }}
-          onYes={() => onClose(true)}
+          onYes={() => {
+            handleUnload("remove");
+            onClose(true);
+          }}
         />
       )}
       {/* top div */}
@@ -332,11 +335,11 @@ export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose:
         </div>
       </div>
       {/* tab actions div */}
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-2">
         {/* data table div */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           {/* title */}
-          <div className="flex flex-col gap-2 mb-5">
+          <div className="flex flex-col gap-2 mb-2">
             <h2>Permitted Actions</h2>
             <h3>Specify permitted actions for each tab</h3>
           </div>
@@ -408,7 +411,7 @@ export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose:
                         </span>
                       </div>
 
-                      <CgTrash className="text-[25px] hover:text-red-500" />
+                      <CgTrash className="text-[25px] hover:text-red-500" onClick={() => {}} />
                     </div>
                   );
                 })
