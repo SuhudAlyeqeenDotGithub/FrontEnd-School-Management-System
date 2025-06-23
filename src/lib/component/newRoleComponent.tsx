@@ -103,6 +103,46 @@ export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) 
   const textAreaStyle =
     "border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full h-[100px] overflow-auto";
 
+  const defaultTabActions: any = {
+    Admin: [
+      "Create Role",
+      "Edit Role",
+      "Delete Role",
+      "View Role",
+      "Create User",
+      "Edit User",
+      "Delete User",
+      "View Users",
+      "View Activity Log"
+    ],
+    Course: [
+      "Create Course",
+      "Edit Course",
+      "Delete Course",
+      "View Courses",
+      "Create Level",
+      "Edit Level",
+      "Delete Level",
+      "View Levels",
+      "Create Subject",
+      "Edit Subject",
+      "Delete Subject",
+      "View Subjects"
+    ],
+    Student: ["Create Student", "Edit Student", "Delete Student", "View Students"],
+    Enrollment: ["Create Enrollment", "Edit Enrollment", "Delete Enrollment", "View Enrollments"],
+    Attendance: ["Create Attendance", "Edit Attendance", "Delete Attendance", "View Attendance"],
+    Staff: [
+      "Create Staff",
+      "Edit Staff",
+      "Delete Staff",
+      "View Staff",
+      "Create Staff Contract",
+      "Edit Staff Contract",
+      "Delete Staff Contract",
+      "View Staff Contracts"
+    ]
+  };
   return (
     <ContainerComponent id="roleDialogContainer" style="w-[60%] h-[90%] gap-10 overflow-auto flex flex-col">
       {openTabActionDialog && (
@@ -210,6 +250,23 @@ export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) 
             recommendedTabs.map((tab: any) => (
               <span
                 key={tab}
+                onClick={() => {
+                  setUnsaved(true);
+                  console.log("adding tab for action setting", tab);
+                  setLocalData((prev: any) => ({
+                    ...prev,
+                    tabAccess: [
+                      ...localData.tabAccess,
+                      {
+                        tab,
+                        actions: defaultTabActions[tab].map((actionName: string) => ({
+                          name: actionName,
+                          permission: false
+                        }))
+                      }
+                    ]
+                  }));
+                }}
                 className="p-2 border border-foregroundColor-25 hover:bg-foregroundColor-5 hover:cursor-pointer rounded-lg shadow-sm"
               >
                 {tab}
@@ -268,7 +325,7 @@ export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) 
               {tabAccess.length < 1 && searchValue ? (
                 <div className="flex justify-center mt-6">No search result found</div>
               ) : tabAccess.length < 1 ? (
-                <div className="flex justify-center mt-6">No data available</div>
+                <div className="flex justify-center mt-6">This user has not tab access</div>
               ) : (
                 tabAccess.map((tabObj: any) => {
                   const { tab, actions } = tabObj;
