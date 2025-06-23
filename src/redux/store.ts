@@ -1,8 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import orgAccountReducer from "./features/accounts/accountSlice";
+import rolesAndAccessReducer from "./features/admin/roles/roleSlice";
+import generalReducer from "./features/general/generalSlice";
 
 export const makeStore = () => {
-  return configureStore({ reducer: { orgAccountData: orgAccountReducer } });
+  return configureStore({
+    reducer: { orgAccountData: orgAccountReducer, rolesAccess: rolesAndAccessReducer, generalState: generalReducer }
+  });
 };
 
 export type AppStore = ReturnType<typeof makeStore>;

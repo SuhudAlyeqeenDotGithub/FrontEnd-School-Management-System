@@ -1,87 +1,151 @@
 "use client";
-import { DataTable } from "@/lib/component/compLibrary";
 import { checkDataType } from "@/lib/shortFunctions/shortFunctions";
+import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { useEffect, useState } from "react";
+import { fetchRolesAccess } from "@/redux/features/admin/roles/roleThunks";
+import { ErrorDiv } from "@/lib/component/compLibrary";
+import { LuArrowUpDown } from "react-icons/lu";
+import { FaSearch } from "react-icons/fa";
+import { CgTrash } from "react-icons/cg";
+import { formatDate } from "@/lib/shortFunctions/shortFunctions";
+import { RoleDialog } from "@/lib/component/compLibrary2";
+import { setOnOpenRoleData } from "@/redux/features/general/generalSlice";
 
 const RolesAccess = () => {
-  const accounts = [
-    {
-      accountId: "123",
-      accountName: "boy",
-      accountEmail: "boy@example.com",
-      accountType: "User",
-      accountStatus: "active",
-      dateOfBirth: "2000-03-12T00:00:00.000Z",
-      searchText: "123|boy|boy@example.com|User|active|12/03/2000"
-    },
-    {
-      accountId: "124",
-      accountName: "girl",
-      accountEmail: "girl@example.com",
-      accountType: "User",
-      accountStatus: "inactive",
-      dateOfBirth: "1999-07-25T00:00:00.000Z",
-      searchText: "124|girl|girl@example.com|User|inactive|25/07/1999"
-    },
-    {
-      accountId: "125",
-      accountName: "admin",
-      accountEmail: "admin@example.com",
-      accountType: "Admin",
-      accountStatus: "active",
-      dateOfBirth: "1985-01-01T00:00:00.000Z",
-      searchText: "125|admin|admin@example.com|Admin|active|01/01/1985"
-    },
-    {
-      accountId: "126",
-      accountName: "staff",
-      accountEmail: "staff@example.com",
-      accountType: "Staff",
-      accountStatus: "active",
-      dateOfBirth: "1992-11-14T00:00:00.000Z",
-      searchText: "126|staff|staff@example.com|Staff|active|14/11/1992"
-    },
-    {
-      accountId: "127",
-      accountName: "manager",
-      accountEmail: "manager@example.com",
-      accountType: "Organization",
-      accountStatus: "inactive",
-      dateOfBirth: "1980-08-08T00:00:00.000Z",
-      searchText: "127|manager|manager@example.com|Organization|inactive|08/08/1980"
+  const dispatch = useAppDispatch();
+  const { roles, isLoading } = useAppSelector((state) => state.rolesAccess);
+  const [localData, setLocalData] = useState<any>([]);
+  const [error, setError] = useState("");
+  const [searchValue, setSearchValue] = useState("");
+  const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
+  const [openRoleDialog, setOpenRoleDialog] = useState(false);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await dispatch(fetchRolesAccess()).unwrap();
+      } catch (error: any) {
+        setError(error);
+      }
+    };
+
+    fetchRoles();
+  }, []);
+
+  useEffect(() => {
+    setLocalData(roles);
+  }, [roles]);
+
+  useEffect(() => {
+    if (searchValue !== "") {
+      const filteredData = roles.filter((obj: any) => obj.searchText.toLowerCase().includes(searchValue.toLowerCase()));
+      setLocalData(filteredData);
+    } else {
+      setLocalData(roles);
     }
-  ];
+  }, [searchValue]);
 
   return (
     <div className="px-8 py-6">
+      {error && <ErrorDiv>{error}</ErrorDiv>}
+      {/* data table section */}
       <div>
-        <DataTable
-          title="Roles & Access"
-          subTitle="Use this section to create and manage roles, and specify each access for each"
-          searchPlaceholder="Search Role - (Name)"
-          actionButtonText="New Role"
-          headers={["Account ID", "Account Name", "Account Email", "Account Status", "Date of Birth"]}
-          outerDivStyle="w-full flex"
-          innerDivStyle="grid auto-cols-max grid-flow-col w-[95%] gap-5"
-          valueDivStyle="w-[200px] whitespace-nowrap flex items-center justify-center"
-          divSkeletonType="deleteEnabled"
-          data={accounts}
-          IdKey="accountId"
-          key1="accountId"
-          key2="accountName"
-          key3="accountEmail"
-          key4="accountStatus"
-          key5="dateOfBirth"
-          searchKey="searchText"
-          onDivClick={(e) => {
-            e.preventDefault();
-            alert("You clicked on div");
-          }}
-          onDeleteClick={(e) => {
-            e.preventDefault();
-            alert("You clicked on delete");
-          }}
-        />
+        {/* data table div */}
+        <div className="flex flex-col gap-4">
+          {openRoleDialog && (
+            <RoleDialog
+              onClose={(open: boolean) => {
+                setOpenRoleDialog(!open);
+                return {};
+              }}
+            />
+          )}
+          {/* title */}
+          <div className="flex flex-col gap-2 mb-5">
+            <h2>Role and Access</h2>
+            <h3>Use this section to create and manage roles, and specify each access for each</h3>
+          </div>
+          {/* search bar and new action Button */}
+          <div className="flex justify-between items-center">
+            {/* search div */}
+            <div className="flex w-[500px] h-[50px] items-center gap-2">
+              <input
+                className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
+                placeholder="Searh role (Name, Created By)"
+                name="searchValue"
+                onChange={(e) => {
+                  setSearchValue(e.target.value);
+                }}
+              />
+              <FaSearch className="text-foregroundColor size-5" />
+            </div>
+            {/* new action button */}
+            <div>
+              <button>New Role</button>
+            </div>
+          </div>
+
+          {/* table body */}
+          <div className="flex flex-col gap-2">
+            {/* table header */}
+            <div className="w-full flex px-4 py-3 p-2 h-[50px]">
+              <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
+                {["Role Name", "Created By", "Created At", "Tab Access"].map((header) => (
+                  <div
+                    key={header}
+                    className="font-semibold flex gap-1 p-2 hover:bg-foregroundColor-5 hover:border border-foregroundColor-10 hover:cursor-pointer rounded-lg whitespace-nowrap items-center justify-center w-[200px]"
+                  >
+                    {header} <LuArrowUpDown />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* table data */}
+            <div className="flex flex-col gap-2 mt-3">
+              {localData.length < 1 && searchValue ? (
+                <div className="flex justify-center mt-6">No search result found</div>
+              ) : localData.length < 1 ? (
+                <div className="flex justify-center mt-6">No data available</div>
+              ) : (
+                localData.map((doc: any, index: any) => {
+                  const { _id: roleId, roleName, accountId, createdAt, tabAccess } = doc;
+                  const tabs = tabAccess
+                    .map((tab: any) => tab.tab)
+                    .slice(0, 5)
+                    .join(", ");
+                  return (
+                    <div
+                      key={roleId}
+                      onClick={() => {
+                        setOpenRoleDialog(true);
+                        dispatch(setOnOpenRoleData(doc));
+                      }}
+                      className="w-full flex px-4 border border-foregroundColor-15 rounded-md shadow-sm py-3 hover:bg-foregroundColor-5 hover:cursor-pointer"
+                    >
+                      <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
+                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
+                          {roleName.slice(0, 15)}
+                        </span>
+                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
+                          {accountId.accountName}
+                        </span>
+                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
+                          {formatDate(createdAt)}
+                        </span>
+                        <span className="whitespace-nowrap flex items-center justify-center w-full">{tabs}.....</span>
+                      </div>
+
+                      <CgTrash className="text-[25px] hover:text-red-500" />
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
       </div>
+      {/* end of data table */}
     </div>
   );
 };

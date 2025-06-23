@@ -25,9 +25,10 @@ const initialState: OrgState = {
       foregroundColor: ""
     },
     roleId: {
-      tabAccess: { Admin: [], Course: [], Student: [], Enrollment: [], Attendance: [], Staff: [] },
+      tabAccess: [],
       _id: "",
       organisationId: "",
+      accountId: "",
       roleName: "",
       roleDescription: "",
       absoluteAdmin: false

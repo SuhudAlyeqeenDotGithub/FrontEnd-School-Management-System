@@ -25,7 +25,6 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
           }
         );
         if (refreshResponse.data) {
-          console.log("retrial request after access token refresh");
           const requestRetrial = await axios.request({
             method,
             url,

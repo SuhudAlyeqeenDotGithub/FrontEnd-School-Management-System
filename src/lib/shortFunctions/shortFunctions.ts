@@ -1,5 +1,7 @@
 export const checkDataType = (value: any) => {
-  if (!isNaN(value) && value.trim() !== "") {
+  if (Array.isArray(value)) {
+    return "array";
+  } else if (!isNaN(value) && value.trim() !== "") {
     return "number";
   } else if (!isNaN(new Date(value).getTime())) {
     return "date";

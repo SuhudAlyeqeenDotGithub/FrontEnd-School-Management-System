@@ -1,3 +1,4 @@
+"use client";
 import { SubTabNav } from "@/lib/component/compLibrary";
 import { ReactNode } from "react";
 import { MdAddTask } from "react-icons/md";

@@ -42,8 +42,9 @@ export interface AccountType {
     foregroundColor: string;
   };
   roleId: {
-    tabAccess: {};
+    tabAccess: [];
     _id: string;
+    accountId: string;
     organisationId: string;
     roleName: string;
     roleDescription: string;
@@ -62,7 +63,7 @@ export interface DataTableType {
   title: string;
   subTitle: string;
   searchPlaceholder: string;
-  actionButtonText: string;
+  actionButtonText?: string;
   headers: string[];
   outerDivStyle: string;
   innerDivStyle: string;
@@ -70,16 +71,19 @@ export interface DataTableType {
   divSkeletonType: string;
   data: any[]; // [{accountId: "123", accountName: "boy"}, {accountId: "123", accountName: "boy"}, {accountId: "123", accountName: "boy"}]
   IdKey?: any;
-  key1?: any;
-  key2?: any;
-  key3?: any;
-  key4?: any;
-  key5?: any;
-  key6?: any;
-  key7?: any;
-  key8?: any;
+  keys?: any[];
   searchKey?: any;
   onNewActionClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   onDeleteClick?: (e: React.MouseEvent<SVGElement>) => void;
   onDivClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+}
+
+export interface RoleType {
+  tabAccess: [];
+  _id: string;
+  accountId: string;
+  organisationId: string;
+  roleName: string;
+  roleDescription: string;
+  absoluteAdmin: boolean;
 }

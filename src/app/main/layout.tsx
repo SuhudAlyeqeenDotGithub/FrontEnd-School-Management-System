@@ -1,7 +1,7 @@
 "use client";
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { LoaderButton } from "@/lib/component/compLibrary";
+import { LoaderButton, UnsavedChangeDialog } from "@/lib/component/compLibrary";
 import Link from "next/link";
 import { ImBrightnessContrast } from "react-icons/im";
 import { useState, useEffect } from "react";
@@ -11,10 +11,15 @@ import axios from "axios";
 import { ErrorDiv } from "@/lib/component/compLibrary";
 import { resetAccount } from "@/redux/features/accounts/accountSlice";
 import { useRouter } from "next/navigation";
+import { useNavigationHandler } from "@/lib/shortFunctions/clientFunctions";
+
+import { setTriggerUnsavedDialog } from "@/redux/features/general/generalSlice";
 
 const layout = ({ children }: { children: ReactNode }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { handleNavigation } = useNavigationHandler();
+  const { hasBeforeUnloadListener, proceedUrl, triggerUnsavedDialog } = useAppSelector((state) => state.generalState);
   const { accountData } = useAppSelector((state) => state.orgAccountData);
   const [openProfile, setOpenProfile] = useState(false);
   const [lightTheme, setLightTheme] = useState(true);
@@ -59,12 +64,19 @@ const layout = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  if (!accountData || Object.keys(accountData).length === 0)
+    return (
+      <Link href="/signin" className="hover:underline">
+        We could not retrieve your details. Try refreshing or signing in again
+      </Link>
+    );
+
   const { accountName, accountEmail, organisationId, roleId } = accountData;
   const { absoluteAdmin, tabAccess } = roleId;
 
-  const tabs = Object.entries(tabAccess).filter(
-    ([key, value]) => (Array.isArray(value) && value.length > 0) || absoluteAdmin
-  );
+  // tabAccess = [{tab: "Admin", actions:[{name: "Create Role", permission: false}]}]
+
+  const tabs = tabAccess.map((tabObj: any) => tabObj.tab);
 
   const pathname = usePathname();
 
@@ -122,29 +134,40 @@ const layout = ({ children }: { children: ReactNode }) => {
 
   return (
     <div>
+      {triggerUnsavedDialog && (
+        <UnsavedChangeDialog
+          onYes={() => {
+            handleNavigation(proceedUrl, true);
+          }}
+          onNo={() => {
+            document.body.style.overflow = "";
+            handleNavigation(proceedUrl, false);
+          }}
+        />
+      )}
       <div className="flex justify-between items-center bg-foregroundColor-10 border-b border-foregroundColor-15 px-8 relative">
         {openProfile && profileDialog}
         {/* nav div */}
         <div className="flex gap-5 w-3/4">
-          <Link
-            href={`${name_PathMap["Home" as keyof typeof name_PathMap]}`}
+          <span
             className={`${
               pathToNameValue === "Home" ? "border-b-3" : ""
             } hover:cursor-pointer hover:border-b-3 hover:border-foregroundColor-30`}
+            onClick={() => handleNavigation(`${name_PathMap["Home" as keyof typeof name_PathMap]}`)}
           >
             Home
-          </Link>
+          </span>
 
           {tabs.map((tab) => (
-            <Link
-              key={tab[0]}
-              href={`${name_PathMap[tab[0] as keyof typeof name_PathMap]}`}
+            <span
+              key={tab}
               className={`${
-                pathToNameValue === tab[0] ? "border-b-3" : ""
+                pathToNameValue === tab ? "border-b-3" : ""
               } hover:cursor-pointer hover:border-b-3 hover:border-foregroundColor-30`}
+              onClick={() => handleNavigation(`${name_PathMap[tab as keyof typeof name_PathMap]}`)}
             >
-              {tab[0]}
-            </Link>
+              {tab}
+            </span>
           ))}
         </div>
         {/* profile and theme div */}
