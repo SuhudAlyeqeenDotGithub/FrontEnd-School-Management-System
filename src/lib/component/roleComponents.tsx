@@ -12,6 +12,7 @@ import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { checkDataType } from "../shortFunctions/shortFunctions";
 import { YesNoDialog } from "./compLibrary";
+import { DisallowedActionDialog } from "./compLibrary3";
 
 export const TabActionDialog = ({
   tabData,
@@ -140,6 +141,7 @@ export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose:
   const [unsaved, setUnsaved] = useState(false);
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
   const [openTabActionDialog, setOpenTabActionDialog] = useState(false);
+  const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
   const [tabActionDialogData, setTabActionDialogData] = useState<any>({});
   const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
@@ -253,6 +255,15 @@ export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose:
           onYes={() => {
             handleUnload("remove");
             onClose(true);
+          }}
+        />
+      )}
+
+      {openDisallowedDeleteDialog && (
+        <DisallowedActionDialog
+          warningText="This delete action is disallowed as it relates to the default Admin role"
+          onOk={() => {
+            setOpenDisallowedDeleteDialog(false);
           }}
         />
       )}
@@ -395,8 +406,7 @@ export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose:
                   return (
                     <div
                       key={tab}
-                      onClick={() => {
-                        console.log("setting tab action data to", tabObj);
+                      onClick={(e) => {
                         setTabActionDialogData(tabObj);
                         setOpenTabActionDialog(true);
                       }}
@@ -411,7 +421,13 @@ export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose:
                         </span>
                       </div>
 
-                      <CgTrash className="text-[25px] hover:text-red-500" onClick={() => {}} />
+                      <CgTrash
+                        className="text-[25px] hover:text-red-500"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenDisallowedDeleteDialog(true);
+                        }}
+                      />
                     </div>
                   );
                 })

@@ -8,7 +8,7 @@ import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
-import { RoleDialog } from "@/lib/component/compLibrary2";
+import { RoleDialog } from "@/lib/component/roleComponents";
 import { setOnOpenRoleData } from "@/redux/features/general/generalSlice";
 
 const RolesAccess = () => {
