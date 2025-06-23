@@ -134,7 +134,8 @@ export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose:
     roleId: onOpenRoleData._id,
     roleName: onOpenRoleData.roleName,
     roleDescription: onOpenRoleData.roleDescription,
-    tabAccess: onOpenRoleData.tabAccess
+    tabAccess: onOpenRoleData.tabAccess,
+    absoluteAdmin: onOpenRoleData.absoluteAdmin
   });
   // console.log("localData", localData);
   const [recommendedTabs, setRecommendedTabs] = useState<any>([]);
@@ -425,7 +426,11 @@ export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose:
                         className="text-[25px] hover:text-red-500"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setOpenDisallowedDeleteDialog(true);
+                          if (localData.absoluteAdmin) {
+                            setOpenDisallowedDeleteDialog(true);
+                          } else {
+                            alert("deleting for he is not absolute admin");
+                          }
                         }}
                       />
                     </div>
