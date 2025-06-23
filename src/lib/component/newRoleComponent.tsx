@@ -3,139 +3,23 @@ import { InputComponent, LoaderButton, ContainerComponent } from "./compLibrary"
 import { IoClose } from "react-icons/io5";
 import { MdContentCopy } from "react-icons/md";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useNavigationHandler } from "../shortFunctions/clientFunctions";
-import { setTriggerUnsavedDialog } from "@/redux/features/general/generalSlice";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { checkDataType } from "../shortFunctions/shortFunctions";
 import { YesNoDialog } from "./compLibrary";
 import { DisallowedActionDialog } from "./compLibrary3";
+import { TabActionDialog } from "./editRoleComponents";
 
-export const TabActionDialog = ({
-  tabData,
-  roleData,
-  onSave,
-  onClose
-}: {
-  tabData: any;
-  roleData: any;
-  onSave: (data: any, tabToSaveActionTo: string) => {};
-  onClose: (close: any) => {};
-}) => {
-  const [localActions, setLocalActions] = useState<{ name: string; permission: boolean }[]>(tabData.actions);
-  const [unsaved, setUnsaved] = useState(false);
-  const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
-  console.log("localActions", localActions);
-  return (
-    <div className="flex justify-center items-center absolute bg-foregroundColor-70 inset-0">
-      <ContainerComponent style="w-[700px] h-[600px] gap-10 flex flex-col z-40 bg-backgroundColor overflow-auto">
-        {openUnsavedDialog && (
-          <YesNoDialog
-            warningText="You have unsaved changes. Are you sure you want to proceed?"
-            onNo={() => {
-              const container = document.getElementById("roleDialogContainer");
-              if (container) {
-                container.style.overflow = "";
-              }
-              setOpenUnsavedDialog(false);
-            }}
-            onYes={() => {
-              const container = document.getElementById("roleDialogContainer");
-              if (container) {
-                container.style.overflow = "";
-              }
-              onClose(true);
-            }}
-          />
-        )}
-        {/* top div */}
-        <div className="flex flex-col gap-1">
-          <div className="flex justify-between items-center">
-            <h2> Action Permissions</h2>
-            <div className="flex justify-between items-center gap-5">
-              <LoaderButton
-                buttonText="Save"
-                loadingButtonText="Saving..."
-                disabled={!unsaved}
-                buttonStyle="w-full"
-                isLoading={false}
-                onClick={() => {
-                  onSave(localActions, tabData.tab);
-                }}
-              />
-              <IoClose
-                onClick={() => {
-                  if (!unsaved) {
-                    const container = document.getElementById("roleDialogContainer");
-                    if (container) {
-                      container.style.overflow = "";
-                    }
-                    onClose(true);
-                  } else {
-                    const container = document.getElementById("roleDialogContainer");
-                    if (container) {
-                      container.style.overflow = "hidden";
-                    }
-                    setOpenUnsavedDialog(true);
-                  }
-                }}
-                className="text-[50px] hover:text-foregroundColor-50 hover:cursor-pointer"
-              />
-            </div>
-          </div>
-
-          <span>
-            <span className="font-semibold">Role Name:</span> {roleData.roleName}
-          </span>
-          <span>
-            <span className="font-semibold">Tab:</span> {tabData.tab}
-          </span>
-        </div>
-        <div className="grid grid-cols-2 gap-4 w-full pl-8">
-          {localActions.map((action: any) => {
-            const { name, permission } = action;
-            return (
-              <div className="grid grid-cols-2 gap-4 items-center" key={name}>
-                <span className="w-full">{name}</span>
-
-                <input
-                  type="checkbox"
-                  checked={permission}
-                  onChange={(e) => {
-                    setUnsaved(true);
-                    const updatedActions = localActions.map(({ name: innerName, permission: innerPermission }) =>
-                      innerName === name
-                        ? { name, permission: e.target.checked }
-                        : { name: innerName, permission: innerPermission }
-                    );
-                    setLocalActions(updatedActions);
-                  }}
-                  className=" w-5 h-5 checked:accent-foregroundColor-50 cursor-pointer"
-                />
-              </div>
-            );
-          })}
-        </div>
-      </ContainerComponent>
-    </div>
-  );
-};
-
-export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose: (close: boolean) => {} }) => {
-  const router = useRouter();
-  const { onOpenRoleData } = useAppSelector((state) => state.generalState);
+export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) => {
   const { handleUnload } = useNavigationHandler();
   // data type = {_id: "", roleName: "Name", roleDescription: "de", tabAccess: [{tab: "Admin", actions:[{name: "Create Role", permission: false}]}]}
 
   const [localData, setLocalData] = useState<any>({
-    roleId: onOpenRoleData._id,
-    roleName: onOpenRoleData.roleName,
-    roleDescription: onOpenRoleData.roleDescription,
-    tabAccess: onOpenRoleData.tabAccess,
-    absoluteAdmin: onOpenRoleData.absoluteAdmin
+    roleName: "",
+    roleDescription: "",
+    tabAccess: []
   });
   // console.log("localData", localData);
   const [recommendedTabs, setRecommendedTabs] = useState<any>([]);
@@ -169,7 +53,7 @@ export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose:
       const filteredData = tabAccess.filter((tab: any) => tab.tab.toLowerCase().includes(searchValue.toLowerCase()));
       setLocalData((prev: any) => ({ ...prev, tabAccess: filteredData }));
     } else {
-      setLocalData((prev: any) => ({ ...prev, tabAccess: onOpenRoleData.tabAccess }));
+      setLocalData((prev: any) => ({ ...prev, tabAccess: localData.tabAccess }));
     }
   }, [searchValue]);
 
@@ -270,23 +154,11 @@ export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose:
       )}
       {/* top div */}
       <div className="flex justify-between items-center">
-        <div className="flex gap-5 items-center">
-          <h2>{type === "edit" ? "Edit Role" : "New Role"}</h2>
-          <div className="flex gap-2 items-center">
-            <h3>{type === "edit" ? `${roleId.slice(0, 5)}.......` : ""}</h3>
-            <MdContentCopy
-              title="copy id"
-              className="text-[20px] text-foregroundColor-80 hover:text-foregroundColor-50 hover:cursor-pointer"
-              onClick={async () => {
-                await navigator.clipboard.writeText(roleId);
-              }}
-            />
-          </div>
-        </div>
+        <h2>New Role</h2>
         <div className="flex justify-between items-center gap-5">
           <LoaderButton
-            buttonText="Save"
-            loadingButtonText="Saving..."
+            buttonText="Create"
+            loadingButtonText="Creating..."
             disabled={!unsaved}
             buttonStyle="w-full"
             isLoading={false}
@@ -361,7 +233,7 @@ export const RoleDialog = ({ type = "edit", onClose }: { type?: string; onClose:
             <div className="flex w-[500px] h-[50px] items-center gap-2">
               <input
                 className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-                placeholder="Searh role (Name)"
+                placeholder="Searh Tab (Name)"
                 name="searchValue"
                 onChange={(e) => {
                   setSearchValue(e.target.value);

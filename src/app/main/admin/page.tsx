@@ -8,8 +8,9 @@ import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
-import { RoleDialog } from "@/lib/component/roleComponents";
+import { EditRoleDialog } from "@/lib/component/editRoleComponents";
 import { setOnOpenRoleData } from "@/redux/features/general/generalSlice";
+import { NewRoleDialog } from "@/lib/component/newRoleComponent";
 
 const RolesAccess = () => {
   const dispatch = useAppDispatch();
@@ -18,7 +19,8 @@ const RolesAccess = () => {
   const [error, setError] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openRoleDialog, setOpenRoleDialog] = useState(false);
+  const [openEditRoleDialog, setOpenEditRoleDialog] = useState(false);
+  const [openNewRoleDialog, setOpenNewRoleDialog] = useState(false);
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -48,12 +50,23 @@ const RolesAccess = () => {
   return (
     <div className="px-8 py-6">
       {error && <ErrorDiv>{error}</ErrorDiv>}{" "}
-      {openRoleDialog && (
+      {openEditRoleDialog && (
         <div className="absolute flex items-center justify-center inset-0 bg-foregroundColor-90">
-          <RoleDialog
+          <EditRoleDialog
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenRoleDialog(!open);
+              setOpenEditRoleDialog(!open);
+              return {};
+            }}
+          />
+        </div>
+      )}
+      {openNewRoleDialog && (
+        <div className="absolute flex items-center justify-center inset-0 bg-foregroundColor-90">
+          <NewRoleDialog
+            onClose={(open: boolean) => {
+              document.body.style.overflow = "";
+              setOpenNewRoleDialog(!open);
               return {};
             }}
           />
@@ -84,7 +97,7 @@ const RolesAccess = () => {
             </div>
             {/* new action button */}
             <div>
-              <button>New Role</button>
+              <button onClick={() => setOpenNewRoleDialog(true)}>New Role</button>
             </div>
           </div>
 
@@ -122,7 +135,7 @@ const RolesAccess = () => {
                       key={roleId}
                       onClick={() => {
                         document.body.style.overflow = "hidden";
-                        setOpenRoleDialog(true);
+                        setOpenEditRoleDialog(true);
                         dispatch(setOnOpenRoleData(doc));
                       }}
                       className="w-full flex px-4 border border-foregroundColor-15 rounded-md shadow-sm py-3 hover:bg-foregroundColor-5 hover:cursor-pointer"
@@ -140,7 +153,13 @@ const RolesAccess = () => {
                         <span className="whitespace-nowrap flex items-center justify-center w-full">{tabs}.....</span>
                       </div>
 
-                      <CgTrash className="text-[25px] hover:text-red-500" />
+                      <CgTrash
+                        className="text-[25px] hover:text-red-500"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          alert("oh you are trying to delete a role");
+                        }}
+                      />
                     </div>
                   );
                 })
