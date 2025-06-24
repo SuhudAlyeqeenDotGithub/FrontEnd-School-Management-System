@@ -58,7 +58,6 @@ export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) 
   }, [searchValue]);
 
   // function to handle sorting
-
   const handleSort = (sortKey: any) => {
     const keyType = checkDataType([...tabAccess][0][sortKey]);
 
@@ -252,7 +251,6 @@ export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) 
                 key={tab}
                 onClick={() => {
                   setUnsaved(true);
-                  console.log("adding tab for action setting", tab);
                   setLocalData((prev: any) => ({
                     ...prev,
                     tabAccess: [
@@ -325,7 +323,7 @@ export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) 
               {tabAccess.length < 1 && searchValue ? (
                 <div className="flex justify-center mt-6">No search result found</div>
               ) : tabAccess.length < 1 ? (
-                <div className="flex justify-center mt-6">This user has not tab access</div>
+                <div className="flex justify-center mt-6">No Tab Access has been added for this role</div>
               ) : (
                 tabAccess.map((tabObj: any) => {
                   const { tab, actions } = tabObj;

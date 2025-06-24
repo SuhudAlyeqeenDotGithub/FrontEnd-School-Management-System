@@ -20,7 +20,7 @@ const layout = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const { handleNavigation } = useNavigationHandler();
   const { hasBeforeUnloadListener, proceedUrl, triggerUnsavedDialog } = useAppSelector((state) => state.generalState);
-  const { accountData } = useAppSelector((state) => state.orgAccountData);
+  const { accountData } = useAppSelector((state) => state.accountData);
   const [openProfile, setOpenProfile] = useState(false);
   const [lightTheme, setLightTheme] = useState(true);
   const [error, setError] = useState("");

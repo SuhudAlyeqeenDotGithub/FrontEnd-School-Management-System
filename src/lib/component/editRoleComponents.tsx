@@ -396,7 +396,7 @@ export const EditRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} })
               {tabAccess.length < 1 && searchValue ? (
                 <div className="flex justify-center mt-6">No search result found</div>
               ) : tabAccess.length < 1 ? (
-                <div className="flex justify-center mt-6">No data available</div>
+                <div className="flex justify-center mt-6">No Tab Access has been added for this role</div>
               ) : (
                 tabAccess.map((tabObj: any) => {
                   const { tab, actions } = tabObj;

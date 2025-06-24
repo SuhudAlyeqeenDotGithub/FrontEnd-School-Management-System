@@ -11,16 +11,22 @@ import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 import { EditRoleDialog } from "@/lib/component/editRoleComponents";
 import { setOnOpenRoleData } from "@/redux/features/general/generalSlice";
 import { NewRoleDialog } from "@/lib/component/newRoleComponent";
+import { DisallowedActionDialog } from "@/lib/component/compLibrary3";
 
 const RolesAccess = () => {
   const dispatch = useAppDispatch();
   const { roles, isLoading } = useAppSelector((state) => state.rolesAccess);
+  const { accountData } = useAppSelector((state) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
   const [openEditRoleDialog, setOpenEditRoleDialog] = useState(false);
   const [openNewRoleDialog, setOpenNewRoleDialog] = useState(false);
+  const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
+  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
+    tab.actions.map((action: any) => action.name)
+  );
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -38,6 +44,10 @@ const RolesAccess = () => {
     setLocalData(roles);
   }, [roles]);
 
+  const hasActionAccess = (action: string) => {
+    return accountPermittedActions.includes(action);
+  };
+
   useEffect(() => {
     if (searchValue !== "") {
       const filteredData = roles.filter((obj: any) => obj.searchText.toLowerCase().includes(searchValue.toLowerCase()));
@@ -46,6 +56,40 @@ const RolesAccess = () => {
       setLocalData(roles);
     }
   }, [searchValue]);
+
+  // function to handle sorting
+  const handleSort = (sortKey: any) => {
+    const keyType = checkDataType([...localData][0][sortKey]);
+
+    const sortOrder = sortOrderTracker[sortKey];
+
+    let nextOrder: string;
+
+    if (sortOrder === "dsc") {
+      nextOrder = "asc";
+    } else {
+      nextOrder = "dsc";
+    }
+    // console.log("localData", localData);
+    // console.log("sortKey", sortKey);
+    // console.log("first item", [...localData][0][sortKey]);
+    // console.log("keyType", keyType);
+    // console.log("sortOrder", sortOrder);
+    const sortedData = [...localData].sort((a, b) => {
+      if (keyType === "number") {
+        return sortOrder === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
+      } else if (keyType === "array") {
+        return sortOrder === "asc"
+          ? a[sortKey][0].name.localeCompare(b[sortKey][0].name)
+          : b[sortKey][0].name.localeCompare(a[sortKey][0].name);
+      } else {
+        return sortOrder === "asc" ? a[sortKey].localeCompare(b[sortKey]) : b[sortKey].localeCompare(a[sortKey]);
+      }
+    });
+
+    setLocalData(sortedData);
+    setSortOrderTracker((prev: any) => ({ ...prev, [sortKey]: nextOrder }));
+  };
 
   return (
     <div className="px-8 py-6">
@@ -72,6 +116,14 @@ const RolesAccess = () => {
           />
         </div>
       )}
+      {openDisallowedDeleteDialog && (
+        <DisallowedActionDialog
+          warningText="This delete action is disallowed as it relates to the default Admin role"
+          onOk={() => {
+            setOpenDisallowedDeleteDialog(false);
+          }}
+        />
+      )}
       {/* data table section */}
       <div>
         {/* data table div */}
@@ -97,7 +149,18 @@ const RolesAccess = () => {
             </div>
             {/* new action button */}
             <div>
-              <button onClick={() => setOpenNewRoleDialog(true)}>New Role</button>
+              <button
+                onClick={() => {
+                  if (hasActionAccess("Create Role")) {
+                    document.body.style.overflow = "hidden";
+                    setOpenNewRoleDialog(true);
+                  } else {
+                    setError("You do not have Create Role Access - Please contact your admin");
+                  }
+                }}
+              >
+                New Role
+              </button>
             </div>
           </div>
 
@@ -106,9 +169,19 @@ const RolesAccess = () => {
             {/* table header */}
             <div className="w-full flex px-4 py-3 p-2 h-[50px]">
               <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
-                {["Role Name", "Created By", "Created At", "Tab Access"].map((header) => (
+                {(["Role Name", "Created By", "Created At", "Tab Access"] as const).map((header) => (
                   <div
                     key={header}
+                    onClick={() => {
+                      const key_Name = {
+                        "Role Name": "roleName",
+                        "Created By": "CreatedBy",
+                        "Created At": "CreatedAt",
+                        "Tab Access": "tabAccess"
+                      };
+                      const sortKey = key_Name[header];
+                      handleSort(sortKey);
+                    }}
                     className="font-semibold flex gap-1 p-2 hover:bg-foregroundColor-5 hover:border border-foregroundColor-10 hover:cursor-pointer rounded-lg whitespace-nowrap items-center justify-center w-[200px]"
                   >
                     {header} <LuArrowUpDown />
@@ -125,7 +198,7 @@ const RolesAccess = () => {
                 <div className="flex justify-center mt-6">No data available</div>
               ) : (
                 localData.map((doc: any, index: any) => {
-                  const { _id: roleId, roleName, accountId, createdAt, tabAccess } = doc;
+                  const { _id: roleId, roleName, accountId, createdAt, tabAccess, absoluteAdmin } = doc;
                   const tabs = tabAccess
                     .map((tab: any) => tab.tab)
                     .slice(0, 5)
@@ -134,9 +207,13 @@ const RolesAccess = () => {
                     <div
                       key={roleId}
                       onClick={() => {
-                        document.body.style.overflow = "hidden";
-                        setOpenEditRoleDialog(true);
-                        dispatch(setOnOpenRoleData(doc));
+                        if (hasActionAccess("Edit Role")) {
+                          document.body.style.overflow = "hidden";
+                          setOpenEditRoleDialog(true);
+                          dispatch(setOnOpenRoleData(doc));
+                        } else {
+                          setError("You do not have Edit Role Access - Please contact your admin");
+                        }
                       }}
                       className="w-full flex px-4 border border-foregroundColor-15 rounded-md shadow-sm py-3 hover:bg-foregroundColor-5 hover:cursor-pointer"
                     >
@@ -157,7 +234,19 @@ const RolesAccess = () => {
                         className="text-[25px] hover:text-red-500"
                         onClick={(e) => {
                           e.stopPropagation();
-                          alert("oh you are trying to delete a role");
+                          if (doc.absoluteAdmin) {
+                            setError("Unauthorised Action: Default Absolute Admin Role Cannot be deleted");
+                            setOpenDisallowedDeleteDialog(true);
+                          } else {
+                            if (hasActionAccess("Delete Role")) {
+                              document.body.style.overflow = "hidden";
+                              alert("oh you are trying to delete a role");
+                            } else {
+                              setError(
+                                "Unauthorised Action: You do not have Delete Role Access - Please contact your admin"
+                              );
+                            }
+                          }
                         }}
                       />
                     </div>
