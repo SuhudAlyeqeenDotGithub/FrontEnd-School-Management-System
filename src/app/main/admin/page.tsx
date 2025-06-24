@@ -78,10 +78,14 @@ const RolesAccess = () => {
     const sortedData = [...localData].sort((a, b) => {
       if (keyType === "number") {
         return sortOrder === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
+      } else if (keyType === "date") {
+        return sortOrder === "asc"
+          ? new Date(a[sortKey]).getTime() - new Date(b[sortKey]).getTime()
+          : new Date(b[sortKey]).getTime() - new Date(a[sortKey]).getTime();
       } else if (keyType === "array") {
         return sortOrder === "asc"
-          ? a[sortKey][0].name.localeCompare(b[sortKey][0].name)
-          : b[sortKey][0].name.localeCompare(a[sortKey][0].name);
+          ? a[sortKey][0].tab.localeCompare(b[sortKey][0].tab)
+          : b[sortKey][0].tab.localeCompare(a[sortKey][0].tab);
       } else {
         return sortOrder === "asc" ? a[sortKey].localeCompare(b[sortKey]) : b[sortKey].localeCompare(a[sortKey]);
       }
@@ -185,16 +189,20 @@ const RolesAccess = () => {
                     onClick={() => {
                       const key_Name = {
                         "Role Name": "roleName",
-                        "Created By": "CreatedBy",
-                        "Created At": "CreatedAt",
+                        "Created By": "accountName",
+                        "Created At": "createdAt",
                         "Tab Access": "tabAccess"
                       };
                       const sortKey = key_Name[header];
                       handleSort(sortKey);
                     }}
-                    className="font-semibold flex gap-1 p-2 hover:bg-foregroundColor-5 hover:border border-foregroundColor-10 hover:cursor-pointer rounded-lg whitespace-nowrap items-center justify-center w-[200px]"
+                    className={`${
+                      header === "Created By"
+                        ? "hover:cursor-not-allowed"
+                        : "hover:cursor-pointer hover:bg-foregroundColor-5 hover:border hover:border-foregroundColor-10"
+                    } font-semibold flex gap-1 p-2 rounded-lg whitespace-nowrap items-center justify-center w-[200px]`}
                   >
-                    {header} <LuArrowUpDown />
+                    {header} {header !== "Created By" && <LuArrowUpDown />}
                   </div>
                 ))}
               </div>

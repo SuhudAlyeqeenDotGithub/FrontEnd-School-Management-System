@@ -200,7 +200,7 @@ export const EditRoleDialog = ({
     // console.log("first item", [...localData][0][keys[sortKey]]);console.log("keyType", keyType);
     // console.log("sortOrder", sortOrder);
     const sortedData = [...tabAccess].sort((a, b) => {
-      if (keyType === "number") {
+      if (keyType === "number" || keyType === "date") {
         return sortOrder === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
       } else if (keyType === "array") {
         return sortOrder === "asc"
@@ -238,7 +238,46 @@ export const EditRoleDialog = ({
   };
   const textAreaStyle =
     "border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full h-[100px] overflow-auto";
-
+  const defaultTabActions: any = {
+    Admin: [
+      "Create Role",
+      "Edit Role",
+      "Delete Role",
+      "View Role",
+      "Create User",
+      "Edit User",
+      "Delete User",
+      "View Users",
+      "View Activity Log"
+    ],
+    Course: [
+      "Create Course",
+      "Edit Course",
+      "Delete Course",
+      "View Courses",
+      "Create Level",
+      "Edit Level",
+      "Delete Level",
+      "View Levels",
+      "Create Subject",
+      "Edit Subject",
+      "Delete Subject",
+      "View Subjects"
+    ],
+    Student: ["Create Student", "Edit Student", "Delete Student", "View Students"],
+    Enrollment: ["Create Enrollment", "Edit Enrollment", "Delete Enrollment", "View Enrollments"],
+    Attendance: ["Create Attendance", "Edit Attendance", "Delete Attendance", "View Attendance"],
+    Staff: [
+      "Create Staff",
+      "Edit Staff",
+      "Delete Staff",
+      "View Staff",
+      "Create Staff Contract",
+      "Edit Staff Contract",
+      "Delete Staff Contract",
+      "View Staff Contracts"
+    ]
+  };
   return (
     <ContainerComponent id="roleDialogContainer" style="w-[60%] h-[90%] gap-10 overflow-auto flex flex-col">
       {error && <ErrorDiv>{error}</ErrorDiv>}
@@ -372,6 +411,22 @@ export const EditRoleDialog = ({
             recommendedTabs.map((tab: any) => (
               <span
                 key={tab}
+                onClick={() => {
+                  setUnsaved(true);
+                  setLocalData((prev: any) => ({
+                    ...prev,
+                    tabAccess: [
+                      ...localData.tabAccess,
+                      {
+                        tab,
+                        actions: defaultTabActions[tab].map((actionName: string) => ({
+                          name: actionName,
+                          permission: false
+                        }))
+                      }
+                    ]
+                  }));
+                }}
                 className="p-2 border border-foregroundColor-25 hover:bg-foregroundColor-5 hover:cursor-pointer rounded-lg shadow-sm"
               >
                 {tab}

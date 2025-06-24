@@ -84,7 +84,7 @@ export const NewRoleDialog = ({
     // console.log("first item", [...localData][0][keys[sortKey]]);console.log("keyType", keyType);
     // console.log("sortOrder", sortOrder);
     const sortedData = [...tabAccess].sort((a, b) => {
-      if (keyType === "number") {
+      if (keyType === "number" || keyType === "date") {
         return sortOrder === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
       } else if (keyType === "array") {
         return sortOrder === "asc"
