@@ -78,7 +78,7 @@ export interface DataTableType {
   onDivClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-export interface RoleType {
+export interface ReturnRoleType {
   tabAccess: [];
   _id: string;
   accountId: string;
@@ -86,4 +86,10 @@ export interface RoleType {
   roleName: string;
   roleDescription: string;
   absoluteAdmin: boolean;
+}
+
+export interface ParamRoleType {
+  roleName: string;
+  roleDescription: string;
+  tabAccess: { tab: string; actions: { name: string; permission: boolean }[] }[];
 }

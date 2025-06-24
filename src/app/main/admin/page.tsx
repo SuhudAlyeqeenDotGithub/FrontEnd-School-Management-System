@@ -93,7 +93,7 @@ const RolesAccess = () => {
 
   return (
     <div className="px-8 py-6">
-      {error && <ErrorDiv>{error}</ErrorDiv>}{" "}
+      {error && <ErrorDiv>{error}</ErrorDiv>}
       {openEditRoleDialog && (
         <div className="absolute flex items-center justify-center inset-0 bg-foregroundColor-90">
           <EditRoleDialog
@@ -111,6 +111,11 @@ const RolesAccess = () => {
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
               setOpenNewRoleDialog(!open);
+              return {};
+            }}
+            onCreate={(notSave) => {
+              document.body.style.overflow = "";
+              setOpenNewRoleDialog(!notSave);
               return {};
             }}
           />
@@ -235,7 +240,7 @@ const RolesAccess = () => {
                         onClick={(e) => {
                           e.stopPropagation();
                           if (doc.absoluteAdmin) {
-                            setError("Unauthorised Action: Default Absolute Admin Role Cannot be deleted");
+                            setError("Disallowed Action: Default Absolute Admin Role Cannot be deleted");
                             setOpenDisallowedDeleteDialog(true);
                           } else {
                             if (hasActionAccess("Delete Role")) {

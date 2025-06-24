@@ -1,5 +1,5 @@
 "use client";
-import { InputComponent, LoaderButton, ContainerComponent } from "./compLibrary";
+import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "./compLibrary";
 import { IoClose } from "react-icons/io5";
 import { MdContentCopy } from "react-icons/md";
 import { useEffect, useState } from "react";
@@ -11,9 +11,18 @@ import { checkDataType } from "../shortFunctions/shortFunctions";
 import { YesNoDialog } from "./compLibrary";
 import { DisallowedActionDialog } from "./compLibrary3";
 import { TabActionDialog } from "./editRoleComponents";
+import { createRole } from "@/redux/features/admin/roles/roleThunks";
+import { useAppDispatch } from "@/redux/hooks";
 
-export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) => {
+export const NewRoleDialog = ({
+  onClose,
+  onCreate
+}: {
+  onClose: (close: boolean) => {};
+  onCreate: (create: boolean) => {};
+}) => {
   const { handleUnload } = useNavigationHandler();
+  const dispatch = useAppDispatch();
   // data type = {_id: "", roleName: "Name", roleDescription: "de", tabAccess: [{tab: "Admin", actions:[{name: "Create Role", permission: false}]}]}
 
   const [localData, setLocalData] = useState<any>({
@@ -29,6 +38,7 @@ export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) 
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
   const [tabActionDialogData, setTabActionDialogData] = useState<any>({});
   const [searchValue, setSearchValue] = useState("");
+  const [error, setError] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
   const { roleId, roleName, roleDescription, tabAccess } = localData;
   useEffect(() => {
@@ -99,6 +109,17 @@ export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) 
   const handleDeleteTab = () => {
     setUnsaved(true);
   };
+  const validationPassed = () => {
+    if (!roleName) {
+      setError("Missing Data: Please enter a role name");
+      return false;
+    } else if (roleName.length < 5) {
+      setError("Data Error: Role name is too short");
+      return false;
+    }
+
+    return true;
+  };
   const textAreaStyle =
     "border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full h-[100px] overflow-auto";
 
@@ -144,6 +165,7 @@ export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) 
   };
   return (
     <ContainerComponent id="roleDialogContainer" style="w-[60%] h-[90%] gap-10 overflow-auto flex flex-col">
+      {error && <ErrorDiv>{error}</ErrorDiv>}
       {openTabActionDialog && (
         <TabActionDialog
           tabData={tabActionDialogData}
@@ -201,6 +223,19 @@ export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) 
             disabled={!unsaved}
             buttonStyle="w-full"
             isLoading={false}
+            onClick={async () => {
+              if (validationPassed()) {
+                setError("");
+                try {
+                  const response = await dispatch(createRole(localData)).unwrap();
+                  if (response) {
+                    onCreate(true);
+                  }
+                } catch (err: any) {
+                  setError(err);
+                }
+              }
+            }}
           />
           <IoClose
             onClick={() => {

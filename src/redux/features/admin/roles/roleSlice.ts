@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { fetchRolesAccess } from "./roleThunks";
-import { RoleType } from "@/interfaces/interfaces";
+import { ReturnRoleType } from "@/interfaces/interfaces";
 
 interface RolesState {
-  roles: RoleType[];
+  roles: ReturnRoleType[];
   isSuccess: boolean;
   isLoading: boolean;
   isError: boolean;
