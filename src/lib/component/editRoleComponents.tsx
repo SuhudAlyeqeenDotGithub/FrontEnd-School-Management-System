@@ -443,7 +443,12 @@ export const EditRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} })
                           if (localData.absoluteAdmin) {
                             setOpenDisallowedDeleteDialog(true);
                           } else {
-                            alert("deleting for he is not absolute admin");
+                            setLocalData((prev: any) => ({
+                              ...prev,
+                              tabAccess: localData.tabAccess.filter((innerTab: any) => innerTab.tab !== tab && innerTab)
+                            }));
+
+                            setUnsaved(true);
                           }
                         }}
                       />
