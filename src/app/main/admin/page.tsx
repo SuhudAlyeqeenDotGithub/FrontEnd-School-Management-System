@@ -102,6 +102,11 @@ const RolesAccess = () => {
               setOpenEditRoleDialog(!open);
               return {};
             }}
+            onUpdate={(notUpdate) => {
+              document.body.style.overflow = "";
+              setOpenEditRoleDialog(!notUpdate);
+              return {};
+            }}
           />
         </div>
       )}

@@ -12,7 +12,7 @@ import { YesNoDialog } from "./compLibrary";
 import { DisallowedActionDialog } from "./compLibrary3";
 import { TabActionDialog } from "./editRoleComponents";
 import { createRole } from "@/redux/features/admin/roles/roleThunks";
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 
 export const NewRoleDialog = ({
   onClose,
@@ -23,8 +23,7 @@ export const NewRoleDialog = ({
 }) => {
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
-  // data type = {_id: "", roleName: "Name", roleDescription: "de", tabAccess: [{tab: "Admin", actions:[{name: "Create Role", permission: false}]}]}
-
+  const { isLoading } = useAppSelector((state) => state.rolesAccess);
   const [localData, setLocalData] = useState<any>({
     roleName: "",
     roleDescription: "",
@@ -219,10 +218,10 @@ export const NewRoleDialog = ({
         <div className="flex justify-between items-center gap-5">
           <LoaderButton
             buttonText="Create"
-            loadingButtonText="Creating..."
+            loadingButtonText="Creating Role..."
             disabled={!unsaved}
             buttonStyle="w-full"
-            isLoading={false}
+            isLoading={isLoading}
             onClick={async () => {
               if (validationPassed()) {
                 setError("");

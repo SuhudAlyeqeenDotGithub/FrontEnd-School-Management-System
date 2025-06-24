@@ -13,6 +13,7 @@ import { CgTrash } from "react-icons/cg";
 import { checkDataType } from "../shortFunctions/shortFunctions";
 import { YesNoDialog } from "./compLibrary";
 import { DisallowedActionDialog } from "./compLibrary3";
+import { updateRole } from "@/redux/features/admin/roles/roleThunks";
 
 export const TabActionDialog = ({
   tabData,
@@ -123,9 +124,16 @@ export const TabActionDialog = ({
   );
 };
 
-export const EditRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) => {
-  const router = useRouter();
+export const EditRoleDialog = ({
+  onClose,
+  onUpdate
+}: {
+  onClose: (close: boolean) => {};
+  onUpdate: (create: boolean) => {};
+}) => {
+  const dispatch = useAppDispatch();
   const { onOpenRoleData } = useAppSelector((state) => state.generalState);
+  const { isLoading } = useAppSelector((state) => state.rolesAccess);
   const { handleUnload } = useNavigationHandler();
   // data type = {_id: "", roleName: "Name", roleDescription: "de", tabAccess: [{tab: "Admin", actions:[{name: "Create Role", permission: false}]}]}
 
@@ -299,10 +307,23 @@ export const EditRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} })
         <div className="flex justify-between items-center gap-5">
           <LoaderButton
             buttonText="Save"
-            loadingButtonText="Saving..."
+            loadingButtonText="Saving Updates..."
             disabled={!unsaved}
             buttonStyle="w-full"
-            isLoading={false}
+            isLoading={isLoading}
+            onClick={async () => {
+              if (validationPassed()) {
+                setError("");
+                try {
+                  const response = await dispatch(updateRole(localData)).unwrap();
+                  if (response) {
+                    onUpdate(true);
+                  }
+                } catch (err: any) {
+                  setError(err);
+                }
+              }
+            }}
           />
           <IoClose
             onClick={() => {
