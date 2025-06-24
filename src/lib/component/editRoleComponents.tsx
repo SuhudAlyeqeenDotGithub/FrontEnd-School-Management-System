@@ -401,7 +401,8 @@ export const EditRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} })
                 tabAccess.map((tabObj: any) => {
                   const { tab, actions } = tabObj;
                   const permittedActions = actions
-                    .map((action: any) => action.name)
+                    .map((action: any) => (action.permission ? action.name : ""))
+                    .filter((data: any) => data !== "")
                     .slice(0, 3)
                     .join(", ");
                   return (
@@ -418,7 +419,7 @@ export const EditRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} })
                           {tab.slice(0, 15)}
                         </span>
                         <span className="whitespace-nowrap flex items-center justify-center w-full">
-                          {permittedActions}.....
+                          {permittedActions.length < 1 ? "No actions allowed yet" : permittedActions}.....
                         </span>
                       </div>
 

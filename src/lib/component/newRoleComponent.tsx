@@ -330,7 +330,8 @@ export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) 
                 tabAccess.map((tabObj: any) => {
                   const { tab, actions } = tabObj;
                   const permittedActions = actions
-                    .map((action: any) => action.name)
+                    .map((action: any) => (action.permission ? action.name : ""))
+                    .filter((data: any) => data !== "")
                     .slice(0, 3)
                     .join(", ");
                   return (
@@ -347,7 +348,7 @@ export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) 
                           {tab.slice(0, 15)}
                         </span>
                         <span className="whitespace-nowrap flex items-center justify-center w-full">
-                          {permittedActions}.....
+                          {permittedActions.length < 1 ? "No actions allowed yet" : permittedActions}.....
                         </span>
                       </div>
 
@@ -358,7 +359,12 @@ export const NewRoleDialog = ({ onClose }: { onClose: (close: boolean) => {} }) 
                           if (localData.absoluteAdmin) {
                             setOpenDisallowedDeleteDialog(true);
                           } else {
-                            alert("deleting for he is not absolute admin");
+                            setLocalData((prev: any) => ({
+                              ...prev,
+                              tabAccess: localData.tabAccess.filter((innerTab: any) => innerTab.tab !== tab && innerTab)
+                            }));
+
+                            setUnsaved(true);
                           }
                         }}
                       />
