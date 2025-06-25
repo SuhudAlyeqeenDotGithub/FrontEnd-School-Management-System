@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 const signInPage = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { isLoading, isSuccess, isError, errorMessage } = useAppSelector((state) => state.orgAccountData);
+  const { isLoading, isSuccess, isError, errorMessage } = useAppSelector((state) => state.accountData);
   const [inputData, setInputData] = useState({
     email: "",
     password: ""

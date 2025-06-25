@@ -45,7 +45,7 @@ export const ContainerComponent = ({
   id?: string;
 }) => {
   return (
-    <div id={id} className={`bg-backgroundColor order border-foregroundColor-20 shadow-md rounded-md p-4 ${style} `}>
+    <div id={id} className={`bg-backgroundColor border border-foregroundColor-20 shadow-md rounded-lg p-5 ${style} `}>
       {children}
     </div>
   );
@@ -73,7 +73,7 @@ export const LoaderDiv = ({
   dimension: string;
 }) => {
   return (
-    <div className="flex justify-center gap-10 items-center">
+    <div className="flex justify-center gap-10 items-center z-10">
       {type !== "spinner" && <span className={`ml-2 text-${textColor} animate-pulse`}>{text}</span>}
       <div className={`animate-spin rounded-full ${dimension} border-b-2 border-r-2 ${borderColor}`}></div>
     </div>
@@ -128,7 +128,7 @@ export const YesNoDialog = ({
   warningText: string;
 }) => {
   return (
-    <div className="w-[100%] h-[100%] bg-foregroundColor-80 items-center justify-center flex absolute inset-0">
+    <div className="w-[100%] h-[100%] bg-foregroundColor-50 items-center justify-center flex fixed inset-0">
       <ContainerComponent style="w-[500px] h-[150px] z-50 flex flex-col bg-backgroundColor gap-10 items-center justify-center">
         <span>{warningText}</span>
         <div className="w-full flex justify-between px-30 items-center">
@@ -143,8 +143,9 @@ export const SubTabLink = ({ icon, title, subTitle, url }: TabObject) => {
   const { handleNavigation } = useNavigationHandler();
   const pathname = usePathname();
   return (
-    <span
-      className={`flex flex-col gap-1 items-center justify-center hover:text-foregroundColor-50 border-foregroundColor-15 rounded-lg p-2 ${
+    <div
+      title={title}
+      className={`hover:cursor-pointer flex flex-col gap-1 items-center justify-center hover:text-foregroundColor-50 border-foregroundColor-15 rounded-lg p-2 ${
         pathname === url ? "bg-foregroundColor-5 border" : ""
       }`}
       onClick={() => handleNavigation(url)}
@@ -154,7 +155,7 @@ export const SubTabLink = ({ icon, title, subTitle, url }: TabObject) => {
         <span>{title}</span>
         <span className="text-[13px] text-foregroundColor-50">{subTitle}</span>
       </div>
-    </span>
+    </div>
   );
 };
 export const SubTabNav = ({ tabs }: { tabs: TabObject[] }) => {

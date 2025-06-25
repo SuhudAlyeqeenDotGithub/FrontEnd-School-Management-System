@@ -3,7 +3,7 @@ import { checkDataType } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { useEffect, useState } from "react";
 import { fetchRolesAccess } from "@/redux/features/admin/roles/roleThunks";
-import { ErrorDiv } from "@/lib/component/compLibrary";
+import { ErrorDiv, LoaderDiv } from "@/lib/component/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
@@ -11,7 +11,7 @@ import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 import { EditRoleDialog } from "@/lib/component/editRoleComponents";
 import { setOnOpenRoleData } from "@/redux/features/general/generalSlice";
 import { NewRoleDialog } from "@/lib/component/newRoleComponent";
-import { DisallowedActionDialog } from "@/lib/component/compLibrary3";
+import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/component/compLibrary3";
 
 const RolesAccess = () => {
   const dispatch = useAppDispatch();
@@ -24,6 +24,8 @@ const RolesAccess = () => {
   const [openEditRoleDialog, setOpenEditRoleDialog] = useState(false);
   const [openNewRoleDialog, setOpenNewRoleDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
+  const [confirmWithText, setConfirmWithText] = useState("");
   const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
     tab.actions.map((action: any) => action.name)
   );
@@ -70,12 +72,13 @@ const RolesAccess = () => {
     } else {
       nextOrder = "dsc";
     }
-    // console.log("localData", localData);
-    // console.log("sortKey", sortKey);
-    // console.log("first item", [...localData][0][sortKey]);
-    // console.log("keyType", keyType);
-    // console.log("sortOrder", sortOrder);
+    console.log("localData", localData);
+    console.log("sortKey", sortKey);
+    console.log("first item", [...localData][0][sortKey]);
+    console.log("keyType", keyType);
+    console.log("sortOrder", sortOrder);
     const sortedData = [...localData].sort((a, b) => {
+      console.log("a", a);
       if (keyType === "number") {
         return sortOrder === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
       } else if (keyType === "date") {
@@ -96,50 +99,70 @@ const RolesAccess = () => {
   };
 
   return (
-    <div className="px-8 py-6">
+    <div className="px-8 py-6 w-full">
       {error && <ErrorDiv>{error}</ErrorDiv>}
-      {openEditRoleDialog && (
-        <div className="absolute flex items-center justify-center inset-0 bg-foregroundColor-90">
-          <EditRoleDialog
-            onClose={(open: boolean) => {
-              document.body.style.overflow = "";
-              setOpenEditRoleDialog(!open);
-              return {};
-            }}
-            onUpdate={(notUpdate) => {
-              document.body.style.overflow = "";
-              setOpenEditRoleDialog(!notUpdate);
-              return {};
-            }}
-          />
-        </div>
-      )}
-      {openNewRoleDialog && (
-        <div className="absolute flex items-center justify-center inset-0 bg-foregroundColor-90">
-          <NewRoleDialog
-            onClose={(open: boolean) => {
-              document.body.style.overflow = "";
-              setOpenNewRoleDialog(!open);
-              return {};
-            }}
-            onCreate={(notSave) => {
-              document.body.style.overflow = "";
-              setOpenNewRoleDialog(!notSave);
-              return {};
-            }}
-          />
-        </div>
-      )}
-      {openDisallowedDeleteDialog && (
-        <DisallowedActionDialog
-          warningText="This delete action is disallowed as it relates to the default Admin role"
-          onOk={() => {
-            setOpenDisallowedDeleteDialog(false);
-          }}
-        />
-      )}
+
       {/* data table section */}
-      <div>
+      <div className="">
+        {openEditRoleDialog && (
+          <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
+            <EditRoleDialog
+              onClose={(open: boolean) => {
+                document.body.style.overflow = "";
+                setOpenEditRoleDialog(!open);
+                return {};
+              }}
+              onUpdate={(notUpdate) => {
+                document.body.style.overflow = "";
+                setOpenEditRoleDialog(!notUpdate);
+                return {};
+              }}
+            />
+          </div>
+        )}
+        {openNewRoleDialog && (
+          <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
+            <NewRoleDialog
+              onClose={(open: boolean) => {
+                document.body.style.overflow = "";
+                setOpenNewRoleDialog(!open);
+                return {};
+              }}
+              onCreate={(notSave) => {
+                document.body.style.overflow = "";
+                setOpenNewRoleDialog(!notSave);
+                return {};
+              }}
+            />
+          </div>
+        )}
+        {openDisallowedDeleteDialog && (
+          <DisallowedActionDialog
+            warningText="This delete action is disallowed as it relates to the default Admin role"
+            onOk={() => {
+              document.body.style.overflow = "";
+              setOpenDisallowedDeleteDialog(false);
+              setError("");
+            }}
+          />
+        )}
+        {openConfirmDelete && (
+          <ConfirmActionByInputDialog
+            confirmWithText={confirmWithText}
+            onCancel={() => {
+              document.body.style.overflow = "";
+              setOpenConfirmDelete(false);
+              setError("");
+            }}
+            onConfirm={(roleId) => {
+              document.body.style.overflow = "";
+              alert(`hahaha not you are deleting ${roleId}`);
+              setOpenConfirmDelete(false);
+              setError("");
+            }}
+            warningText="Please confirm the ID of the role you want to delete"
+          />
+        )}
         {/* data table div */}
         <div className="flex flex-col gap-4">
           {/* title */}
@@ -179,6 +202,7 @@ const RolesAccess = () => {
           </div>
 
           {/* table body */}
+
           <div className="flex flex-col gap-2">
             {/* table header */}
             <div className="w-full flex px-4 py-3 p-2 h-[50px]">
@@ -210,9 +234,19 @@ const RolesAccess = () => {
 
             {/* table data */}
             <div className="flex flex-col gap-2 mt-3">
-              {localData.length < 1 && searchValue ? (
+              {isLoading ? (
+                <div className="flex items-center justify-center mt-10">
+                  <LoaderDiv
+                    type="spinnerText"
+                    borderColor="foregroundColor"
+                    text="Loading Roles..."
+                    textColor="foregroundColor"
+                    dimension="h-10 w-10"
+                  />
+                </div>
+              ) : localData.length < 1 && searchValue ? (
                 <div className="flex justify-center mt-6">No search result found</div>
-              ) : localData.length < 1 ? (
+              ) : localData.length < 1 && !isLoading ? (
                 <div className="flex justify-center mt-6">No data available</div>
               ) : (
                 localData.map((doc: any, index: any) => {
@@ -258,7 +292,8 @@ const RolesAccess = () => {
                           } else {
                             if (hasActionAccess("Delete Role")) {
                               document.body.style.overflow = "hidden";
-                              alert("oh you are trying to delete a role");
+                              setOpenConfirmDelete(true);
+                              setConfirmWithText(doc._id);
                             } else {
                               setError(
                                 "Unauthorised Action: You do not have Delete Role Access - Please contact your admin"

@@ -25,6 +25,7 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
           }
         );
         if (refreshResponse.data) {
+          console.log("Access token refresh successful");
           const requestRetrial = await axios.request({
             method,
             url,
@@ -47,7 +48,7 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
             throw refreshErr;
           }
         } catch (error: any) {
-          throw new (error.response?.data.message || error.message || "Error signing out")();
+          throw refreshErr;
         }
       }
     }
