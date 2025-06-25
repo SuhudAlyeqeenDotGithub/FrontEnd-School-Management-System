@@ -77,9 +77,12 @@ export interface DataTableType {
   onDeleteClick?: (e: React.MouseEvent<SVGElement>) => void;
   onDivClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
-
+export interface TabAccessType {
+  tab: string;
+  actions: { name: string; permission: boolean }[];
+}
 export interface ReturnRoleType {
-  tabAccess: [];
+  tabAccess: TabAccessType[];
   _id: string;
   accountId: string;
   organisationId: string;
@@ -91,5 +94,13 @@ export interface ReturnRoleType {
 export interface ParamRoleType {
   roleName: string;
   roleDescription: string;
-  tabAccess: { tab: string; actions: { name: string; permission: boolean }[] }[];
+  tabAccess: TabAccessType[];
+}
+
+export interface DeleteParamRoleType {
+  roleIdToDelete: string;
+  roleName: string;
+  roleDescription: string;
+  absoluteAdmin: boolean;
+  tabAccess: TabAccessType[];
 }

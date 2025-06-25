@@ -2,7 +2,7 @@
 import { checkDataType } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { useEffect, useState } from "react";
-import { fetchRolesAccess } from "@/redux/features/admin/roles/roleThunks";
+import { deleteRole, fetchRolesAccess } from "@/redux/features/admin/roles/roleThunks";
 import { ErrorDiv, LoaderDiv } from "@/lib/component/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
@@ -26,6 +26,7 @@ const RolesAccess = () => {
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
+  const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
   const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
     tab.actions.map((action: any) => action.name)
   );
@@ -148,17 +149,26 @@ const RolesAccess = () => {
         )}
         {openConfirmDelete && (
           <ConfirmActionByInputDialog
+            returnObject={confirmWithReturnObj}
             confirmWithText={confirmWithText}
             onCancel={() => {
               document.body.style.overflow = "";
               setOpenConfirmDelete(false);
               setError("");
             }}
-            onConfirm={(roleId) => {
-              document.body.style.overflow = "";
-              alert(`hahaha not you are deleting ${roleId}`);
-              setOpenConfirmDelete(false);
+            onConfirm={async (confirmed, returnObject) => {
               setError("");
+              if (confirmed) {
+                try {
+                  await dispatch(deleteRole(returnObject)).unwrap();
+                } catch (err: any) {
+                  setError(err);
+                }
+              } else {
+                setError("An error occured while deleting - Please try again");
+              }
+              setOpenConfirmDelete(false);
+              document.body.style.overflow = "";
             }}
             warningText="Please confirm the ID of the role you want to delete"
           />
@@ -294,6 +304,13 @@ const RolesAccess = () => {
                               document.body.style.overflow = "hidden";
                               setOpenConfirmDelete(true);
                               setConfirmWithText(doc._id);
+                              setConfirmWithReturnObj({
+                                roleIdToDelete: doc._id,
+                                roleName: doc.roleName,
+                                roleDescription: doc.roleDescription,
+                                absoluteAdmin: doc.absoluteAdmin,
+                                tabAccess: doc.tabAccess
+                              });
                             } else {
                               setError(
                                 "Unauthorised Action: You do not have Delete Role Access - Please contact your admin"

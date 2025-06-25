@@ -17,13 +17,15 @@ export const DisallowedActionDialog = ({ onOk, warningText }: { onOk: () => void
 
 export const ConfirmActionByInputDialog = ({
   confirmWithText,
+  returnObject,
   onCancel,
   onConfirm,
   warningText
 }: {
   confirmWithText: string;
+  returnObject: any;
   onCancel: () => void;
-  onConfirm: (roleId: string) => void;
+  onConfirm: (deleted: boolean, returnObject: any) => void;
   warningText: string;
 }) => {
   const [error, setError] = useState("");
@@ -57,7 +59,7 @@ export const ConfirmActionByInputDialog = ({
                 setError("Invalid Confirmation: ID does not match");
               } else {
                 setError("");
-                onConfirm(confirmWithText);
+                onConfirm(true, returnObject);
               }
             }}
           >
