@@ -53,7 +53,7 @@ const RolesAccess = () => {
 
   useEffect(() => {
     if (searchValue !== "") {
-      const filteredData = roles.filter((obj: any) => obj.searchText.toLowerCase().includes(searchValue.toLowerCase()));
+      const filteredData = roles.filter((obj: any) => obj.roleName.toLowerCase().includes(searchValue.toLowerCase()));
       setLocalData(filteredData);
     } else {
       setLocalData(roles);
