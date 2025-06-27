@@ -1,14 +1,14 @@
 "use client";
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { LoaderButton, YesNoDialog } from "@/lib/component/compLibrary";
+import { LoaderButton, YesNoDialog } from "@/lib/component/general/compLibrary";
 import Link from "next/link";
 import { ImBrightnessContrast } from "react-icons/im";
 import { useState, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { fetchAccount } from "@/redux/features/accounts/accountThunks";
 import axios from "axios";
-import { ErrorDiv } from "@/lib/component/compLibrary";
+import { ErrorDiv } from "@/lib/component/general/compLibrary";
 import { resetAccount } from "@/redux/features/accounts/accountSlice";
 import { useRouter } from "next/navigation";
 import { useNavigationHandler } from "@/lib/shortFunctions/clientFunctions";

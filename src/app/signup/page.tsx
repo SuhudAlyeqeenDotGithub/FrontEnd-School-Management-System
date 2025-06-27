@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, LoaderButton } from "@/lib/component/compLibrary";
+import { InputComponent, ErrorDiv, LoaderButton } from "@/lib/component/general/compLibrary";
 import Link from "next/link";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { orgSignUp } from "@/redux/features/accounts/accountThunks";
@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 const signUpPage = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { isLoading, isSuccess, isError, errorMessage } = useAppSelector((state) => state.orgAccountData);
+  const { isLoading, isSuccess, isError, errorMessage } = useAppSelector((state) => state.accountData);
   const [inputData, setInputData] = useState({
     organisationName: "",
     organisationEmail: "",
@@ -53,18 +53,17 @@ const signUpPage = () => {
       return;
     }
 
-    // Use libphonenumber-js to validate phone number
-    const phoneNumber = parsePhoneNumberFromString(organisationPhone);
-    if (!phoneNumber || !phoneNumber.isValid()) {
-      setError("Please enter a valid phone number.");
-      return;
-    }
-
     const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&~*+-]).{8,}$/;
     if (!passwordStrengthRegex.test(organisationPassword)) {
       setError(
         "Password must be at least 8 characters long and include uppercase, lowercase, number, and at least one special character [!@#$%^&~*]."
       );
+      return;
+    }
+    // Use libphonenumber-js to validate phone number
+    const phoneNumber = parsePhoneNumberFromString(organisationPhone);
+    if (!phoneNumber || !phoneNumber.isValid()) {
+      setError("Please enter a valid phone number.");
       return;
     }
 

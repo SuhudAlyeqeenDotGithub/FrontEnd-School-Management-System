@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ContainerComponent, ErrorDiv, InputComponent } from "./compLibrary";
 
 export const DisallowedActionDialog = ({ onOk, warningText }: { onOk: () => void; warningText: string }) => {
@@ -11,6 +11,80 @@ export const DisallowedActionDialog = ({ onOk, warningText }: { onOk: () => void
           <button onClick={onOk}>Ok</button>
         </div>
       </ContainerComponent>
+    </div>
+  );
+};
+
+export const SearchableDropDownInput = ({
+  placeholder,
+  data,
+  displayKeys,
+  onSelected
+}: {
+  placeholder: string;
+  data: any[];
+  displayKeys: string[];
+  onSelected: (selectedDataId: string) => {};
+}) => {
+  const [searchValue, setSearchValue] = useState("");
+  const [localData, setLocalData] = useState<any>([]);
+  const [openOptions, setOpenOptions] = useState(false);
+
+  useEffect(() => {
+    if (searchValue !== "") {
+      const filteredOptions = data.filter((option) =>
+        option.searchText.toLowerCase().includes(searchValue.toLowerCase())
+      );
+      setLocalData(filteredOptions);
+    } else {
+      setOpenOptions(false);
+      setLocalData(data);
+    }
+  }, [searchValue]);
+
+  useEffect(() => {
+    setLocalData(data);
+  }, [data]);
+  return (
+    <div className="w-full items-center justify-center relative">
+      <InputComponent
+        placeholder={placeholder}
+        required
+        name="searchValue"
+        value={searchValue}
+        onChange={(e) => {
+          setOpenOptions(true);
+          setSearchValue(e.target.value);
+        }}
+      />
+      <div
+        className={`border border-foregroundColor-15 shadow-md w-full h-[150px] overflow-auto flex flex-col items-center bg-backgroundColor absolute gap-1 ${
+          !openOptions && "hidden"
+        }`}
+      >
+        {localData.length < 1 ? (
+          <div>No match value</div>
+        ) : (
+          localData.map((option: any, index: number) => {
+            return (
+              <div
+                className="w-full flex items-center hover:bg-foregroundColor-5 hover:cursor-pointer px-5 py-1 rounded-md"
+                key={index}
+                onClick={() => {
+                  setSearchValue(option["name"]);
+                  setOpenOptions(false);
+                  onSelected(option["_id"]);
+                }}
+              >
+                {displayKeys
+                  .filter((key: string) => key !== "searchText")
+                  .map((key: string) => option[key])
+                  .join(" | ")}
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 };

@@ -5,12 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { RiUserStarFill } from "react-icons/ri";
-import { checkDataType } from "../shortFunctions/shortFunctions";
-import { formatDate } from "../shortFunctions/shortFunctions";
+import { checkDataType } from "../../shortFunctions/shortFunctions";
+import { formatDate } from "../../shortFunctions/shortFunctions";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/redux/hooks";
 import { setTriggerUnsavedDialog } from "@/redux/features/general/generalSlice";
-import { useNavigationHandler } from "../shortFunctions/clientFunctions";
+import { useNavigationHandler } from "../../shortFunctions/clientFunctions";
 
 export const InputComponent = ({
   type = "text",

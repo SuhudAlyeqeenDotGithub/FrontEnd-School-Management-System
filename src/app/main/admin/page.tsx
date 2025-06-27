@@ -3,15 +3,15 @@ import { checkDataType } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { useEffect, useState } from "react";
 import { deleteRole, fetchRolesAccess } from "@/redux/features/admin/roles/roleThunks";
-import { ErrorDiv, LoaderDiv } from "@/lib/component/compLibrary";
+import { ErrorDiv, LoaderDiv } from "@/lib/component/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
-import { EditRoleDialog } from "@/lib/component/editRoleComponents";
+import { EditRoleDialog } from "@/lib/component/admin/editRoleComponents";
 import { setOnOpenRoleData } from "@/redux/features/general/generalSlice";
-import { NewRoleDialog } from "@/lib/component/newRoleComponent";
-import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/component/compLibrary3";
+import { NewRoleDialog } from "@/lib/component/admin/newRoleComponent";
+import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/component/general/compLibrary2";
 
 const RolesAccess = () => {
   const dispatch = useAppDispatch();
@@ -31,9 +31,24 @@ const RolesAccess = () => {
     tab.actions.map((action: any) => action.name)
   );
 
+  const hasActionAccess = (action: string) => {
+    return accountPermittedActions.includes(action);
+  };
   useEffect(() => {
+    if (!accountData.accountEmail || !accountData.accountStatus) {
+      return;
+    }
     const fetchRoles = async () => {
       try {
+        if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
+          console.log("accountData", accountData);
+          setError("Your account is no longer active - Please contact your admin");
+          return;
+        }
+        if (!hasActionAccess("View Roles") && !accountData.roleId.absoluteAdmin) {
+          setError("Unauthorized: You do not have access to view roles - Please contact your admin");
+          return;
+        }
         const response = await dispatch(fetchRolesAccess()).unwrap();
       } catch (error: any) {
         setError(error);
@@ -41,15 +56,11 @@ const RolesAccess = () => {
     };
 
     fetchRoles();
-  }, []);
+  }, [accountData]);
 
   useEffect(() => {
     setLocalData(roles);
   }, [roles]);
-
-  const hasActionAccess = (action: string) => {
-    return accountPermittedActions.includes(action);
-  };
 
   useEffect(() => {
     if (searchValue !== "") {
@@ -186,7 +197,7 @@ const RolesAccess = () => {
             <div className="flex w-[500px] h-[50px] items-center gap-2">
               <input
                 className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-                placeholder="Searh role (Name, Created By)"
+                placeholder="Search role (Role Name)"
                 name="searchValue"
                 onChange={(e) => {
                   setSearchValue(e.target.value);

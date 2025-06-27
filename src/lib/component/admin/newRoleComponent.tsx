@@ -1,15 +1,15 @@
 "use client";
-import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "./compLibrary";
+import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "../../component/general/compLibrary";
 import { IoClose } from "react-icons/io5";
 import { MdContentCopy } from "react-icons/md";
 import { useEffect, useState } from "react";
-import { useNavigationHandler } from "../shortFunctions/clientFunctions";
+import { useNavigationHandler } from "../../shortFunctions/clientFunctions";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
-import { checkDataType } from "../shortFunctions/shortFunctions";
-import { YesNoDialog } from "./compLibrary";
-import { DisallowedActionDialog } from "./compLibrary3";
+import { checkDataType } from "../../shortFunctions/shortFunctions";
+import { YesNoDialog } from "../../component/general/compLibrary";
+import { DisallowedActionDialog } from "../general/compLibrary2";
 import { TabActionDialog } from "./editRoleComponents";
 import { createRole } from "@/redux/features/admin/roles/roleThunks";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
@@ -127,12 +127,12 @@ export const NewRoleDialog = ({
       "Create Role",
       "Edit Role",
       "Delete Role",
-      "View Role",
+      "View Roles",
       "Create User",
       "Edit User",
       "Delete User",
       "View Users",
-      "View Activity Log"
+      "View Activity Logs"
     ],
     Course: [
       "Create Course",
@@ -150,7 +150,7 @@ export const NewRoleDialog = ({
     ],
     Student: ["Create Student", "Edit Student", "Delete Student", "View Students"],
     Enrollment: ["Create Enrollment", "Edit Enrollment", "Delete Enrollment", "View Enrollments"],
-    Attendance: ["Create Attendance", "Edit Attendance", "Delete Attendance", "View Attendance"],
+    Attendance: ["Create Attendance", "Edit Attendance", "Delete Attendance", "View Attendances"],
     Staff: [
       "Create Staff",
       "Edit Staff",

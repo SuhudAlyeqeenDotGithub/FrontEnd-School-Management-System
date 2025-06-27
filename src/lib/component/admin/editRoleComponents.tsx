@@ -1,18 +1,18 @@
 "use client";
-import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "./compLibrary";
+import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "../general/compLibrary";
 import { IoClose } from "react-icons/io5";
 import { MdContentCopy } from "react-icons/md";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useNavigationHandler } from "../shortFunctions/clientFunctions";
+import { useNavigationHandler } from "../../shortFunctions/clientFunctions";
 import { setTriggerUnsavedDialog } from "@/redux/features/general/generalSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
-import { checkDataType } from "../shortFunctions/shortFunctions";
-import { YesNoDialog } from "./compLibrary";
-import { DisallowedActionDialog } from "./compLibrary3";
+import { checkDataType } from "../../shortFunctions/shortFunctions";
+import { YesNoDialog } from "../general/compLibrary";
+import { DisallowedActionDialog } from "../general/compLibrary2";
 import { updateRole } from "@/redux/features/admin/roles/roleThunks";
 
 export const TabActionDialog = ({
@@ -243,12 +243,12 @@ export const EditRoleDialog = ({
       "Create Role",
       "Edit Role",
       "Delete Role",
-      "View Role",
+      "View Roles",
       "Create User",
       "Edit User",
       "Delete User",
       "View Users",
-      "View Activity Log"
+      "View Activity Logs"
     ],
     Course: [
       "Create Course",
@@ -266,7 +266,7 @@ export const EditRoleDialog = ({
     ],
     Student: ["Create Student", "Edit Student", "Delete Student", "View Students"],
     Enrollment: ["Create Enrollment", "Edit Enrollment", "Delete Enrollment", "View Enrollments"],
-    Attendance: ["Create Attendance", "Edit Attendance", "Delete Attendance", "View Attendance"],
+    Attendance: ["Create Attendance", "Edit Attendance", "Delete Attendance", "View Attendances"],
     Staff: [
       "Create Staff",
       "Edit Staff",
