@@ -31,7 +31,6 @@ export const SearchableDropDownInput = ({
   const [searchValue, setSearchValue] = useState("");
   const [localData, setLocalData] = useState<any>([]);
   const [openOptions, setOpenOptions] = useState(false);
-
   useEffect(() => {
     if (searchValue !== "") {
       const filteredOptions = data.filter((option) =>

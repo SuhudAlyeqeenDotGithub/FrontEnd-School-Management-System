@@ -106,9 +106,12 @@ export interface DeleteParamRoleType {
 }
 
 export interface ParamUserType {
-  roleName: string;
-  roleDescription: string;
-  tabAccess: TabAccessType[];
+  staffId: string;
+  userName: string;
+  userEmail: string;
+  userPassword: string;
+  userStatus: string;
+  roleId: string;
 }
 
 export interface DeleteParamUserType {
@@ -127,20 +130,4 @@ export interface ReturnUserType {
   accountEmail: string;
   searchText: string;
   roleId: ReturnRoleType;
-}
-
-export interface ParamUserType {
-  userName: string;
-  userStaffId: string;
-  userEmail: string;
-  userPassword: string;
-  roleId: string;
-}
-
-export interface DeleteParamUserType {
-  roleIdToDelete: string;
-  roleName: string;
-  roleDescription: string;
-  absoluteAdmin: boolean;
-  tabAccess: TabAccessType[];
 }

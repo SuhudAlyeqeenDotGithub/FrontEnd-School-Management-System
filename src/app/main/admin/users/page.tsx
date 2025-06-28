@@ -169,12 +169,14 @@ const Users = () => {
                 setOpenNewUserDialog(!notSave);
                 return {};
               }}
-              rolesData={roles.map(({ _id, roleName, tabAccess }: any) => ({
-                _id,
-                name: roleName,
-                tabAccess,
-                searchText: _id + roleName
-              }))}
+              rolesData={roles
+                .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
+                .map(({ _id, roleName, tabAccess }: any) => ({
+                  _id,
+                  name: roleName,
+                  tabAccess,
+                  searchText: _id + roleName
+                }))}
             />
           </div>
         )}

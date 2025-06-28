@@ -8,57 +8,57 @@ export const getUsers = createAsyncThunk<ReturnUserType[]>("orgaccount/getusers"
 
     return response?.data;
   } catch (error: any) {
-    return rejectWithValue(error.response?.data.message || error.message || "Error fetching roles and access");
+    return rejectWithValue(error.response?.data.message || error.message || "Error fetching users and access");
   }
 });
 
 export const createUser = createAsyncThunk<ReturnUserType[], ParamUserType>(
   "orgaccount/createuser",
-  async (roleData, { rejectWithValue }) => {
+  async (userData, { rejectWithValue }) => {
     try {
       const response = await handleApiRequest(
         "post",
         "http://localhost:5000/alyeqeenschoolapp/api/admin/createuser",
-        roleData
+        userData
       );
 
       return response?.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data.message || error.message || "Error creating role");
+      return rejectWithValue(error.response?.data.message || error.message || "Error creating user");
     }
   }
 );
 
 export const updateUser = createAsyncThunk<ReturnUserType[], ParamUserType>(
   "orgaccount/updateuser",
-  async (roleUpdateData, { rejectWithValue }) => {
+  async (userUpdateData, { rejectWithValue }) => {
     try {
       const response = await handleApiRequest(
         "put",
         "http://localhost:5000/alyeqeenschoolapp/api/admin/updateuser",
-        roleUpdateData
+        userUpdateData
       );
 
       return response?.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data.message || error.message || "Error creating role");
+      return rejectWithValue(error.response?.data.message || error.message || "Error creating user");
     }
   }
 );
 
 export const deleteUser = createAsyncThunk<ReturnUserType[], DeleteParamUserType>(
   "orgaccount/deleteuser",
-  async (roleDeleteData, { rejectWithValue }) => {
+  async (userDeleteData, { rejectWithValue }) => {
     try {
       const response = await handleApiRequest(
         "delete",
         "http://localhost:5000/alyeqeenschoolapp/api/admin/deleteuser",
-        roleDeleteData
+        userDeleteData
       );
 
       return response?.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data.message || error.message || "Error deleting role");
+      return rejectWithValue(error.response?.data.message || error.message || "Error deleting user");
     }
   }
 );

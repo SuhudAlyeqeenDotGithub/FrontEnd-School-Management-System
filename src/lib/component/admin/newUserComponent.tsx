@@ -25,6 +25,7 @@ const NewUserComponent = ({
   rolesData: any[];
 }) => {
   const { handleUnload } = useNavigationHandler();
+  const dispatch = useAppDispatch();
   const { users, isLoading } = useAppSelector((state) => state.usersData);
   const [unsaved, setUnsaved] = useState(false);
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
@@ -114,7 +115,7 @@ const NewUserComponent = ({
         <div className="flex justify-between items-center gap-5">
           <LoaderButton
             buttonText="Create"
-            loadingButtonText="Creating Role..."
+            loadingButtonText="Creating User..."
             disabled={!unsaved}
             buttonStyle="w-full"
             isLoading={isLoading}
@@ -122,10 +123,10 @@ const NewUserComponent = ({
               if (validationPassed()) {
                 setError("");
                 try {
-                  //   const response = await dispatch(createRole(localData)).unwrap();
-                  //   if (response) {
-                  //     onCreate(true);
-                  //   }
+                  const response = await dispatch(createUser(localData)).unwrap();
+                  if (response) {
+                    onCreate(true);
+                  }
                 } catch (err: any) {
                   setError(err);
                 }
@@ -174,10 +175,10 @@ const NewUserComponent = ({
           name="userStatus"
           value={userStatus}
           onChange={handleInputChange}
-          className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
+          className="bg-backgroundColor border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
         >
           <option disabled selected value="">
-            User Status
+            User Status *
           </option>
           <option value="Active"> User Status - Active</option>
           <option value="Locked"> User Status - Locked</option>
@@ -187,7 +188,6 @@ const NewUserComponent = ({
           data={rolesData}
           displayKeys={["_id", "name", "searchText"]}
           onSelected={(roleId) => {
-            console.log("yeh i got the selected role", roleId);
             setLocalData((prev) => ({ ...prev, roleId: roleId }));
             setUnsaved(true);
             const roleObj = rolesData.find((role: any) => role._id === roleId);
