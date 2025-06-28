@@ -28,7 +28,7 @@ const Users = () => {
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
   const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
-    tab.actions.map((action: any) => action.name)
+    tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
   );
 
   const hasActionAccess = (action: string) => {

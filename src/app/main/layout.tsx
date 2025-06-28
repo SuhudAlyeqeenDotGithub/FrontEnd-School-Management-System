@@ -32,7 +32,7 @@ const layout = ({ children }: { children: ReactNode }) => {
           await dispatch(fetchAccount());
         }
       } catch (err: any) {
-        throw err;
+        setError(err);
       }
     };
 
@@ -194,7 +194,10 @@ const layout = ({ children }: { children: ReactNode }) => {
           </div>
         </div>
       </div>
-      {children}
+      <div>
+        {error && <ErrorDiv>{error}</ErrorDiv>}
+        {children}
+      </div>
     </div>
   );
 };

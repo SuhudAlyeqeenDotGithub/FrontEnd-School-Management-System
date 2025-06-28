@@ -28,26 +28,18 @@ export const useNavigationHandler = () => {
     dispatch(setProceedUrl(path));
     if (hasBeforeUnloadListener) {
       if (proceed) {
-        console.log("proceed navigation", path);
-        console.log("proceed", proceed);
         handleUnload("remove");
         dispatch(setTriggerUnsavedDialog(false));
         dispatch(setProceedUrl(""));
         document.body.style.overflow = "";
         router.push(path);
       } else if (!proceed && triggerUnsavedDialog) {
-        console.log("do not proceed navigation and close dialog", path);
-        console.log("proceed", proceed);
         dispatch(setTriggerUnsavedDialog(false));
       } else {
-        console.log("else guy running", path);
-        console.log("proceed", proceed);
         document.body.style.overflow = "hidden";
         dispatch(setTriggerUnsavedDialog(true));
       }
     } else {
-      console.log("no unload listener on", path);
-      console.log("proceed", proceed);
       handleUnload("remove");
       dispatch(setProceedUrl(""));
       document.body.style.overflow = "";

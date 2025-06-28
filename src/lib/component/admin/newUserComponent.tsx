@@ -171,18 +171,13 @@ const NewUserComponent = ({
           value={userEmail}
           onChange={handleInputChange}
         />
-        <select
-          name="userStatus"
-          value={userStatus}
+        <InputComponent
+          placeholder="Assign User Password*"
+          required
+          name="userPassword"
+          value={userPassword}
           onChange={handleInputChange}
-          className="bg-backgroundColor border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-        >
-          <option disabled selected value="">
-            User Status *
-          </option>
-          <option value="Active"> User Status - Active</option>
-          <option value="Locked"> User Status - Locked</option>
-        </select>
+        />
         <SearchableDropDownInput
           placeholder="Search Role - (ID, Name)"
           data={rolesData}
@@ -211,6 +206,18 @@ const NewUserComponent = ({
             return {};
           }}
         />
+        <select
+          name="userStatus"
+          value={userStatus}
+          onChange={handleInputChange}
+          className="bg-backgroundColor border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
+        >
+          <option disabled selected value="">
+            User Status *
+          </option>
+          <option value="Active"> User Status - Active</option>
+          <option value="Locked"> User Status - Locked</option>
+        </select>
       </div>
       {/* tab access div */}
       <div className="flex flex-col gap-5">
