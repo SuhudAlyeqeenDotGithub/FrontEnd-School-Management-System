@@ -310,7 +310,6 @@ export const EditRoleDialog = ({
             if (container) {
               container.style.overflow = "";
             }
-            handleUnload("remove");
             setOpenUnsavedDialog(false);
           }}
           onYes={() => {

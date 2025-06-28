@@ -19,12 +19,14 @@ export const SearchableDropDownInput = ({
   placeholder,
   data,
   displayKeys,
-  onSelected
+  onSelected,
+  onClearSearch
 }: {
   placeholder: string;
   data: any[];
   displayKeys: string[];
   onSelected: (selectedDataId: string) => {};
+  onClearSearch: (cleared: boolean) => {};
 }) => {
   const [searchValue, setSearchValue] = useState("");
   const [localData, setLocalData] = useState<any>([]);
@@ -39,6 +41,7 @@ export const SearchableDropDownInput = ({
     } else {
       setOpenOptions(false);
       setLocalData(data);
+      onClearSearch(true);
     }
   }, [searchValue]);
 
@@ -77,7 +80,7 @@ export const SearchableDropDownInput = ({
                 }}
               >
                 {displayKeys
-                  .filter((key: string) => key !== "searchText")
+                  .filter((key: string) => key !== "searchText" && key !== "_id")
                   .map((key: string) => option[key])
                   .join(" | ")}
               </div>

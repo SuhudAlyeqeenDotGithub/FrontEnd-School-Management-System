@@ -246,6 +246,7 @@ const Users = () => {
                     setError("You do not have Create Role Access - Please contact your admin");
                   }
                 }}
+                disabled={!hasActionAccess("Create User")}
               >
                 New User
               </button>
@@ -292,7 +293,7 @@ const Users = () => {
                   <LoaderDiv
                     type="spinnerText"
                     borderColor="foregroundColor"
-                    text="Loading Roles..."
+                    text="Loading Users..."
                     textColor="foregroundColor"
                     dimension="h-10 w-10"
                   />

@@ -36,12 +36,22 @@ const NewUserComponent = ({
     userName: "",
     userEmail: "",
     userPassword: "",
+    userStatus: "",
     roleId: ""
   });
 
-  const { staffId, userName, userEmail, userPassword, roleId } = localData;
+  useEffect(() => {
+    if (!unsaved) return;
+    handleUnload("add");
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    return () => {
+      handleUnload("remove");
+    };
+  }, [unsaved]);
+
+  const { staffId, userName, userEmail, userPassword, userStatus, roleId } = localData;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setUnsaved(true);
     const { name, value } = e.target;
     setLocalData((prev: any) => ({ ...prev, [name]: value }));
@@ -90,11 +100,11 @@ const NewUserComponent = ({
             if (container) {
               container.style.overflow = "";
             }
-            handleUnload("remove");
             setOpenUnsavedDialog(false);
           }}
           onYes={() => {
             handleUnload("remove");
+            onClose(true);
           }}
         />
       )}
@@ -160,6 +170,18 @@ const NewUserComponent = ({
           value={userEmail}
           onChange={handleInputChange}
         />
+        <select
+          name="userStatus"
+          value={userStatus}
+          onChange={handleInputChange}
+          className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
+        >
+          <option disabled selected value="">
+            User Status
+          </option>
+          <option value="Active"> User Status - Active</option>
+          <option value="Locked"> User Status - Locked</option>
+        </select>
         <SearchableDropDownInput
           placeholder="Search Role - (ID, Name)"
           data={rolesData}
@@ -179,6 +201,13 @@ const NewUserComponent = ({
                 : [];
             setUserTabs(userTabs);
             setUserPermittedActions(userActions);
+            return {};
+          }}
+          onClearSearch={(clearTabPermission) => {
+            if (clearTabPermission) {
+              setUserTabs([]);
+              setUserPermittedActions([]);
+            }
             return {};
           }}
         />

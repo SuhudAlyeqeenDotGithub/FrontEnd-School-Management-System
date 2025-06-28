@@ -216,6 +216,7 @@ const RolesAccess = () => {
                     setError("You do not have Create Role Access - Please contact your admin");
                   }
                 }}
+                disabled={!hasActionAccess("Create Role")}
               >
                 New Role
               </button>

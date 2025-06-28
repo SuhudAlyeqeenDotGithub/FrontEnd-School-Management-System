@@ -128,7 +128,7 @@ export const YesNoDialog = ({
   warningText: string;
 }) => {
   return (
-    <div className="w-[100%] h-[100%] bg-foregroundColor-50 items-center justify-center flex fixed inset-0">
+    <div className="w-[100%] h-[100%] z-50 bg-foregroundColor-50 items-center justify-center flex fixed inset-0">
       <ContainerComponent style="w-[500px] h-[150px] z-50 flex flex-col bg-backgroundColor gap-10 items-center justify-center">
         <span>{warningText}</span>
         <div className="w-full flex justify-between px-30 items-center">

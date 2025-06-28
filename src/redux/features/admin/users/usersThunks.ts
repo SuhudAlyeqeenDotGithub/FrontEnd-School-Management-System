@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { ReturnUserType, ParamRoleType, DeleteParamRoleType } from "@/interfaces/interfaces";
+import { ReturnUserType, ParamUserType, DeleteParamUserType } from "@/interfaces/interfaces";
 import { handleApiRequest } from "@/axios/axiosClient";
 
 export const getUsers = createAsyncThunk<ReturnUserType[]>("orgaccount/getusers", async (_, { rejectWithValue }) => {
@@ -12,7 +12,7 @@ export const getUsers = createAsyncThunk<ReturnUserType[]>("orgaccount/getusers"
   }
 });
 
-export const createUser = createAsyncThunk<ReturnUserType[], ParamRoleType>(
+export const createUser = createAsyncThunk<ReturnUserType[], ParamUserType>(
   "orgaccount/createuser",
   async (roleData, { rejectWithValue }) => {
     try {
@@ -29,7 +29,7 @@ export const createUser = createAsyncThunk<ReturnUserType[], ParamRoleType>(
   }
 );
 
-export const updateUser = createAsyncThunk<ReturnUserType[], ParamRoleType>(
+export const updateUser = createAsyncThunk<ReturnUserType[], ParamUserType>(
   "orgaccount/updateuser",
   async (roleUpdateData, { rejectWithValue }) => {
     try {
@@ -46,7 +46,7 @@ export const updateUser = createAsyncThunk<ReturnUserType[], ParamRoleType>(
   }
 );
 
-export const deleteUser = createAsyncThunk<ReturnUserType[], DeleteParamRoleType>(
+export const deleteUser = createAsyncThunk<ReturnUserType[], DeleteParamUserType>(
   "orgaccount/deleteuser",
   async (roleDeleteData, { rejectWithValue }) => {
     try {
