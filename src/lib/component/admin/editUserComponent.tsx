@@ -19,6 +19,7 @@ const EditUserComponent = ({
   onClose,
   onCreate,
   userData,
+  absoluteAdmin,
   rolesData
 }: {
   onClose: (close: boolean) => {};
@@ -28,10 +29,11 @@ const EditUserComponent = ({
     staffId: string;
     userName: string;
     userEmail: string;
-    userPassword: "Change Password?";
+    userPassword: "Change01@Password123?";
     userStatus: string;
     roleId: string;
   };
+  absoluteAdmin: boolean;
 }) => {
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
@@ -136,8 +138,8 @@ const EditUserComponent = ({
         <h2>Edit User</h2>
         <div className="flex justify-between items-center gap-5">
           <LoaderButton
-            buttonText="Create"
-            loadingButtonText="Creating User..."
+            buttonText="Update"
+            loadingButtonText="Saving User..."
             disabled={!unsaved}
             buttonStyle="w-full"
             isLoading={isLoading}
@@ -201,6 +203,7 @@ const EditUserComponent = ({
           onChange={handleInputChange}
         />
         <SearchableDropDownInput
+          disabled={absoluteAdmin}
           defaultText={userData.roleId}
           placeholder="Search Role - (ID, Name)"
           data={rolesData}
@@ -230,6 +233,7 @@ const EditUserComponent = ({
           }}
         />
         <select
+          disabled={absoluteAdmin}
           name="userStatus"
           value={userStatus}
           onChange={handleInputChange}

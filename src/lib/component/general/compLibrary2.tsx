@@ -16,6 +16,7 @@ export const DisallowedActionDialog = ({ onOk, warningText }: { onOk: () => void
 };
 
 export const SearchableDropDownInput = ({
+  disabled = false,
   placeholder,
   data,
   displayKeys,
@@ -23,6 +24,7 @@ export const SearchableDropDownInput = ({
   onClearSearch,
   defaultText = ""
 }: {
+  disabled?: boolean;
   placeholder: string;
   defaultText?: string;
   data: any[];
@@ -33,6 +35,10 @@ export const SearchableDropDownInput = ({
   const [searchValue, setSearchValue] = useState(defaultText.split("|")[1]);
   const [localData, setLocalData] = useState<any>([]);
   const [openOptions, setOpenOptions] = useState(false);
+
+  // console.log("searchValue", searchValue);
+  // console.log("defaultText", defaultText);
+  // console.log("defaultText.split()[1]", defaultText.split("|")[0]);
 
   useEffect(() => {
     if (defaultText.split("|")[0]) {
@@ -62,6 +68,7 @@ export const SearchableDropDownInput = ({
       <InputComponent
         placeholder={placeholder}
         required
+        disabled={disabled}
         name="searchValue"
         value={searchValue}
         onChange={(e) => {

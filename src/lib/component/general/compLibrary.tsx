@@ -14,6 +14,7 @@ import { useNavigationHandler } from "../../shortFunctions/clientFunctions";
 import { IoClose } from "react-icons/io5";
 export const InputComponent = ({
   type = "text",
+  disabled = false,
   placeholder,
   required = false,
   name,
@@ -24,6 +25,7 @@ export const InputComponent = ({
     "border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full";
   return (
     <input
+      disabled={disabled}
       type={type}
       placeholder={placeholder}
       name={name}

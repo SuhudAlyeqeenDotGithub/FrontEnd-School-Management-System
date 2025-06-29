@@ -175,6 +175,7 @@ const Users = () => {
                   tabAccess,
                   searchText: _id + roleName
                 }))}
+              absoluteAdmin={onOpenEditUserData.absoluteAdmin}
             />
           </div>
         )}
@@ -344,6 +345,7 @@ const Users = () => {
                             staffId,
                             userName: accountName,
                             userEmail: accountEmail,
+                            absoluteAdmin: roleId.absoluteAdmin,
                             roleId: roleId._id + "|" + roleId.roleName
                           });
                         } else {

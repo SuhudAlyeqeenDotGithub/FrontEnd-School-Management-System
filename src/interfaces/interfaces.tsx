@@ -2,6 +2,7 @@
 import { ReactNode } from "react";
 
 export interface InputComponentType {
+  disabled?: boolean;
   type?: string;
   placeholder: string;
   required?: boolean;
