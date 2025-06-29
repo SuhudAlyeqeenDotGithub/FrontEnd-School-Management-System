@@ -280,7 +280,17 @@ export const EditRoleDialog = ({
   };
   return (
     <ContainerComponent id="roleDialogContainer" style="w-[60%] h-[90%] gap-10 overflow-auto flex flex-col">
-      {error && <ErrorDiv>{error}</ErrorDiv>}
+      {error && (
+        <ErrorDiv
+          onClose={(close) => {
+            if (close) {
+              setError("");
+            }
+          }}
+        >
+          {error}
+        </ErrorDiv>
+      )}
       {openTabActionDialog && (
         <TabActionDialog
           tabData={tabActionDialogData}

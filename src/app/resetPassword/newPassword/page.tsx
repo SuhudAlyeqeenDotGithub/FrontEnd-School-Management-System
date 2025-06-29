@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, LoaderButton, SuccessDiv } from "@/lib/component/compLibrary";
+import { InputComponent, ErrorDiv, LoaderButton, SuccessDiv } from "@/lib/component/general/compLibrary";
 import Link from "next/link";
 import { useAppDispatch } from "@/redux/hooks";
 import { useAppSelector } from "@/redux/hooks";
@@ -10,7 +10,7 @@ import { setNewPassword } from "@/redux/features/accounts/accountThunks";
 const signUpPage = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { isLoading, isSuccess, isError, errorMessage } = useAppSelector((state) => state.orgAccountData);
+  const { isLoading, isSuccess, isError, errorMessage } = useAppSelector((state) => state.accountData);
   const [inputData, setInputData] = useState({
     organisationEmail: "",
     organisationPhone: "",
@@ -84,7 +84,17 @@ const signUpPage = () => {
     <div className="flex flex-col gap-5 border border-foregroundColor-20 p-8 rounded-lg shadow justify-center items-center w-3/4">
       <h2>Reset Password</h2>
       <h3>Please provide the organisation email and the new password</h3>
-      {error && <ErrorDiv>{error}</ErrorDiv>}
+      {error && (
+        <ErrorDiv
+          onClose={(close) => {
+            if (close) {
+              setError("");
+            }
+          }}
+        >
+          {error}
+        </ErrorDiv>
+      )}
       <form className="flex flex-col gap-4 mt-5 w-full items-center" onSubmit={handleSubmit}>
         <InputComponent
           type="email"

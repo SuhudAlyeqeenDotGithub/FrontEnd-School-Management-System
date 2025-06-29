@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, SuccessDiv, LoaderButton } from "@/lib/component/compLibrary";
+import { InputComponent, ErrorDiv, SuccessDiv, LoaderButton } from "@/lib/component/general/compLibrary";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -59,7 +59,17 @@ const SendResetCode = () => {
     <div className="flex flex-col gap-5 border border-foregroundColor-20 p-8 rounded-lg shadow justify-center items-center w-3/4">
       <h2>Reset Password - Provide Email</h2>
       <h3>Please provide the associated email, you will receive and email with a code and be redirected</h3>
-      {error && <ErrorDiv>{error}</ErrorDiv>}
+      {error && (
+        <ErrorDiv
+          onClose={(close) => {
+            if (close) {
+              setError("");
+            }
+          }}
+        >
+          {error}
+        </ErrorDiv>
+      )}
       {success && <SuccessDiv>{success}</SuccessDiv>}
       <form className="flex flex-col gap-2 mt-5 w-full items-center" onSubmit={handleSubmit}>
         <InputComponent

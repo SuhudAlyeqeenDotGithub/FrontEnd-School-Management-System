@@ -62,7 +62,17 @@ const signInPage = () => {
         <div className="flex flex-col gap-5 border border-foregroundColor-20 p-8 rounded-lg shadow justify-center items-center w-3/4">
           <h2>Sign In</h2>
           <h3>Sign in with your details</h3>
-          {error && <ErrorDiv>{error}</ErrorDiv>}
+          {error && (
+            <ErrorDiv
+              onClose={(close) => {
+                if (close) {
+                  setError("");
+                }
+              }}
+            >
+              {error}
+            </ErrorDiv>
+          )}
           <form className="flex flex-col gap-2 mt-5 w-full items-center" onSubmit={handleSubmit}>
             <InputComponent
               type="email"

@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/redux/hooks";
 import { setTriggerUnsavedDialog } from "@/redux/features/general/generalSlice";
 import { useNavigationHandler } from "../../shortFunctions/clientFunctions";
-
+import { IoClose } from "react-icons/io5";
 export const InputComponent = ({
   type = "text",
   placeholder,
@@ -51,8 +51,19 @@ export const ContainerComponent = ({
   );
 };
 
-export const ErrorDiv = ({ children }: { children: React.ReactNode }) => {
-  return <div className="text-red-500 text-sm bg-red-50 border border-red-400 p-2 rounded">{children}</div>;
+export const ErrorDiv = ({ children, onClose }: { children: React.ReactNode; onClose: (close: boolean) => void }) => {
+  return (
+    <div className="text-red-500 text-sm bg-red-50 border border-red-400 p-2 rounded flex gap-5 justify-between items-center">
+      {children}
+      <IoClose
+        title="Close"
+        className="hover:cursor-pointer"
+        onClick={() => {
+          onClose(true);
+        }}
+      />
+    </div>
+  );
 };
 
 export const SuccessDiv = ({ children }: { children: React.ReactNode }) => {

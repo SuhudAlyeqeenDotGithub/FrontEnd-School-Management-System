@@ -108,7 +108,17 @@ const layout = ({ children }: { children: ReactNode }) => {
 
   const profileDialog = (
     <div className="flex flex-col border border-foregroundColor-20 w-[400px] max-h-[80vh] p-5 mt-1 gap-5 rounded-lg shadow-md absolute top-[100%] right-5 z-20 bg-backgroundColor">
-      {error && <ErrorDiv>{error}</ErrorDiv>}
+      {error && (
+        <ErrorDiv
+          onClose={(close) => {
+            if (close) {
+              setError("");
+            }
+          }}
+        >
+          {error}
+        </ErrorDiv>
+      )}
       <div className="w-full flex justify-end">
         <LoaderButton
           buttonText="Sign Out"
@@ -127,6 +137,7 @@ const layout = ({ children }: { children: ReactNode }) => {
           <span className="text-[18px] font-bold">{organisationId.accountName}</span>
           <span className="text-[15px] font-semibold text-foregroundColor-90">{accountName}</span>
           <span className="text-[15px] text-foregroundColor-60">{accountEmail}</span>
+          <span className="text-[15px] text-foregroundColor-60">({accountData.roleId.roleName.slice(0, 16)})</span>
         </div>
       </div>
     </div>
@@ -195,7 +206,17 @@ const layout = ({ children }: { children: ReactNode }) => {
         </div>
       </div>
       <div>
-        {error && <ErrorDiv>{error}</ErrorDiv>}
+        {error && (
+          <ErrorDiv
+            onClose={(close) => {
+              if (close) {
+                setError("");
+              }
+            }}
+          >
+            {error}
+          </ErrorDiv>
+        )}
         {children}
       </div>
     </div>

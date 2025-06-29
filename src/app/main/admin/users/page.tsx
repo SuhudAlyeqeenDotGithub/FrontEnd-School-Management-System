@@ -136,7 +136,17 @@ const Users = () => {
 
   return (
     <div className="px-8 py-6 w-full">
-      {error && <ErrorDiv>{error}</ErrorDiv>}
+      {error && (
+        <ErrorDiv
+          onClose={(close) => {
+            if (close) {
+              setError("");
+            }
+          }}
+        >
+          {error}
+        </ErrorDiv>
+      )}
 
       {/* data table section */}
       <div className="">

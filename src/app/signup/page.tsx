@@ -96,7 +96,17 @@ const signUpPage = () => {
         <div className="flex flex-col gap-5 border border-foregroundColor-20 p-8 rounded-lg shadow justify-center items-center w-3/4">
           <h2>Sign Up</h2>
           <h3>Please provide your organisation details</h3>
-          {error && <ErrorDiv>{error}</ErrorDiv>}
+          {error && (
+            <ErrorDiv
+              onClose={(close) => {
+                if (close) {
+                  setError("");
+                }
+              }}
+            >
+              {error}
+            </ErrorDiv>
+          )}
           <form className="flex flex-col gap-4 mt-5 w-full items-center" onSubmit={handleSubmit}>
             <InputComponent
               placeholder="Organisation Name *"

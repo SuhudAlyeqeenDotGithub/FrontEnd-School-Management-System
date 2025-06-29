@@ -110,7 +110,17 @@ export const ConfirmActionByInputDialog = ({
     <div className="w-[100%] h-[100%] bg-foregroundColor-50 items-center justify-center flex fixed inset-0">
       <ContainerComponent style="min-w-[500px] max-h-[300px] z-50 flex flex-col bg-backgroundColor gap-5 items-center justify-center">
         <span>{warningText}</span>
-        {error && <ErrorDiv>{error}</ErrorDiv>}
+        {error && (
+          <ErrorDiv
+            onClose={(close) => {
+              if (close) {
+                setError("");
+              }
+            }}
+          >
+            {error}
+          </ErrorDiv>
+        )}
         <InputComponent
           type=""
           placeholder="Confirm ID"

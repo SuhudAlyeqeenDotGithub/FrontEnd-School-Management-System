@@ -63,6 +63,10 @@ const NewUserComponent = ({
       setError("Missing Data: Please enter a user name");
       return false;
     }
+    if (!staffId) {
+      setError("Missing Data: Please enter a staff Id");
+      return false;
+    }
     if (userName.length < 5) {
       setError("Data Error: Role name is too short");
       return false;
@@ -92,7 +96,17 @@ const NewUserComponent = ({
 
   return (
     <ContainerComponent id="usersDialogContainer" style="w-[60%] h-[90%] gap-10 overflow-auto flex flex-col">
-      {error && <ErrorDiv>{error}</ErrorDiv>}
+      {error && (
+        <ErrorDiv
+          onClose={(close) => {
+            if (close) {
+              setError("");
+            }
+          }}
+        >
+          {error}
+        </ErrorDiv>
+      )}
       {openUnsavedDialog && (
         <YesNoDialog
           warningText="You have unsaved changes. Are you sure you want to proceed?"
