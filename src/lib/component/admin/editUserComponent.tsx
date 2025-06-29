@@ -15,14 +15,23 @@ import { TabActionDialog } from "./editRoleComponents";
 import { createUser } from "@/redux/features/admin/users/usersThunks";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 
-const NewUserComponent = ({
+const EditUserComponent = ({
   onClose,
   onCreate,
+  userData,
   rolesData
 }: {
   onClose: (close: boolean) => {};
   onCreate: (create: boolean) => {};
   rolesData: any[];
+  userData: {
+    staffId: string;
+    userName: string;
+    userEmail: string;
+    userPassword: "Change Password?";
+    userStatus: string;
+    roleId: string;
+  };
 }) => {
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
@@ -33,14 +42,13 @@ const NewUserComponent = ({
   const [userTabs, setUserTabs] = useState<string[]>([]);
   const [userPermittedActions, setUserPermittedActions] = useState<string[]>([]);
   const [localData, setLocalData] = useState({
-    staffId: "",
-    userName: "",
-    userEmail: "",
-    userPassword: "",
-    userStatus: "",
-    roleId: ""
+    staffId: userData.staffId,
+    userName: userData.userName,
+    userEmail: userData.userEmail,
+    userPassword: "Change Password?",
+    userStatus: userData.userStatus,
+    roleId: userData.roleId.split("|")[0]
   });
-
   useEffect(() => {
     if (!unsaved) return;
     handleUnload("add");
@@ -125,7 +133,7 @@ const NewUserComponent = ({
       )}
       {/* top div */}
       <div className="flex justify-between items-center">
-        <h2>New User</h2>
+        <h2>Edit User</h2>
         <div className="flex justify-between items-center gap-5">
           <LoaderButton
             buttonText="Create"
@@ -193,6 +201,7 @@ const NewUserComponent = ({
           onChange={handleInputChange}
         />
         <SearchableDropDownInput
+          defaultText={userData.roleId}
           placeholder="Search Role - (ID, Name)"
           data={rolesData}
           displayKeys={["_id", "name", "searchText"]}
@@ -266,4 +275,4 @@ const NewUserComponent = ({
   );
 };
 
-export default NewUserComponent;
+export default EditUserComponent;

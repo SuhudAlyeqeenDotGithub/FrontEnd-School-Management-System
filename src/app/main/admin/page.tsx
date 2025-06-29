@@ -46,7 +46,7 @@ const RolesAccess = () => {
           return;
         }
         if (!hasActionAccess("View Roles") && !accountData.roleId.absoluteAdmin) {
-          setError("Unauthorized: You do not have access to view roles - Please contact your admin");
+          setError("Unauthorized(Client): You do not have access to view roles - Please contact your admin");
           return;
         }
         const response = await dispatch(fetchRolesAccess()).unwrap();
@@ -84,13 +84,13 @@ const RolesAccess = () => {
     } else {
       nextOrder = "dsc";
     }
-    console.log("localData", localData);
-    console.log("sortKey", sortKey);
-    console.log("first item", [...localData][0][sortKey]);
-    console.log("keyType", keyType);
-    console.log("sortOrder", sortOrder);
+    // console.log("localData", localData);
+    // console.log("sortKey", sortKey);
+    // console.log("first item", [...localData][0][sortKey]);
+    // console.log("keyType", keyType);
+    // console.log("sortOrder", sortOrder);
     const sortedData = [...localData].sort((a, b) => {
-      console.log("a", a);
+      // console.log("a", a);
       if (keyType === "number") {
         return sortOrder === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
       } else if (keyType === "date") {

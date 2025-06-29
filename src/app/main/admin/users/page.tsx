@@ -11,6 +11,7 @@ import NewUserComponent from "@/lib/component/admin/newUserComponent";
 import { getUsers } from "@/redux/features/admin/users/usersThunks";
 import { fetchRolesAccess } from "@/redux/features/admin/roles/roleThunks";
 import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/component/general/compLibrary2";
+import EditUserComponent from "@/lib/component/admin/editUserComponent";
 
 const Users = () => {
   const dispatch = useAppDispatch();
@@ -24,6 +25,7 @@ const Users = () => {
   const [openEditUserDialog, setOpenEditUserDialog] = useState(false);
   const [openNewUserDialog, setOpenNewUserDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
+  const [onOpenEditUserData, setOnOpenEditUserData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
@@ -69,8 +71,8 @@ const Users = () => {
           setError("Your account is no longer active - Please contact your admin");
           return;
         }
-        if (!hasActionAccess("View Roles") && !accountData.roleId.absoluteAdmin) {
-          setError("Unauthorized: You do not have access to view roles - Please contact your admin");
+        if (!hasActionAccess("View Users") && !accountData.roleId.absoluteAdmin) {
+          setError("Unauthorized: You do not have access to view users - Please contact your admin");
           return;
         }
         const response = await dispatch(fetchRolesAccess()).unwrap();
@@ -99,7 +101,9 @@ const Users = () => {
   const handleSort = (sortKey: any) => {
     const keyType = checkDataType([...localData][0][sortKey]);
 
-    const sortOrder = sortOrderTracker[sortKey];
+    let sortOrder = sortOrderTracker[sortKey];
+
+    console.log("sortOrder", sortOrder);
 
     let nextOrder: string;
 
@@ -108,13 +112,12 @@ const Users = () => {
     } else {
       nextOrder = "dsc";
     }
-    console.log("localData", localData);
-    console.log("sortKey", sortKey);
-    console.log("first item", [...localData][0][sortKey]);
-    console.log("keyType", keyType);
-    console.log("sortOrder", sortOrder);
+    // console.log("localData", localData);
+    // console.log("sortKey", sortKey);
+    // console.log("first item", [...localData][0][sortKey]);
+    // console.log("keyType", keyType);
+    // console.log("sortOrder", sortOrder);
     const sortedData = [...localData].sort((a, b) => {
-      console.log("a", a);
       if (keyType === "number") {
         return sortOrder === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
       } else if (keyType === "date") {
@@ -150,22 +153,31 @@ const Users = () => {
 
       {/* data table section */}
       <div className="">
-        {/* {openEditUserDialog && (
+        {openEditUserDialog && (
           <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
-            <EditRoleDialog
+            <EditUserComponent
               onClose={(open: boolean) => {
                 document.body.style.overflow = "";
                 setOpenEditUserDialog(!open);
                 return {};
               }}
-              onUpdate={(notUpdate) => {
+              onCreate={(notSave) => {
                 document.body.style.overflow = "";
-                setOpenEditUserDialog(!notUpdate);
+                setOpenEditUserDialog(!notSave);
                 return {};
               }}
+              userData={onOpenEditUserData}
+              rolesData={roles
+                .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
+                .map(({ _id, roleName, tabAccess }: any) => ({
+                  _id,
+                  name: roleName,
+                  tabAccess,
+                  searchText: _id + roleName
+                }))}
             />
           </div>
-        )} */}
+        )}
         {openNewUserDialog && (
           <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
             <NewUserComponent
@@ -316,7 +328,7 @@ const Users = () => {
                 <div className="flex justify-center mt-6">No data available</div>
               ) : (
                 localData.map((doc: any, index: any) => {
-                  const { _id: accountId, accountName, accountEmail, roleId, accountStatus, createdAt } = doc;
+                  const { _id: accountId, staffId, accountName, accountEmail, roleId, accountStatus, createdAt } = doc;
                   const tabs = roleId.tabAccess
                     .map((tab: any) => tab.tab)
                     .slice(0, 5)
@@ -325,12 +337,17 @@ const Users = () => {
                     <div
                       key={accountId}
                       onClick={() => {
-                        if (hasActionAccess("Edit Role")) {
+                        if (hasActionAccess("Edit User")) {
                           document.body.style.overflow = "hidden";
                           setOpenEditUserDialog(true);
-                          // dispatch(setOnOpenRoleData(doc));
+                          setOnOpenEditUserData({
+                            staffId,
+                            userName: accountName,
+                            userEmail: accountEmail,
+                            roleId: roleId._id + "|" + roleId.roleName
+                          });
                         } else {
-                          setError("You do not have Edit Role Access - Please contact your admin");
+                          setError("You do not have Edit User Access - Please contact your admin");
                         }
                       }}
                       className="w-full flex items-center px-4 border border-foregroundColor-15 rounded-md shadow-sm py-2 hover:bg-foregroundColor-5 hover:cursor-pointer"

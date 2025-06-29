@@ -20,17 +20,26 @@ export const SearchableDropDownInput = ({
   data,
   displayKeys,
   onSelected,
-  onClearSearch
+  onClearSearch,
+  defaultText = ""
 }: {
   placeholder: string;
+  defaultText?: string;
   data: any[];
   displayKeys: string[];
   onSelected: (selectedDataId: string) => {};
   onClearSearch: (cleared: boolean) => {};
 }) => {
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState(defaultText.split("|")[1]);
   const [localData, setLocalData] = useState<any>([]);
   const [openOptions, setOpenOptions] = useState(false);
+
+  useEffect(() => {
+    if (defaultText.split("|")[0]) {
+      onSelected(defaultText.split("|")[0]);
+    }
+  }, []);
+
   useEffect(() => {
     if (searchValue !== "") {
       const filteredOptions = data.filter((option) =>
@@ -47,6 +56,7 @@ export const SearchableDropDownInput = ({
   useEffect(() => {
     setLocalData(data);
   }, [data]);
+
   return (
     <div className="w-full items-center justify-center relative">
       <InputComponent
