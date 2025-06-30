@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, LoaderButton, SuccessDiv } from "@/lib/component/compLibrary";
+import { InputComponent, ErrorDiv, LoaderButton, SuccessDiv } from "@/lib/component/general/compLibrary";
 import axios from "axios";
 
 import { useRouter } from "next/navigation";
@@ -56,7 +56,17 @@ const signInPage = () => {
     <div className="flex flex-col gap-5 border border-foregroundColor-20 p-8 rounded-lg shadow justify-center items-center w-3/4">
       <h2>Reset Password - Enter Code</h2>
       <h3>Please provide the code you received through email</h3>
-      {error && <ErrorDiv>{error}</ErrorDiv>}
+      {error && (
+        <ErrorDiv
+          onClose={(close) => {
+            if (close) {
+              setError("");
+            }
+          }}
+        >
+          {error}
+        </ErrorDiv>
+      )}
       {success && <SuccessDiv>{success}</SuccessDiv>}
       <form className="flex flex-col gap-2 mt-5 w-full items-center" onSubmit={handleSubmit}>
         <InputComponent

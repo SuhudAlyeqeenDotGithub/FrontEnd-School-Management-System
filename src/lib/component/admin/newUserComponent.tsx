@@ -196,9 +196,9 @@ const NewUserComponent = ({
           placeholder="Search Role - (ID, Name)"
           data={rolesData}
           displayKeys={["_id", "name", "searchText"]}
-          onSelected={(roleId) => {
+          onSelected={(roleId, save) => {
             setLocalData((prev) => ({ ...prev, roleId: roleId }));
-            setUnsaved(true);
+            setUnsaved(save);
             const roleObj = rolesData.find((role: any) => role._id === roleId);
             const userTabs = roleObj && roleObj.tabAccess ? roleObj.tabAccess.map((tab: any) => tab.tab) : [];
             const userActions =

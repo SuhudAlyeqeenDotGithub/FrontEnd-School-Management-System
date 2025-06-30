@@ -115,6 +115,18 @@ export interface ParamUserType {
   roleId: string;
 }
 
+export interface EditParamUserType {
+  userId: string;
+  staffId: string;
+  userName: string;
+  userEmail: string;
+  userPassword: string;
+  userStatus: string;
+  onEditUserIsAbsoluteAdmin: boolean;
+  roleId: string;
+  passwordChanged: boolean;
+}
+
 export interface DeleteParamUserType {
   roleIdToDelete: string;
   roleName: string;

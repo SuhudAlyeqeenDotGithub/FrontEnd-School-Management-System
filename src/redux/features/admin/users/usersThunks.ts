@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { ReturnUserType, ParamUserType, DeleteParamUserType } from "@/interfaces/interfaces";
+import { ReturnUserType, ParamUserType, DeleteParamUserType, EditParamUserType } from "@/interfaces/interfaces";
 import { handleApiRequest } from "@/axios/axiosClient";
 
 export const getUsers = createAsyncThunk<ReturnUserType[]>("orgaccount/getusers", async (_, { rejectWithValue }) => {
@@ -29,7 +29,7 @@ export const createUser = createAsyncThunk<ReturnUserType[], ParamUserType>(
   }
 );
 
-export const updateUser = createAsyncThunk<ReturnUserType[], ParamUserType>(
+export const updateUser = createAsyncThunk<ReturnUserType[], EditParamUserType>(
   "orgaccount/updateuser",
   async (userUpdateData, { rejectWithValue }) => {
     try {

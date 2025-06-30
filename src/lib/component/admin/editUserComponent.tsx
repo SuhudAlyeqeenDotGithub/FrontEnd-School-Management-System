@@ -12,28 +12,20 @@ import { checkDataType } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../../component/general/compLibrary";
 import { DisallowedActionDialog, SearchableDropDownInput } from "../general/compLibrary2";
 import { TabActionDialog } from "./editRoleComponents";
-import { createUser } from "@/redux/features/admin/users/usersThunks";
+import { updateUser } from "@/redux/features/admin/users/usersThunks";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { EditParamUserType } from "@/interfaces/interfaces";
 
 const EditUserComponent = ({
   onClose,
-  onCreate,
+  onUpdate,
   userData,
-  absoluteAdmin,
   rolesData
 }: {
   onClose: (close: boolean) => {};
-  onCreate: (create: boolean) => {};
+  onUpdate: (update: boolean) => {};
   rolesData: any[];
-  userData: {
-    staffId: string;
-    userName: string;
-    userEmail: string;
-    userPassword: "Change01@Password123?";
-    userStatus: string;
-    roleId: string;
-  };
-  absoluteAdmin: boolean;
+  userData: EditParamUserType;
 }) => {
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
@@ -47,7 +39,7 @@ const EditUserComponent = ({
     staffId: userData.staffId,
     userName: userData.userName,
     userEmail: userData.userEmail,
-    userPassword: "Change Password?",
+    userPassword: "Change01@Password123?",
     userStatus: userData.userStatus,
     roleId: userData.roleId.split("|")[0]
   });
@@ -73,7 +65,7 @@ const EditUserComponent = ({
       setError("Missing Data: Please enter a user name");
       return false;
     }
-    if (!staffId) {
+    if (!staffId && !userData.onEditUserIsAbsoluteAdmin) {
       setError("Missing Data: Please enter a staff Id");
       return false;
     }
@@ -95,6 +87,11 @@ const EditUserComponent = ({
       );
       return;
     }
+
+    // if (userPassword === "Change01@Password123?") {
+    //   setError("Change01@Password123? cannot be used for password as it is reserved");
+    //   return;
+    // }
 
     if (!roleId) {
       setError("Data Error: Role name is too short");
@@ -147,9 +144,18 @@ const EditUserComponent = ({
               if (validationPassed()) {
                 setError("");
                 try {
-                  const response = await dispatch(createUser(localData)).unwrap();
+                  const dataToUpdate = {
+                    ...localData,
+                    userId: userData.userId,
+                    userPassword:
+                      userPassword === "Change01@Password123?" ? userData.userPassword : localData.userPassword,
+                    onEditUserIsAbsoluteAdmin: userData.onEditUserIsAbsoluteAdmin,
+                    passwordChanged:
+                      userPassword !== "Change01@Password123?" && userData.userPassword !== localData.userPassword
+                  };
+                  const response = await dispatch(updateUser(dataToUpdate)).unwrap();
                   if (response) {
-                    onCreate(true);
+                    onUpdate(true);
                   }
                 } catch (err: any) {
                   setError(err);
@@ -203,14 +209,14 @@ const EditUserComponent = ({
           onChange={handleInputChange}
         />
         <SearchableDropDownInput
-          disabled={absoluteAdmin}
+          disabled={userData.onEditUserIsAbsoluteAdmin}
           defaultText={userData.roleId}
           placeholder="Search Role - (ID, Name)"
           data={rolesData}
           displayKeys={["_id", "name", "searchText"]}
-          onSelected={(roleId) => {
+          onSelected={(roleId, save) => {
             setLocalData((prev) => ({ ...prev, roleId: roleId }));
-            setUnsaved(true);
+            setUnsaved(save);
             const roleObj = rolesData.find((role: any) => role._id === roleId);
             const userTabs = roleObj && roleObj.tabAccess ? roleObj.tabAccess.map((tab: any) => tab.tab) : [];
             const userActions =
@@ -233,7 +239,7 @@ const EditUserComponent = ({
           }}
         />
         <select
-          disabled={absoluteAdmin}
+          disabled={userData.onEditUserIsAbsoluteAdmin}
           name="userStatus"
           value={userStatus}
           onChange={handleInputChange}
@@ -250,7 +256,9 @@ const EditUserComponent = ({
       <div className="flex flex-col gap-5">
         <h2>Tab Access</h2>
         <div className="flex flex-wrap gap-2">
-          {userTabs.length < 1 ? (
+          {userData.onEditUserIsAbsoluteAdmin ? (
+            <div>Has All Access</div>
+          ) : userTabs.length < 1 ? (
             <div>No Tab Access</div>
           ) : (
             userTabs.map((tab: any) => (
@@ -264,7 +272,9 @@ const EditUserComponent = ({
       <div className="flex flex-col gap-5">
         <h2>Permitted Actions</h2>
         <div className="flex flex-wrap gap-2">
-          {userPermittedActions.length < 1 ? (
+          {userData.onEditUserIsAbsoluteAdmin ? (
+            <div>Has All Permissions</div>
+          ) : userPermittedActions.length < 1 ? (
             <div>No Permitted Actions</div>
           ) : (
             userPermittedActions.map((action: any) => (

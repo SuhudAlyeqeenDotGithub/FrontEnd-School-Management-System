@@ -161,7 +161,7 @@ const Users = () => {
                 setOpenEditUserDialog(!open);
                 return {};
               }}
-              onCreate={(notSave) => {
+              onUpdate={(notSave) => {
                 document.body.style.overflow = "";
                 setOpenEditUserDialog(!notSave);
                 return {};
@@ -175,7 +175,6 @@ const Users = () => {
                   tabAccess,
                   searchText: _id + roleName
                 }))}
-              absoluteAdmin={onOpenEditUserData.absoluteAdmin}
             />
           </div>
         )}
@@ -252,7 +251,7 @@ const Users = () => {
             <div className="flex w-[500px] h-[50px] items-center gap-2">
               <input
                 className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-                placeholder="Search role (Role Name)"
+                placeholder="Search role (User Name, Email, Status)"
                 name="searchValue"
                 onChange={(e) => {
                   setSearchValue(e.target.value);
@@ -264,11 +263,11 @@ const Users = () => {
             <div>
               <button
                 onClick={() => {
-                  if (hasActionAccess("Create Role")) {
+                  if (hasActionAccess("Create User")) {
                     document.body.style.overflow = "hidden";
                     setOpenNewUserDialog(true);
                   } else {
-                    setError("You do not have Create Role Access - Please contact your admin");
+                    setError("You do not have Create User Access - Please contact your admin");
                   }
                 }}
                 disabled={!hasActionAccess("Create User")}
@@ -329,7 +328,16 @@ const Users = () => {
                 <div className="flex justify-center mt-6">No data available</div>
               ) : (
                 localData.map((doc: any, index: any) => {
-                  const { _id: accountId, staffId, accountName, accountEmail, roleId, accountStatus, createdAt } = doc;
+                  const {
+                    _id: accountId,
+                    staffId,
+                    accountName,
+                    accountEmail,
+                    roleId,
+                    accountStatus,
+                    accountPassword,
+                    createdAt
+                  } = doc;
                   const tabs = roleId.tabAccess
                     .map((tab: any) => tab.tab)
                     .slice(0, 5)
@@ -342,10 +350,13 @@ const Users = () => {
                           document.body.style.overflow = "hidden";
                           setOpenEditUserDialog(true);
                           setOnOpenEditUserData({
+                            userId: accountId,
                             staffId,
                             userName: accountName,
                             userEmail: accountEmail,
-                            absoluteAdmin: roleId.absoluteAdmin,
+                            userStatus: accountStatus,
+                            userPassword: accountPassword,
+                            onEditUserIsAbsoluteAdmin: roleId.absoluteAdmin,
                             roleId: roleId._id + "|" + roleId.roleName
                           });
                         } else {
