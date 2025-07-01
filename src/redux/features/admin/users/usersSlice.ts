@@ -22,7 +22,7 @@ export const usersSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
-    resetUser: (state) => {
+    resetUsers: (state) => {
       Object.assign(state, initialState);
     }
   },
@@ -96,5 +96,5 @@ export const usersSlice = createSlice({
   }
 });
 
-export const { resetUser } = usersSlice.actions;
+export const { resetUsers } = usersSlice.actions;
 export default usersSlice.reducer;

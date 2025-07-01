@@ -12,6 +12,7 @@ import { EditRoleDialog } from "@/lib/component/admin/editRoleComponents";
 import { setOnOpenRoleData } from "@/redux/features/general/generalSlice";
 import { NewRoleDialog } from "@/lib/component/admin/newRoleComponent";
 import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/component/general/compLibrary2";
+import { resetRoles } from "@/redux/features/admin/roles/roleSlice";
 
 const RolesAccess = () => {
   const dispatch = useAppDispatch();
@@ -42,14 +43,17 @@ const RolesAccess = () => {
       try {
         if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
           console.log("accountData", accountData);
+          dispatch(resetRoles());
           setError("Your account is no longer active - Please contact your admin");
           return;
         }
         if (!hasActionAccess("View Roles") && !accountData.roleId.absoluteAdmin) {
+          dispatch(resetRoles());
           setError("Unauthorized(Client): You do not have access to view roles - Please contact your admin");
           return;
+        } else {
+          const response = await dispatch(fetchRolesAccess()).unwrap();
         }
-        const response = await dispatch(fetchRolesAccess()).unwrap();
       } catch (error: any) {
         setError(error);
       }

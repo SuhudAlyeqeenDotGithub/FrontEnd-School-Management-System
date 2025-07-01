@@ -123,16 +123,17 @@ export interface EditParamUserType {
   userPassword: string;
   userStatus: string;
   onEditUserIsAbsoluteAdmin: boolean;
-  roleId: string;
+  roleId: any;
   passwordChanged: boolean;
 }
 
 export interface DeleteParamUserType {
-  roleIdToDelete: string;
-  roleName: string;
-  roleDescription: string;
-  absoluteAdmin: boolean;
-  tabAccess: TabAccessType[];
+  accountIdToDelete: string;
+  accountType: string;
+  userName: string;
+  userEmail: string;
+  userStatus: string;
+  roleId: any;
 }
 
 export interface ReturnUserType {

@@ -8,10 +8,11 @@ import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 import NewUserComponent from "@/lib/component/admin/newUserComponent";
-import { getUsers } from "@/redux/features/admin/users/usersThunks";
+import { deleteUser, getUsers } from "@/redux/features/admin/users/usersThunks";
 import { fetchRolesAccess } from "@/redux/features/admin/roles/roleThunks";
 import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/component/general/compLibrary2";
 import EditUserComponent from "@/lib/component/admin/editUserComponent";
+import { resetUsers } from "@/redux/features/admin/users/usersSlice";
 
 const Users = () => {
   const dispatch = useAppDispatch();
@@ -68,14 +69,17 @@ const Users = () => {
       try {
         if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
           console.log("accountData", accountData);
+          dispatch(resetUsers());
           setError("Your account is no longer active - Please contact your admin");
           return;
         }
         if (!hasActionAccess("View Users") && !accountData.roleId.absoluteAdmin) {
+          dispatch(resetUsers());
           setError("Unauthorized: You do not have access to view users - Please contact your admin");
           return;
+        } else {
+          const response = await dispatch(fetchRolesAccess()).unwrap();
         }
-        const response = await dispatch(fetchRolesAccess()).unwrap();
       } catch (error: any) {
         setError(error);
       }
@@ -204,7 +208,7 @@ const Users = () => {
         )}
         {openDisallowedDeleteDialog && (
           <DisallowedActionDialog
-            warningText="This delete action is disallowed as it relates to the default Admin role"
+            warningText="This delete action is disallowed as it relates to the default Admin / organisation account"
             onOk={() => {
               document.body.style.overflow = "";
               setOpenDisallowedDeleteDialog(false);
@@ -224,18 +228,18 @@ const Users = () => {
             onConfirm={async (confirmed, returnObject) => {
               setError("");
               if (confirmed) {
-                // try {
-                //   await dispatch(deleteRole(returnObject)).unwrap();
-                // } catch (err: any) {
-                //   setError(err);
-                // }
+                try {
+                  await dispatch(deleteUser(returnObject)).unwrap();
+                } catch (err: any) {
+                  setError(err);
+                }
               } else {
                 setError("An error occured while deleting - Please try again");
               }
               setOpenConfirmDelete(false);
               document.body.style.overflow = "";
             }}
-            warningText="Please confirm the ID of the role you want to delete"
+            warningText="Please confirm the ID of the user/account you want to delete"
           />
         )}
         {/* data table div */}
@@ -333,6 +337,7 @@ const Users = () => {
                     staffId,
                     accountName,
                     accountEmail,
+                    accountType,
                     roleId,
                     accountStatus,
                     accountPassword,
@@ -390,24 +395,28 @@ const Users = () => {
                         className="text-[25px] hover:text-red-500"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (doc.absoluteAdmin) {
-                            setError("Disallowed Action: Default Absolute Admin Role Cannot be deleted");
+                          if (roleId.absoluteAdmin) {
+                            setError(
+                              "Disallowed Action: Default Absolute Admin / organisation account Cannot be deleted"
+                            );
                             setOpenDisallowedDeleteDialog(true);
                           } else {
-                            if (hasActionAccess("Delete Role")) {
+                            if (hasActionAccess("Delete User")) {
                               document.body.style.overflow = "hidden";
                               setOpenConfirmDelete(true);
-                              setConfirmWithText(doc._id);
+                              setConfirmWithText(accountId);
                               setConfirmWithReturnObj({
-                                roleIdToDelete: doc._id,
-                                roleName: doc.roleName,
-                                roleDescription: doc.roleDescription,
-                                absoluteAdmin: doc.absoluteAdmin,
-                                tabAccess: doc.tabAccess
+                                accountIdToDelete: accountId,
+                                accountType,
+                                staffId,
+                                userName: accountName,
+                                userEmail: accountEmail,
+                                userStatus: accountStatus,
+                                roleId
                               });
                             } else {
                               setError(
-                                "Unauthorised Action: You do not have Delete Role Access - Please contact your admin"
+                                "Unauthorised Action: You do not have Delete User Access - Please contact your admin"
                               );
                             }
                           }

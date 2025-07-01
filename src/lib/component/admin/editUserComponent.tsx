@@ -43,6 +43,7 @@ const EditUserComponent = ({
     userStatus: userData.userStatus,
     roleId: userData.roleId.split("|")[0]
   });
+
   useEffect(() => {
     if (!unsaved) return;
     handleUnload("add");
@@ -132,7 +133,19 @@ const EditUserComponent = ({
       )}
       {/* top div */}
       <div className="flex justify-between items-center">
-        <h2>Edit User</h2>
+        <div className="flex gap-5 items-center">
+          <h2>Edit User</h2>
+          <div className="flex gap-2 items-center">
+            <h3>{userData.userId.slice(0, 5)}.......</h3>
+            <MdContentCopy
+              title="copy id"
+              className="text-[20px] text-foregroundColor-80 hover:text-foregroundColor-50 hover:cursor-pointer"
+              onClick={async () => {
+                await navigator.clipboard.writeText(userData.userId);
+              }}
+            />
+          </div>
+        </div>
         <div className="flex justify-between items-center gap-5">
           <LoaderButton
             buttonText="Update"
