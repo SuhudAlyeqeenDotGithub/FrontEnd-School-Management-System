@@ -145,3 +145,11 @@ export interface ReturnUserType {
   searchText: string;
   roleId: ReturnRoleType;
 }
+
+export interface QualificationType {
+  _id: string;
+  qualificationName: string;
+  schoolName: string;
+  startDate: string;
+  endDate: string;
+}
