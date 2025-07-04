@@ -16,6 +16,7 @@ import { createUser } from "@/redux/features/admin/users/usersThunks";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { QualificationType } from "@/interfaces/interfaces";
 import { nanoid } from "@reduxjs/toolkit";
+import ImageUploadDiv from "../general/imageUploadCom";
 
 const QualificationDialog = ({
   type = "new",
@@ -472,12 +473,7 @@ const NewStaffComponent = ({
             />
           </div>
           {/* staff image div */}
-          <div className="flex flex-col gap-5 justify-center items-center w-[30%]">
-            <div className="bg-foregroundColor-50 h-[200px] w-[200px] rounded-full flex text-backgroundColor text-[60px] font-bold items-center justify-center">
-              <p>IM</p>
-            </div>
-            <IoCloudUploadOutline />
-          </div>
+          <ImageUploadDiv publicUrl="" onSave={() => {}} />
         </div>
 
         <InputComponent placeholder="Address" name="staffAddress" value={staffAddress} onChange={handleInputChange} />
@@ -536,7 +532,7 @@ const NewStaffComponent = ({
             <div>No Qualifications Added</div>
           ) : (
             staffQualification.map(({ _id, qualificationName, schoolName, startDate, endDate }: any) => (
-              <ContainerComponent key={_id} style="flex flex-col w-[300px]">
+              <ContainerComponent key={_id} style="flex flex-col w-[300px] hover:cursor-pointer">
                 <div className="flex gap-5 justify-between items-center">
                   <span className="whitespace-nowrap font-bold">{qualificationName.slice(0, 20)}</span>{" "}
                   <CgTrash className="text-[25px] hover:text-red-500" />
@@ -550,23 +546,6 @@ const NewStaffComponent = ({
             ))
           )}
         </div>
-      </div>
-
-      {/* role and access */}
-      <div className="flex flex-col gap-5">
-        <h2>Roles and Access</h2>
-        {/* body
-        <div className="flex flex-wrap gap-2">
-          {staffQualification.length < 1 ? (
-            <div>No Tab Access</div>
-          ) : (
-            staffQualification.map((tab: any) => (
-              <ContainerComponent key={tab} style="">
-                {tab}
-              </ContainerComponent>
-            ))
-          )}
-        </div> */}
       </div>
     </ContainerComponent>
   );
