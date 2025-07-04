@@ -153,3 +153,65 @@ export interface QualificationType {
   startDate: string;
   endDate: string;
 }
+
+export interface ReturnStaffType {
+  _id: string;
+  organisationId: string;
+  staffCustomId?: string;
+  staffFirstName: string;
+  staffMiddleName?: string;
+  staffLastName: string;
+  staffDateOfBirth: string;
+  staffGender: string;
+  staffPhone: string;
+  staffEmail: string;
+  staffAddress: string;
+  staffPostCode?: string;
+  staffImage?: string;
+  staffMaritalStatus: string;
+  staffStartDate: string;
+  staffEndDate?: string;
+  staffNationality: string;
+  staffAllergies?: string;
+  staffNextOfKinName: string;
+  staffNextOfKinRelationship: string;
+  staffNextOfKinPhone: string;
+  staffNextOfKinEmail: string;
+  staffQualification?: {
+    _id: string;
+    qualificationName: string;
+    schoolName: string;
+    startDate: string;
+    endDate: string;
+  }[];
+}
+
+export interface ParamStaffType {
+  staffCustomId?: string;
+  staffFirstName: string;
+  staffMiddleName?: string;
+  staffLastName: string;
+  staffDateOfBirth: string;
+  staffGender: string;
+  staffPhone: string;
+  staffEmail: string;
+  staffAddress: string;
+  staffPostCode?: string;
+  staffImage?: string;
+  staffMaritalStatus: string;
+  staffStartDate: string;
+  staffEndDate?: string;
+  staffNationality: string;
+  staffAllergies?: string;
+  staffNextOfKinName: string;
+  staffNextOfKinRelationship: string;
+  staffNextOfKinPhone: string;
+  staffNextOfKinEmail: string;
+  staffQualification?: {
+    _id: string;
+    qualificationName: string;
+    schoolName: string;
+    startDate: string;
+    endDate: string;
+  }[];
+}

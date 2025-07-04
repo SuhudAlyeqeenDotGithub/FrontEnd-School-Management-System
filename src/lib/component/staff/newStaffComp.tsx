@@ -19,6 +19,7 @@ import { nanoid } from "@reduxjs/toolkit";
 import ImageUploadDiv from "../general/imageUploadCom";
 import { handleApiRequest } from "@/axios/axiosClient";
 import axios from "axios";
+import { createStaffProfile } from "@/redux/features/staff/staffThunks";
 
 const QualificationDialog = ({
   type = "new",
@@ -208,6 +209,7 @@ const NewStaffComponent = ({
     staffCustomId: "",
     staffFirstName: "",
     staffMiddleName: "",
+    staffLastName: "",
     staffDateOfBirth: "",
     staffGender: "",
     staffPhone: "",
@@ -240,6 +242,7 @@ const NewStaffComponent = ({
     staffCustomId,
     staffFirstName,
     staffMiddleName,
+    staffLastName,
     staffDateOfBirth,
     staffGender,
     staffPhone,
@@ -273,6 +276,7 @@ const NewStaffComponent = ({
       staffNextOfKinEmail,
       staffQualification,
       staffPostCode,
+      staffEndDate,
       ...copyLocalData
     } = localData;
 
@@ -290,45 +294,65 @@ const NewStaffComponent = ({
     if (validationPassed()) {
       setError("");
       // get signed url from the backend
-      try {
-        const signedUrlParamData = { imageName, imageType };
-        const response = await handleApiRequest(
-          "post",
-          "http://localhost:5000/alyeqeenschoolapp/api/signedurl",
-          signedUrlParamData
-        );
-
-        if (response) {
-          const { signedUrl, publicUrl }: any = response;
-
-          // send put request to upload image
-          try {
-            const uploadResponse = await axios.put(signedUrl, imageName, {
-              headers: {
-                "Content-Type": imageType // important!
-              }
-            });
-          } catch (error: any) {
-            setError(error.response?.data.message || error.message || "Error getting uploading image");
+      if (imageName === "") {
+        try {
+          console.log("now creating staff profile on the backend with", localData);
+          const response = await dispatch(createStaffProfile(localData)).unwrap();
+          if (response) {
+            onCreate(true);
           }
-
-          // update local image with the public url
-          setLocalData((prev: any) => ({ ...prev, staffImage: publicUrl }));
+        } catch (err: any) {
+          setError(err);
         }
-      } catch (error: any) {
-        setError(error.response?.data.message || error.message || "Error getting image upload resources");
+
+        return;
+      }
+
+      if (imageName !== "") {
+        try {
+          const signedUrlParamData = { imageName, imageType };
+          console.log("getting signed url response with", signedUrlParamData);
+          const response = await handleApiRequest(
+            "post",
+            "http://localhost:5000/alyeqeenschoolapp/api/signedurl",
+            signedUrlParamData
+          );
+
+          if (response) {
+            console.log("got signed url response is", response);
+            const { signedUrl, publicUrl }: any = response;
+            // update local image with the public url
+            setLocalData((prev: any) => ({ ...prev, staffImage: publicUrl }));
+
+            // send put request to upload image
+            try {
+              const uploadResponse = await axios.put(signedUrl, imageFile, {
+                headers: {
+                  "Content-Type": imageType // important!
+                }
+              });
+
+              if (uploadResponse) {
+                try {
+                  console.log("now creating staff profile on the backend with", localData);
+                  const response = await dispatch(createStaffProfile(localData)).unwrap();
+                  if (response) {
+                    onCreate(true);
+                  }
+                } catch (err: any) {
+                  setError(err);
+                }
+              }
+            } catch (error: any) {
+              setError(error.response?.data.message || error.message || "Error getting uploading image");
+            }
+          }
+        } catch (error: any) {
+          setError(error.response?.data.message || error.message || "Error getting image upload resources");
+        }
       }
 
       // upon success run dispatch create staff
-
-      try {
-        const response = await dispatch(createUser(localData)).unwrap();
-        if (response) {
-          onCreate(true);
-        }
-      } catch (err: any) {
-        setError(err);
-      }
     }
   };
 
@@ -439,6 +463,12 @@ const NewStaffComponent = ({
               value={staffMiddleName}
               onChange={handleInputChange}
             />
+            <InputComponent
+              placeholder="Last Name *"
+              name="staffLastName"
+              value={staffLastName}
+              onChange={handleInputChange}
+            />
             <div className="gap-1 flex flex-col">
               <h3 className="ml-1">Date Of Birth *</h3>
               <InputComponent
@@ -459,9 +489,9 @@ const NewStaffComponent = ({
               <option disabled value="">
                 Gender *
               </option>
-              <option value="Active"> Gender - Male</option>
-              <option value="Locked"> Gender - Female</option>
-              <option value="Locked"> Gender - Other</option>
+              <option value="Male"> Gender - Male</option>
+              <option value="Female"> Gender - Female</option>
+              <option value="Other"> Gender - Other</option>
             </select>
             <InputComponent placeholder="Phone *" name="staffPhone" value={staffPhone} onChange={handleInputChange} />
             <InputComponent placeholder="Email *" name="staffEmail" value={staffEmail} onChange={handleInputChange} />
@@ -474,8 +504,8 @@ const NewStaffComponent = ({
               <option disabled value="">
                 Marital Status *
               </option>
-              <option value="Active"> Marital Status - Married</option>
-              <option value="Locked"> Marital Status - Single</option>
+              <option value="Married"> Marital Status - Married</option>
+              <option value="Single"> Marital Status - Single</option>
             </select>
             <InputComponent
               placeholder="Nationality *"
@@ -483,12 +513,7 @@ const NewStaffComponent = ({
               value={staffNationality}
               onChange={handleInputChange}
             />
-            <InputComponent
-              placeholder="Post Code"
-              name="staffPostCode"
-              value={staffPostCode}
-              onChange={handleInputChange}
-            />
+
             <div className="gap-1 flex flex-col">
               <h3 className="ml-1">Joined Date *</h3>
               <InputComponent
@@ -503,7 +528,7 @@ const NewStaffComponent = ({
               <h3 className="ml-1">Leave Date *</h3>
 
               <InputComponent
-                placeholder="Leave Date *"
+                placeholder="Leave Date"
                 type="date"
                 name="staffEndDate"
                 value={staffEndDate}
@@ -516,6 +541,14 @@ const NewStaffComponent = ({
             publicUrl=""
             onUpload={(uploaded, publicUrl, imageFile, imageName, imageType) => {
               if (uploaded) {
+                console.log(
+                  "uploaded, publicUrl, imageFile, imageName, imageType",
+                  uploaded,
+                  publicUrl,
+                  imageFile,
+                  imageName,
+                  imageType
+                );
                 setUnsaved(true);
                 setImageFile(imageFile);
                 setImageName(imageName);
@@ -525,7 +558,25 @@ const NewStaffComponent = ({
             }}
           />
         </div>
-        <InputComponent placeholder="Address *" name="staffAddress" value={staffAddress} onChange={handleInputChange} />
+        <div className="flex w-full gap-3">
+          <div className="w-[70%]">
+            <InputComponent
+              placeholder="Address *"
+              name="staffAddress"
+              value={staffAddress}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="w-[30%]">
+            <InputComponent
+              placeholder="Post Code"
+              name="staffPostCode"
+              value={staffPostCode}
+              onChange={handleInputChange}
+            />
+          </div>
+        </div>
+
         <textarea
           placeholder="Allergies *"
           required

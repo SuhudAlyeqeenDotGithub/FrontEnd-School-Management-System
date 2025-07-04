@@ -14,11 +14,12 @@ import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/compon
 import EditUserComponent from "@/lib/component/admin/editUserComponent";
 import { resetUsers } from "@/redux/features/admin/users/usersSlice";
 import NewStaffComponent from "@/lib/component/staff/newStaffComp";
+import { getStaffProfiles } from "@/redux/features/staff/staffThunks";
 
 const StaffProfile = () => {
   const dispatch = useAppDispatch();
   const { users, isLoading } = useAppSelector((state) => state.usersData);
-  const { roles, isLoading: roleIsLoading } = useAppSelector((state) => state.rolesAccess);
+  const { staff, isLoading: staffIsLoading } = useAppSelector((state) => state.staffData);
   const { accountData } = useAppSelector((state) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
@@ -42,60 +43,33 @@ const StaffProfile = () => {
     if (!accountData.accountStatus) {
       return;
     }
-    const fetchUsersL = async () => {
+    const fetchStaffL = async () => {
       try {
         if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
           setError("Your account is no longer active - Please contact your admin");
           return;
         }
-        if (!hasActionAccess("View Users") && !accountData.roleId.absoluteAdmin) {
-          setError("Unauthorized: You do not have access to view users - Please contact your admin");
+        if (!hasActionAccess("View Staff") && !accountData.roleId.absoluteAdmin) {
+          setError("Unauthorized: You do not have access to view staff profiles - Please contact your admin");
           return;
         }
 
-        await dispatch(getUsers()).unwrap();
+        await dispatch(getStaffProfiles()).unwrap();
       } catch (error: any) {
         setError(error);
       }
     };
 
-    fetchUsersL();
+    fetchStaffL();
   }, [accountData]);
 
   useEffect(() => {
-    if (!accountData.accountEmail || !accountData.accountStatus) {
-      return;
-    }
-    const fetchRoles = async () => {
-      try {
-        if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
-          console.log("accountData", accountData);
-          dispatch(resetUsers());
-          setError("Your account is no longer active - Please contact your admin");
-          return;
-        }
-        if (!hasActionAccess("View Users") && !accountData.roleId.absoluteAdmin) {
-          dispatch(resetUsers());
-          setError("Unauthorized: You do not have access to view users - Please contact your admin");
-          return;
-        } else {
-          // const response = await dispatch(fetchRolesAccess()).unwrap();
-        }
-      } catch (error: any) {
-        setError(error);
-      }
-    };
-
-    fetchRoles();
-  }, [accountData]);
-
-  useEffect(() => {
-    setLocalData(users);
-  }, [users]);
+    setLocalData(staff);
+  }, [staff]);
 
   useEffect(() => {
     if (searchValue !== "") {
-      const filteredData = users.filter((obj: any) => obj.searchText.toLowerCase().includes(searchValue.toLowerCase()));
+      const filteredData = staff.filter((obj: any) => obj.searchText.toLowerCase().includes(searchValue.toLowerCase()));
       setLocalData(filteredData);
     } else {
       setLocalData(users);
@@ -245,10 +219,10 @@ const StaffProfile = () => {
           {/* search bar and new action Button */}
           <div className="flex justify-between items-center">
             {/* search div */}
-            <div className="flex w-[500px] h-[50px] items-center gap-2">
+            <div className="flex w-[700px] h-[50px] items-center gap-2">
               <input
                 className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-                placeholder="Search Staff (ID, Names, Email, Gender)"
+                placeholder="Search Staff (Custom ID, Names, Email, Gender, Nationality, Next of Kin, Qualification)"
                 name="searchValue"
                 onChange={(e) => {
                   setSearchValue(e.target.value);
@@ -321,62 +295,49 @@ const StaffProfile = () => {
                 <div className="flex justify-center mt-6">No data available</div>
               ) : (
                 localData.map((doc: any, index: any) => {
-                  const {
-                    _id: accountId,
-                    staffId,
-                    accountName,
-                    accountEmail,
-                    accountType,
-                    roleId,
-                    accountStatus,
-                    accountPassword,
-                    createdAt
-                  } = doc;
-                  const tabs = roleId.tabAccess
-                    .map((tab: any) => tab.tab)
-                    .slice(0, 5)
-                    .join(", ");
+                  const { _id: profileId, staffCustomId, staffFirstName, staffLastName, staffGender, staffEmail } = doc;
+
                   return (
                     <div
-                      key={accountId}
+                      key={profileId}
                       onClick={() => {
-                        if (hasActionAccess("Edit User")) {
-                          document.body.style.overflow = "hidden";
-                          setOpenEditUserDialog(true);
-                          setOnOpenEditUserData({
-                            userId: accountId,
-                            staffId,
-                            userName: accountName,
-                            userEmail: accountEmail,
-                            userStatus: accountStatus,
-                            userPassword: accountPassword,
-                            onEditUserIsAbsoluteAdmin: roleId.absoluteAdmin,
-                            roleId: roleId._id + "|" + roleId.roleName
-                          });
-                        } else {
-                          setError("You do not have Edit User Access - Please contact your admin");
-                        }
+                        // if (hasActionAccess("Edit User")) {
+                        //   document.body.style.overflow = "hidden";
+                        //   setOpenEditUserDialog(true);
+                        //   setOnOpenEditUserData({
+                        //     userId: accountId,
+                        //     staffId,
+                        //     userName: accountName,
+                        //     userEmail: accountEmail,
+                        //     userStatus: accountStatus,
+                        //     userPassword: accountPassword,
+                        //     onEditUserIsAbsoluteAdmin: roleId.absoluteAdmin,
+                        //     roleId: roleId._id + "|" + roleId.roleName
+                        //   });
+                        // } else {
+                        //   setError("You do not have Edit User Access - Please contact your admin");
+                        // }
                       }}
                       className="w-full flex items-center px-4 border border-foregroundColor-15 rounded-md shadow-sm py-2 hover:bg-foregroundColor-5 hover:cursor-pointer"
                     >
                       <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
                         <span className="whitespace-nowrap flex items-center justify-center w-10 h-10 bg-foregroundColor-10 rounded-full font-semibold">
-                          {accountName.slice(0, 2)}
+                          {staffCustomId.slice(0, 2)}
                         </span>
                         <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {accountName}
+                          {staffCustomId.slice(0, 10)}
                         </span>
                         <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {roleId.roleName.slice(0, 15)}
+                          {staffFirstName.slice(0, 10)}
                         </span>
                         <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {accountEmail}
+                          {staffLastName.slice(0, 10)}
+                        </span>
+                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
+                          {staffGender}
                         </span>
                         <span className={`whitespace-nowrap flex items-center justify-center w-[200px] h-9 rounded-lg`}>
-                          {accountStatus}
-                        </span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {formatDate(createdAt)}
+                          {staffEmail}
                         </span>
                       </div>
 
@@ -384,31 +345,31 @@ const StaffProfile = () => {
                         className="text-[25px] hover:text-red-500"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (roleId.absoluteAdmin) {
-                            setError(
-                              "Disallowed Action: Default Absolute Admin / organisation account Cannot be deleted"
-                            );
-                            setOpenDisallowedDeleteDialog(true);
-                          } else {
-                            if (hasActionAccess("Delete User")) {
-                              document.body.style.overflow = "hidden";
-                              setOpenConfirmDelete(true);
-                              setConfirmWithText(accountId);
-                              setConfirmWithReturnObj({
-                                accountIdToDelete: accountId,
-                                accountType,
-                                staffId,
-                                userName: accountName,
-                                userEmail: accountEmail,
-                                userStatus: accountStatus,
-                                roleId
-                              });
-                            } else {
-                              setError(
-                                "Unauthorised Action: You do not have Delete User Access - Please contact your admin"
-                              );
-                            }
-                          }
+                          // if (roleId.absoluteAdmin) {
+                          //   setError(
+                          //     "Disallowed Action: Default Absolute Admin / organisation account Cannot be deleted"
+                          //   );
+                          //   setOpenDisallowedDeleteDialog(true);
+                          // } else {
+                          //   if (hasActionAccess("Delete User")) {
+                          //     document.body.style.overflow = "hidden";
+                          //     setOpenConfirmDelete(true);
+                          //     setConfirmWithText(accountId);
+                          //     setConfirmWithReturnObj({
+                          //       accountIdToDelete: accountId,
+                          //       accountType,
+                          //       staffId,
+                          //       userName: accountName,
+                          //       userEmail: accountEmail,
+                          //       userStatus: accountStatus,
+                          //       roleId
+                          //     });
+                          //   } else {
+                          //     setError(
+                          //       "Unauthorised Action: You do not have Delete User Access - Please contact your admin"
+                          //     );
+                          //   }
+                          // }
                         }}
                       />
                     </div>

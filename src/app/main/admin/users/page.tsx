@@ -13,12 +13,13 @@ import { fetchRolesAccess } from "@/redux/features/admin/roles/roleThunks";
 import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/component/general/compLibrary2";
 import EditUserComponent from "@/lib/component/admin/editUserComponent";
 import { resetUsers } from "@/redux/features/admin/users/usersSlice";
+import type { RootState } from "@/redux/store";
 
 const Users = () => {
   const dispatch = useAppDispatch();
   const { users, isLoading } = useAppSelector((state) => state.usersData);
   const { roles, isLoading: roleIsLoading } = useAppSelector((state) => state.rolesAccess);
-  const { accountData } = useAppSelector((state) => state.accountData);
+  const { accountData } = useAppSelector((state: RootState) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
   const [searchValue, setSearchValue] = useState("");
@@ -59,33 +60,6 @@ const Users = () => {
     };
 
     fetchUsersL();
-  }, [accountData]);
-
-  useEffect(() => {
-    if (!accountData.accountEmail || !accountData.accountStatus) {
-      return;
-    }
-    const fetchRoles = async () => {
-      try {
-        if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
-          console.log("accountData", accountData);
-          dispatch(resetUsers());
-          setError("Your account is no longer active - Please contact your admin");
-          return;
-        }
-        if (!hasActionAccess("View Users") && !accountData.roleId.absoluteAdmin) {
-          dispatch(resetUsers());
-          setError("Unauthorized: You do not have access to view users - Please contact your admin");
-          return;
-        } else {
-          const response = await dispatch(fetchRolesAccess()).unwrap();
-        }
-      } catch (error: any) {
-        setError(error);
-      }
-    };
-
-    fetchRoles();
   }, [accountData]);
 
   useEffect(() => {

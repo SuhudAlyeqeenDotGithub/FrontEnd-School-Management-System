@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import accountReducer from "./features/accounts/accountSlice";
 import rolesAndAccessReducer from "./features/admin/roles/roleSlice";
 import usersReducer from "./features/admin/users/usersSlice";
+import staffReducer from "./features/staff/staffSlice";
 import generalReducer from "./features/general/generalSlice";
 
 export const makeStore = () => {
@@ -10,7 +11,8 @@ export const makeStore = () => {
       accountData: accountReducer,
       rolesAccess: rolesAndAccessReducer,
       usersData: usersReducer,
-      generalState: generalReducer
+      generalState: generalReducer,
+      staffData: staffReducer
     }
   });
 };
