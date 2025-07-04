@@ -5,14 +5,13 @@ import { ErrorDiv } from "./compLibrary";
 
 const ImageUploadDiv = ({
   publicUrl,
-  onSave
+  onUpload
 }: {
   publicUrl: string;
-  onSave: (saved: boolean, publicUrl: string) => void;
+  onUpload: (uploaded: boolean, publicUrl: string, imageName: string, imageType: string) => void;
 }) => {
   const [error, setError] = useState("");
   const [imageName, setImageName] = useState("");
-  const [imageType, setImageType] = useState("");
   const [localPublicUrl, setLocalPublicUrl] = useState(publicUrl);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -24,21 +23,11 @@ const ImageUploadDiv = ({
       setImageName(file.name);
       const localUrl = URL.createObjectURL(file);
       setLocalPublicUrl(localUrl);
+      onUpload(true, localPublicUrl, file.name, file.type);
     }
   };
   return (
     <div className="flex flex-col gap-5 justify-center items-center w-[30%]">
-      {error && (
-        <ErrorDiv
-          onClose={(close) => {
-            if (close) {
-              setError("");
-            }
-          }}
-        >
-          {error}
-        </ErrorDiv>
-      )}
       <div className="bg-foregroundColor-50 h-[200px] w-[200px] rounded-full flex text-backgroundColor text-[60px] font-bold items-center justify-center">
         {!localPublicUrl ? (
           <div>IM</div>

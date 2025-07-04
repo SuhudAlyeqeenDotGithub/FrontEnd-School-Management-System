@@ -193,6 +193,8 @@ const NewStaffComponent = ({
   const dispatch = useAppDispatch();
   const { users, isLoading } = useAppSelector((state) => state.usersData);
   const [unsaved, setUnsaved] = useState(false);
+  const [imageName, setImageName] = useState("");
+  const [imageType, setImageType] = useState("");
   const [error, setError] = useState("");
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
   const [newQualficationDialog, setNewQualficationDialog] = useState(false);
@@ -261,53 +263,31 @@ const NewStaffComponent = ({
   };
 
   const validationPassed = () => {
-    // if (!userName) {
-    //   setError("Missing Data: Please enter a user name");
-    //   return false;
-    // }
-    // if (!staffId) {
-    //   setError("Missing Data: Please enter a staff Id");
-    //   return false;
-    // }
-    // if (userName.length < 5) {
-    //   setError("Data Error: Role name is too short");
-    //   return false;
-    // }
-    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    // if (!emailRegex.test(userEmail)) {
-    //   setError("Please enter a valid email address.");
-    //   return;
-    // }
-    // const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&~*+-]).{8,}$/;
-    // if (!passwordStrengthRegex.test(userPassword)) {
-    //   setError(
-    //     "Password must be at least 8 characters long and include uppercase, lowercase, number, and at least one special character [!@#$%^&~*]."
-    //   );
-    //   return;
-    // }
-    // if (!roleId) {
-    //   setError("Data Error: Role name is too short");
-    //   return false;
-    // }
-    // return true;
+    const {
+      staffCustomId,
+      staffImage,
+      staffMiddleName,
+      staffNextOfKinEmail,
+      staffQualification,
+      staffPostCode,
+      ...copyLocalData
+    } = localData;
+
+    for (const [key, value] of Object.entries(copyLocalData)) {
+      if (!value || (typeof value === "string" && value.trim() === "")) {
+        setError(`Missing Data: Please fill in the ${key} input`);
+        return false;
+      }
+    }
+
+    return true;
   };
 
   const textAreaStyle =
     "border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full h-[100px] overflow-auto";
 
   return (
-    <ContainerComponent id="staffDialogContainer" style="w-[80%] h-[90%] gap-10 overflow-auto flex flex-col">
-      {error && (
-        <ErrorDiv
-          onClose={(close) => {
-            if (close) {
-              setError("");
-            }
-          }}
-        >
-          {error}
-        </ErrorDiv>
-      )}
+    <ContainerComponent id="staffDialogContainer" style="w-[80%] h-[90%] gap-5 overflow-auto flex flex-col">
       {newQualficationDialog && (
         <QualificationDialog
           type="new"
@@ -357,17 +337,17 @@ const NewStaffComponent = ({
             buttonStyle="w-full"
             isLoading={isLoading}
             onClick={async () => {
-              //   if (validationPassed()) {
-              //     setError("");
-              //     try {
-              //       const response = await dispatch(createUser(localData)).unwrap();
-              //       if (response) {
-              //         onCreate(true);
-              //       }
-              //     } catch (err: any) {
-              //       setError(err);
-              //     }
-              //   }
+              if (validationPassed()) {
+                setError("");
+                // try {
+                //   const response = await dispatch(createUser(localData)).unwrap();
+                //   if (response) {
+                //     onCreate(true);
+                //   }
+                // } catch (err: any) {
+                //   setError(err);
+                // }
+              }
             }}
           />
           <IoClose
@@ -387,6 +367,17 @@ const NewStaffComponent = ({
       </div>
       {/* input divs */}
       <div className="flex flex-col gap-3">
+        {error && (
+          <ErrorDiv
+            onClose={(close) => {
+              if (close) {
+                setError("");
+              }
+            }}
+          >
+            {error}
+          </ErrorDiv>
+        )}
         {/* text and image div */}
         <div className="flex">
           {/* text div */}
@@ -411,13 +402,17 @@ const NewStaffComponent = ({
               value={staffMiddleName}
               onChange={handleInputChange}
             />
-            <InputComponent
-              type="date"
-              placeholder="Date Of Birth *"
-              name="staffDateOfBirth"
-              value={staffDateOfBirth}
-              onChange={handleInputChange}
-            />
+            <div className="gap-1 flex flex-col">
+              <h3 className="ml-1">Date Of Birth *</h3>
+              <InputComponent
+                type="date"
+                placeholder="Date Of Birth *"
+                name="staffDateOfBirth"
+                value={staffDateOfBirth}
+                onChange={handleInputChange}
+              />
+            </div>
+
             <select
               name="staffGender"
               value={staffGender}
@@ -431,8 +426,8 @@ const NewStaffComponent = ({
               <option value="Locked"> Gender - Female</option>
               <option value="Locked"> Gender - Other</option>
             </select>
-            <InputComponent placeholder="Phone" name="staffPhone" value={staffPhone} onChange={handleInputChange} />
-            <InputComponent placeholder="Email" name="staffEmail" value={staffEmail} onChange={handleInputChange} />
+            <InputComponent placeholder="Phone *" name="staffPhone" value={staffPhone} onChange={handleInputChange} />
+            <InputComponent placeholder="Email *" name="staffEmail" value={staffEmail} onChange={handleInputChange} />
             <select
               name="staffMaritalStatus"
               value={staffMaritalStatus}
@@ -457,53 +452,68 @@ const NewStaffComponent = ({
               value={staffPostCode}
               onChange={handleInputChange}
             />
-            <InputComponent
-              placeholder="Joined Date *"
-              type="date"
-              name="staffStartDate"
-              value={staffStartDate}
-              onChange={handleInputChange}
-            />
-            <InputComponent
-              placeholder="Leave Date *"
-              type="date"
-              name="staffEndDate"
-              value={staffEndDate}
-              onChange={handleInputChange}
-            />
+            <div className="gap-1 flex flex-col">
+              <h3 className="ml-1">Joined Date *</h3>
+              <InputComponent
+                placeholder="Joined Date *"
+                type="date"
+                name="staffStartDate"
+                value={staffStartDate}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="gap-1 flex flex-col">
+              <h3 className="ml-1">Leave Date *</h3>
+
+              <InputComponent
+                placeholder="Leave Date *"
+                type="date"
+                name="staffEndDate"
+                value={staffEndDate}
+                onChange={handleInputChange}
+              />
+            </div>
           </div>
           {/* staff image div */}
-          <ImageUploadDiv publicUrl="" onSave={() => {}} />
+          <ImageUploadDiv
+            publicUrl=""
+            onUpload={(uploaded, publicUrl, imageName, imageType) => {
+              if (uploaded) {
+                setUnsaved(true);
+                setImageName(imageName);
+                setImageType(imageType);
+                setLocalData((prev: any) => ({ ...prev, staffImage: publicUrl }));
+              }
+            }}
+          />
         </div>
-
-        <InputComponent placeholder="Address" name="staffAddress" value={staffAddress} onChange={handleInputChange} />
+        <InputComponent placeholder="Address *" name="staffAddress" value={staffAddress} onChange={handleInputChange} />
         <textarea
-          placeholder="Allergies"
+          placeholder="Allergies *"
           required
           name="staffAllergies"
           value={staffAllergies}
           onChange={handleInputChange}
           className={textAreaStyle}
         />
-
         <div className="flex flex-col gap-3">
           {/* next of kin section */}
           <span className="text-[20px] font-bold mt-2">Next of Kin </span>
           <div className="grid grid-cols-2 gap-3">
             <InputComponent
-              placeholder="Next Of Kin Name"
+              placeholder="Next Of Kin Name *"
               name="staffNextOfKinName"
               value={staffNextOfKinName}
               onChange={handleInputChange}
             />
             <InputComponent
-              placeholder="Next Of Kin Relationship"
+              placeholder="Next Of Kin Relationship *"
               name="staffNextOfKinRelationship"
               value={staffNextOfKinRelationship}
               onChange={handleInputChange}
             />
             <InputComponent
-              placeholder="Next Of Kin Phone"
+              placeholder="Next Of Kin Phone *"
               name="staffNextOfKinPhone"
               value={staffNextOfKinPhone}
               onChange={handleInputChange}
@@ -535,7 +545,18 @@ const NewStaffComponent = ({
               <ContainerComponent key={_id} style="flex flex-col w-[300px] hover:cursor-pointer">
                 <div className="flex gap-5 justify-between items-center">
                   <span className="whitespace-nowrap font-bold">{qualificationName.slice(0, 20)}</span>{" "}
-                  <CgTrash className="text-[25px] hover:text-red-500" />
+                  <CgTrash
+                    className="text-[25px] hover:text-red-500"
+                    onClick={() => {
+                      setUnsaved(true);
+                      setLocalData((prev: any) => ({
+                        ...prev,
+                        staffQualification: prev.staffQualification.filter(
+                          (qualification: any) => qualification._id !== _id
+                        )
+                      }));
+                    }}
+                  />
                 </div>
                 <span className="whitespace-nowrap font-bold text-foregroundColor-60">{schoolName}</span>
                 <div className="flex flex-col mt-2">
