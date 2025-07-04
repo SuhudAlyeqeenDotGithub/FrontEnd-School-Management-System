@@ -8,7 +8,7 @@ const ImageUploadDiv = ({
   onUpload
 }: {
   publicUrl: string;
-  onUpload: (uploaded: boolean, publicUrl: string, imageName: string, imageType: string) => void;
+  onUpload: (uploaded: boolean, publicUrl: string, imageFile: File, imageName: string, imageType: string) => void;
 }) => {
   const [error, setError] = useState("");
   const [imageName, setImageName] = useState("");
@@ -23,7 +23,7 @@ const ImageUploadDiv = ({
       setImageName(file.name);
       const localUrl = URL.createObjectURL(file);
       setLocalPublicUrl(localUrl);
-      onUpload(true, localPublicUrl, file.name, file.type);
+      onUpload(true, localPublicUrl, file, file.name, file.type);
     }
   };
   return (

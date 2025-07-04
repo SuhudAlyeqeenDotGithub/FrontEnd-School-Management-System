@@ -17,6 +17,8 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { QualificationType } from "@/interfaces/interfaces";
 import { nanoid } from "@reduxjs/toolkit";
 import ImageUploadDiv from "../general/imageUploadCom";
+import { handleApiRequest } from "@/axios/axiosClient";
+import axios from "axios";
 
 const QualificationDialog = ({
   type = "new",
@@ -193,6 +195,7 @@ const NewStaffComponent = ({
   const dispatch = useAppDispatch();
   const { users, isLoading } = useAppSelector((state) => state.usersData);
   const [unsaved, setUnsaved] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageName, setImageName] = useState("");
   const [imageType, setImageType] = useState("");
   const [error, setError] = useState("");
@@ -283,6 +286,52 @@ const NewStaffComponent = ({
     return true;
   };
 
+  const handleCreateStaff = async () => {
+    if (validationPassed()) {
+      setError("");
+      // get signed url from the backend
+      try {
+        const signedUrlParamData = { imageName, imageType };
+        const response = await handleApiRequest(
+          "post",
+          "http://localhost:5000/alyeqeenschoolapp/api/signedurl",
+          signedUrlParamData
+        );
+
+        if (response) {
+          const { signedUrl, publicUrl }: any = response;
+
+          // send put request to upload image
+          try {
+            const uploadResponse = await axios.put(signedUrl, imageName, {
+              headers: {
+                "Content-Type": imageType // important!
+              }
+            });
+          } catch (error: any) {
+            setError(error.response?.data.message || error.message || "Error getting uploading image");
+          }
+
+          // update local image with the public url
+          setLocalData((prev: any) => ({ ...prev, staffImage: publicUrl }));
+        }
+      } catch (error: any) {
+        setError(error.response?.data.message || error.message || "Error getting image upload resources");
+      }
+
+      // upon success run dispatch create staff
+
+      try {
+        const response = await dispatch(createUser(localData)).unwrap();
+        if (response) {
+          onCreate(true);
+        }
+      } catch (err: any) {
+        setError(err);
+      }
+    }
+  };
+
   const textAreaStyle =
     "border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full h-[100px] overflow-auto";
 
@@ -336,19 +385,7 @@ const NewStaffComponent = ({
             disabled={!unsaved}
             buttonStyle="w-full"
             isLoading={isLoading}
-            onClick={async () => {
-              if (validationPassed()) {
-                setError("");
-                // try {
-                //   const response = await dispatch(createUser(localData)).unwrap();
-                //   if (response) {
-                //     onCreate(true);
-                //   }
-                // } catch (err: any) {
-                //   setError(err);
-                // }
-              }
-            }}
+            onClick={handleCreateStaff}
           />
           <IoClose
             onClick={() => {
@@ -477,9 +514,10 @@ const NewStaffComponent = ({
           {/* staff image div */}
           <ImageUploadDiv
             publicUrl=""
-            onUpload={(uploaded, publicUrl, imageName, imageType) => {
+            onUpload={(uploaded, publicUrl, imageFile, imageName, imageType) => {
               if (uploaded) {
                 setUnsaved(true);
+                setImageFile(imageFile);
                 setImageName(imageName);
                 setImageType(imageType);
                 setLocalData((prev: any) => ({ ...prev, staffImage: publicUrl }));
