@@ -15,6 +15,7 @@ import EditUserComponent from "@/lib/component/admin/editUserComponent";
 import { resetUsers } from "@/redux/features/admin/users/usersSlice";
 import NewStaffComponent from "@/lib/component/staff/newStaffComp";
 import { getStaffProfiles } from "@/redux/features/staff/staffThunks";
+import { MdContentCopy } from "react-icons/md";
 
 const StaffProfile = () => {
   const dispatch = useAppDispatch();
@@ -72,7 +73,7 @@ const StaffProfile = () => {
       const filteredData = staff.filter((obj: any) => obj.searchText.toLowerCase().includes(searchValue.toLowerCase()));
       setLocalData(filteredData);
     } else {
-      setLocalData(users);
+      setLocalData(staff);
     }
   }, [searchValue]);
 
@@ -324,8 +325,15 @@ const StaffProfile = () => {
                         <span className="whitespace-nowrap flex items-center justify-center w-10 h-10 bg-foregroundColor-10 rounded-full font-semibold">
                           {staffFirstName.toUpperCase().slice(0, 2)}
                         </span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
+                        <span className="whitespace-nowrap flex items-center justify-center w-[200px] gap-3">
                           {staffCustomId.slice(0, 10)}
+                          <MdContentCopy
+                            title="copy id"
+                            className="text-[20px] text-foregroundColor-80 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            onClick={async () => {
+                              await navigator.clipboard.writeText(staffCustomId);
+                            }}
+                          />
                         </span>
                         <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
                           {staffFirstName.slice(0, 10)}

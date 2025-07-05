@@ -165,7 +165,7 @@ const NewUserComponent = ({
       {/* input divs */}
       <div className="flex flex-col gap-4">
         <InputComponent
-          placeholder="Staff ID - (Custom)"
+          placeholder="Staff ID - (Custom) *"
           required
           name="staffId"
           value={staffId}

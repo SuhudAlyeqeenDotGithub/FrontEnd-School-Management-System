@@ -54,7 +54,6 @@ const EditUserComponent = ({
   }, [unsaved]);
 
   const { staffId, userName, userEmail, userPassword, userStatus, roleId } = localData;
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setUnsaved(true);
     const { name, value } = e.target;
@@ -194,7 +193,7 @@ const EditUserComponent = ({
       {/* input divs */}
       <div className="flex flex-col gap-4">
         <InputComponent
-          placeholder="Staff ID - (Custom)"
+          placeholder="Staff ID - (Custom) *"
           required
           name="staffId"
           value={staffId}

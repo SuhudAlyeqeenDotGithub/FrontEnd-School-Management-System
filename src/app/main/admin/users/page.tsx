@@ -63,6 +63,33 @@ const Users = () => {
   }, [accountData]);
 
   useEffect(() => {
+    if (!accountData.accountEmail || !accountData.accountStatus) {
+      return;
+    }
+    const fetchRoles = async () => {
+      try {
+        if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
+          console.log("accountData", accountData);
+          dispatch(resetUsers());
+          setError("Your account is no longer active - Please contact your admin");
+          return;
+        }
+        if (!hasActionAccess("View Roles") && !accountData.roleId.absoluteAdmin) {
+          dispatch(resetUsers());
+          setError("Unauthorized: You do not have access to view roles - Please contact your admin");
+          return;
+        } else {
+          const response = await dispatch(fetchRolesAccess()).unwrap();
+        }
+      } catch (error: any) {
+        setError(error);
+      }
+    };
+
+    fetchRoles();
+  }, [accountData]);
+
+  useEffect(() => {
     setLocalData(users);
   }, [users]);
 
@@ -327,10 +354,9 @@ const Users = () => {
                       onClick={() => {
                         if (hasActionAccess("Edit User")) {
                           document.body.style.overflow = "hidden";
-                          setOpenEditUserDialog(true);
                           setOnOpenEditUserData({
                             userId: accountId,
-                            staffId,
+                            staffId: roleId.absoluteAdmin ? "" : staffId.staffCustomId,
                             userName: accountName,
                             userEmail: accountEmail,
                             userStatus: accountStatus,
@@ -338,6 +364,7 @@ const Users = () => {
                             onEditUserIsAbsoluteAdmin: roleId.absoluteAdmin,
                             roleId: roleId._id + "|" + roleId.roleName
                           });
+                          setOpenEditUserDialog(true);
                         } else {
                           setError("You do not have Edit User Access - Please contact your admin");
                         }
