@@ -81,7 +81,7 @@ const Users = () => {
 
     let sortOrder = sortOrderTracker[sortKey];
 
-    console.log("sortOrder", sortOrder);
+    // console.log("sortOrder", sortOrder);
 
     let nextOrder: string;
 

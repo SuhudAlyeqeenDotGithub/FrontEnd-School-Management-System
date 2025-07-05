@@ -82,7 +82,7 @@ const StaffProfile = () => {
 
     let sortOrder = sortOrderTracker[sortKey];
 
-    console.log("sortOrder", sortOrder);
+    // console.log("sortOrder", sortOrder);
 
     let nextOrder: string;
 
@@ -260,7 +260,7 @@ const StaffProfile = () => {
                     key={header}
                     onClick={() => {
                       const key_Name = {
-                        "Staff Custom ID": "accountName",
+                        "Staff Custom ID": "staffCustomId",
                         "First Name": "staffFirstName",
                         "Last Name": "staffLastName",
                         Gender: "staffGender",

@@ -293,14 +293,12 @@ const NewStaffComponent = ({
   };
 
   const handleCreateStaff = async () => {
-    console.log("creation started");
     if (validationPassed()) {
       setError("");
 
       // get signed url from the backend
       if (imageName === "") {
         try {
-          console.log("now creating staff profile on the backend with", localData);
           const response = await dispatch(createStaffProfile(localData)).unwrap();
           if (response) {
             onCreate(true);
@@ -315,7 +313,6 @@ const NewStaffComponent = ({
       if (imageName !== "") {
         try {
           const signedUrlParamData = { imageName: sanitizeStaffImageName(imageName), imageType };
-          console.log("getting signed url response with", signedUrlParamData);
           const response = await handleApiRequest(
             "post",
             "http://localhost:5000/alyeqeenschoolapp/api/signedurl",
@@ -323,17 +320,14 @@ const NewStaffComponent = ({
           );
 
           if (response) {
-            console.log("got signed url response is", response);
             const { signedUrl, publicUrl }: any = response.data;
             // update local image with the public url
 
             const updatedLocalData = { ...localData, staffImage: publicUrl };
-            console.log("localdata", updatedLocalData);
             setLocalData(updatedLocalData);
 
             // send put request to upload image
             try {
-              console.log("now uploading to", signedUrl);
               const uploadResponse = await axios.put(signedUrl, imageFile, {
                 headers: {
                   "Content-Type": imageType // important!
