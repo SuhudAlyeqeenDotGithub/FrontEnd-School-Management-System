@@ -322,7 +322,7 @@ const StaffProfile = () => {
                     >
                       <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
                         <span className="whitespace-nowrap flex items-center justify-center w-10 h-10 bg-foregroundColor-10 rounded-full font-semibold">
-                          {staffCustomId.slice(0, 2)}
+                          {staffFirstName.toUpperCase().slice(0, 2)}
                         </span>
                         <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
                           {staffCustomId.slice(0, 10)}

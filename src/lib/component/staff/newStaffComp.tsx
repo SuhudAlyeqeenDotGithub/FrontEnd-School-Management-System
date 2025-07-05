@@ -9,7 +9,7 @@ import { useNavigationHandler } from "../../shortFunctions/clientFunctions";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
-import { checkDataType } from "../../shortFunctions/shortFunctions";
+import { checkDataType, formatDate } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../../component/general/compLibrary";
 import { DisallowedActionDialog, SearchableDropDownInput } from "../general/compLibrary2";
 import { createUser } from "@/redux/features/admin/users/usersThunks";
@@ -203,8 +203,6 @@ const NewStaffComponent = ({
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
   const [newQualficationDialog, setNewQualficationDialog] = useState(false);
   const [editQualficationDialog, setEditQualficationDialog] = useState(false);
-  const [userTabs, setUserTabs] = useState<string[]>([]);
-  const [userPermittedActions, setUserPermittedActions] = useState<string[]>([]);
   const [localData, setLocalData] = useState({
     staffCustomId: "",
     staffFirstName: "",
@@ -267,13 +265,17 @@ const NewStaffComponent = ({
     const { name, value } = e.target;
     setLocalData((prev: any) => ({ ...prev, [name]: value }));
   };
+  const sanitizeStaffImageName = (originalName: string) => {
+    const timestamp = Date.now();
+    const extension = originalName.split(".").pop();
+    return `staff_${timestamp}.${extension}`;
+  };
 
   const validationPassed = () => {
     const {
       staffCustomId,
       staffImage,
       staffMiddleName,
-      staffNextOfKinEmail,
       staffQualification,
       staffPostCode,
       staffEndDate,
@@ -291,8 +293,10 @@ const NewStaffComponent = ({
   };
 
   const handleCreateStaff = async () => {
+    console.log("creation started");
     if (validationPassed()) {
       setError("");
+
       // get signed url from the backend
       if (imageName === "") {
         try {
@@ -310,7 +314,7 @@ const NewStaffComponent = ({
 
       if (imageName !== "") {
         try {
-          const signedUrlParamData = { imageName, imageType };
+          const signedUrlParamData = { imageName: sanitizeStaffImageName(imageName), imageType };
           console.log("getting signed url response with", signedUrlParamData);
           const response = await handleApiRequest(
             "post",
@@ -320,12 +324,16 @@ const NewStaffComponent = ({
 
           if (response) {
             console.log("got signed url response is", response);
-            const { signedUrl, publicUrl }: any = response;
+            const { signedUrl, publicUrl }: any = response.data;
             // update local image with the public url
-            setLocalData((prev: any) => ({ ...prev, staffImage: publicUrl }));
+
+            const updatedLocalData = { ...localData, staffImage: publicUrl };
+            console.log("localdata", updatedLocalData);
+            setLocalData(updatedLocalData);
 
             // send put request to upload image
             try {
+              console.log("now uploading to", signedUrl);
               const uploadResponse = await axios.put(signedUrl, imageFile, {
                 headers: {
                   "Content-Type": imageType // important!
@@ -334,8 +342,8 @@ const NewStaffComponent = ({
 
               if (uploadResponse) {
                 try {
-                  console.log("now creating staff profile on the backend with", localData);
-                  const response = await dispatch(createStaffProfile(localData)).unwrap();
+                  console.log("now creating staff profile on the backend with", updatedLocalData);
+                  const response = await dispatch(createStaffProfile(updatedLocalData)).unwrap();
                   if (response) {
                     onCreate(true);
                   }
@@ -351,8 +359,6 @@ const NewStaffComponent = ({
           setError(error.response?.data.message || error.message || "Error getting image upload resources");
         }
       }
-
-      // upon success run dispatch create staff
     }
   };
 
@@ -525,7 +531,7 @@ const NewStaffComponent = ({
               />
             </div>
             <div className="gap-1 flex flex-col">
-              <h3 className="ml-1">Leave Date *</h3>
+              <h3 className="ml-1">Leave Date</h3>
 
               <InputComponent
                 placeholder="Leave Date"
@@ -538,17 +544,9 @@ const NewStaffComponent = ({
           </div>
           {/* staff image div */}
           <ImageUploadDiv
-            publicUrl=""
+            publicUrl={staffImage}
             onUpload={(uploaded, publicUrl, imageFile, imageName, imageType) => {
               if (uploaded) {
-                console.log(
-                  "uploaded, publicUrl, imageFile, imageName, imageType",
-                  uploaded,
-                  publicUrl,
-                  imageFile,
-                  imageName,
-                  imageType
-                );
                 setUnsaved(true);
                 setImageFile(imageFile);
                 setImageName(imageName);
@@ -608,7 +606,7 @@ const NewStaffComponent = ({
               onChange={handleInputChange}
             />
             <InputComponent
-              placeholder="Next Of Kin Email"
+              placeholder="Next Of Kin Email *"
               name="staffNextOfKinEmail"
               value={staffNextOfKinEmail}
               onChange={handleInputChange}
@@ -649,8 +647,8 @@ const NewStaffComponent = ({
                 </div>
                 <span className="whitespace-nowrap font-bold text-foregroundColor-60">{schoolName}</span>
                 <div className="flex flex-col mt-2">
-                  <span>{startDate}</span>
-                  <span>{endDate}</span>
+                  <span>{formatDate(startDate)}</span>
+                  <span>{formatDate(endDate)}</span>
                 </div>
               </ContainerComponent>
             ))

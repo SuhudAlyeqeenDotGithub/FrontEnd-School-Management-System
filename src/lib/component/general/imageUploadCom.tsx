@@ -8,7 +8,13 @@ const ImageUploadDiv = ({
   onUpload
 }: {
   publicUrl: string;
-  onUpload: (uploaded: boolean, publicUrl: string, imageFile: File, imageName: string, imageType: string) => void;
+  onUpload: (
+    uploaded: boolean,
+    publicUrl: string,
+    imageFile: File | null,
+    imageName: string,
+    imageType: string
+  ) => void;
 }) => {
   const [error, setError] = useState("");
   const [imageName, setImageName] = useState("");
@@ -61,6 +67,7 @@ const ImageUploadDiv = ({
                 }
                 setImageName("");
                 setLocalPublicUrl("");
+                onUpload(true, "", null, "", "");
               }}
               className="hover:cursor-pointer hover:text-red-500 text-[18px]"
             />
