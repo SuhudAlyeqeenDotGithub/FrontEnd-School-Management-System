@@ -2,17 +2,11 @@
 
 import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "../../component/general/compLibrary";
 import { IoClose } from "react-icons/io5";
-import { MdContentCopy } from "react-icons/md";
-import { IoCloudUploadOutline } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { useNavigationHandler } from "../../shortFunctions/clientFunctions";
-import { LuArrowUpDown } from "react-icons/lu";
-import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
-import { checkDataType, formatDate } from "../../shortFunctions/shortFunctions";
+import { formatDate } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../../component/general/compLibrary";
-import { DisallowedActionDialog, SearchableDropDownInput } from "../general/compLibrary2";
-import { createUser } from "@/redux/features/admin/users/usersThunks";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { QualificationType } from "@/interfaces/interfaces";
 import { nanoid } from "@reduxjs/toolkit";
@@ -194,14 +188,13 @@ const NewStaffComponent = ({
 }) => {
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
-  const { users, isLoading } = useAppSelector((state) => state.usersData);
+  const { isLoading } = useAppSelector((state) => state.staffData);
   const [unsaved, setUnsaved] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageName, setImageName] = useState("");
   const [imageType, setImageType] = useState("");
   const [error, setError] = useState("");
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
-  const [creatingStaff, setCreatingStaff] = useState(false);
   const [newQualficationDialog, setNewQualficationDialog] = useState(false);
   const [editQualficationDialog, setEditQualficationDialog] = useState(false);
   const [editQualficationData, setEditQualficationData] = useState({
@@ -303,7 +296,6 @@ const NewStaffComponent = ({
   const handleCreateStaff = async () => {
     if (validationPassed()) {
       setError("");
-      setCreatingStaff(true);
 
       // get signed url from the backend
       if (imageName === "") {
@@ -315,7 +307,6 @@ const NewStaffComponent = ({
         } catch (err: any) {
           setError(err);
         }
-
         return;
       }
 
@@ -345,7 +336,6 @@ const NewStaffComponent = ({
 
               if (uploadResponse) {
                 try {
-                  console.log("now creating staff profile on the backend with", updatedLocalData);
                   const response = await dispatch(createStaffProfile(updatedLocalData)).unwrap();
                   if (response) {
                     onCreate(true);
@@ -363,7 +353,6 @@ const NewStaffComponent = ({
         }
       }
     }
-    setCreatingStaff(false);
   };
 
   const textAreaStyle =
@@ -387,6 +376,7 @@ const NewStaffComponent = ({
               ...prev,
               staffQualification: [...prev.staffQualification, returnData]
             }));
+            setUnsaved(true);
           }}
           onClose={(open) => {
             setNewQualficationDialog(!open);
@@ -436,7 +426,7 @@ const NewStaffComponent = ({
             loadingButtonText="Creating Staff..."
             disabled={!unsaved}
             buttonStyle="w-full"
-            isLoading={creatingStaff}
+            isLoading={isLoading}
             onClick={handleCreateStaff}
           />
           <IoClose

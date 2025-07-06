@@ -2,67 +2,67 @@
 
 import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "../../component/general/compLibrary";
 import { IoClose } from "react-icons/io5";
-import { MdContentCopy } from "react-icons/md";
-import { IoCloudUploadOutline } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { useNavigationHandler } from "../../shortFunctions/clientFunctions";
-import { LuArrowUpDown } from "react-icons/lu";
-import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
-import { checkDataType, formatDate } from "../../shortFunctions/shortFunctions";
+import { formatDate } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../../component/general/compLibrary";
-import { DisallowedActionDialog, SearchableDropDownInput } from "../general/compLibrary2";
-import { createUser } from "@/redux/features/admin/users/usersThunks";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { QualificationType } from "@/interfaces/interfaces";
-import { nanoid } from "@reduxjs/toolkit";
 import ImageUploadDiv from "../general/imageUploadCom";
 import { handleApiRequest } from "@/axios/axiosClient";
 import axios from "axios";
-import { createStaffProfile } from "@/redux/features/staff/staffThunks";
+import { updateStaffProfile } from "@/redux/features/staff/staffThunks";
 import { QualificationDialog } from "./newStaffComp";
 
 const EditStaffComponent = ({
+  data,
   onClose,
-  onCreate
+  onSave
 }: {
+  data: any;
   onClose: (close: boolean) => {};
-  onCreate: (create: boolean) => {};
+  onSave: (save: boolean) => {};
 }) => {
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
-  const { users, isLoading } = useAppSelector((state) => state.usersData);
+  const { isLoading } = useAppSelector((state) => state.staffData);
   const [unsaved, setUnsaved] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageName, setImageName] = useState("");
   const [imageType, setImageType] = useState("");
   const [error, setError] = useState("");
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
-  const [creatingStaff, setCreatingStaff] = useState(false);
   const [newQualficationDialog, setNewQualficationDialog] = useState(false);
   const [editQualficationDialog, setEditQualficationDialog] = useState(false);
+  const [editQualficationData, setEditQualficationData] = useState({
+    _id: "",
+    qualificationName: "",
+    schoolName: "",
+    startDate: "",
+    endDate: ""
+  });
   const [localData, setLocalData] = useState({
-    staffCustomId: "",
-    staffFirstName: "",
-    staffMiddleName: "",
-    staffLastName: "",
-    staffDateOfBirth: "",
-    staffGender: "",
-    staffPhone: "",
-    staffEmail: "",
-    staffAddress: "",
-    staffPostCode: "",
-    staffImage: "",
-    staffMaritalStatus: "",
-    staffStartDate: "",
-    staffEndDate: "",
-    staffNationality: "",
-    staffAllergies: "",
-    staffNextOfKinName: "",
-    staffNextOfKinRelationship: "",
-    staffNextOfKinPhone: "",
-    staffNextOfKinEmail: "",
-    staffQualification: []
+    staffCustomId: data.staffCustomId,
+    staffFirstName: data.staffFirstName,
+    staffMiddleName: data.staffMiddleName,
+    staffLastName: data.staffLastName,
+    staffDateOfBirth: data.staffDateOfBirth,
+    staffGender: data.staffGender,
+    staffPhone: data.staffPhone,
+    staffEmail: data.staffEmail,
+    staffAddress: data.staffAddress,
+    staffPostCode: data.staffPostCode,
+    staffImage: data.staffImage,
+    staffMaritalStatus: data.staffMaritalStatus,
+    staffStartDate: data.staffStartDate,
+    staffEndDate: data.staffEndDate,
+    staffNationality: data.staffNationality,
+    staffAllergies: data.staffAllergies,
+    staffNextOfKinName: data.staffNextOfKinName,
+    staffNextOfKinRelationship: data.staffNextOfKinRelationship,
+    staffNextOfKinPhone: data.staffNextOfKinPhone,
+    staffNextOfKinEmail: data.staffNextOfKinEmail,
+    staffQualification: data.staffQualification
   });
 
   useEffect(() => {
@@ -130,22 +130,20 @@ const EditStaffComponent = ({
     return true;
   };
 
-  const handleCreateStaff = async () => {
+  const handleUpdateStaff = async () => {
     if (validationPassed()) {
       setError("");
-      setCreatingStaff(true);
 
       // get signed url from the backend
-      if (imageName === "") {
+      if (staffImage !== "" || imageName === "") {
         try {
-          const response = await dispatch(createStaffProfile(localData)).unwrap();
+          const response = await dispatch(updateStaffProfile(localData)).unwrap();
           if (response) {
-            onCreate(true);
+            onSave(true);
           }
         } catch (err: any) {
           setError(err);
         }
-
         return;
       }
 
@@ -175,10 +173,9 @@ const EditStaffComponent = ({
 
               if (uploadResponse) {
                 try {
-                  console.log("now creating staff profile on the backend with", updatedLocalData);
-                  const response = await dispatch(createStaffProfile(updatedLocalData)).unwrap();
+                  const response = await dispatch(updateStaffProfile(updatedLocalData)).unwrap();
                   if (response) {
-                    onCreate(true);
+                    onSave(true);
                   }
                 } catch (err: any) {
                   setError(err);
@@ -193,7 +190,6 @@ const EditStaffComponent = ({
         }
       }
     }
-    setCreatingStaff(false);
   };
 
   const textAreaStyle =
@@ -203,9 +199,9 @@ const EditStaffComponent = ({
     <ContainerComponent id="staffDialogContainer" style="w-[80%] h-[90%] gap-5 overflow-auto flex flex-col">
       {newQualficationDialog && (
         <QualificationDialog
-          type="edit"
+          type="new"
           data={{
-            _id: localData.staffQualification._id,
+            _id: "",
             qualificationName: "",
             schoolName: "",
             startDate: "",
@@ -215,11 +211,31 @@ const EditStaffComponent = ({
             setNewQualficationDialog(!save);
             setLocalData((prev: any) => ({
               ...prev,
-              staffQualification: [...localData.staffQualification, returnData]
+              staffQualification: [...prev.staffQualification, returnData]
             }));
+            setUnsaved(true);
           }}
           onClose={(open) => {
             setNewQualficationDialog(!open);
+          }}
+        />
+      )}
+      {editQualficationDialog && (
+        <QualificationDialog
+          type="edit"
+          data={editQualficationData}
+          onSave={(save, returnData) => {
+            setEditQualficationDialog(!save);
+            setLocalData((prev: any) => ({
+              ...prev,
+              staffQualification: [...prev.staffQualification].map((qualification: any) =>
+                qualification._id === returnData._id ? returnData : qualification
+              )
+            }));
+            setUnsaved(true);
+          }}
+          onClose={(open) => {
+            setEditQualficationDialog(!open);
           }}
         />
       )}
@@ -241,15 +257,15 @@ const EditStaffComponent = ({
       )}
       {/* top div */}
       <div className="flex justify-between items-center">
-        <h2>New Staff</h2>
+        <h2>Edit Staff</h2>
         <div className="flex justify-between items-center gap-5">
           <LoaderButton
-            buttonText="Create"
-            loadingButtonText="Creating Staff..."
+            buttonText="Save"
+            loadingButtonText="Updating Staff..."
             disabled={!unsaved}
             buttonStyle="w-full"
-            isLoading={creatingStaff}
-            onClick={handleCreateStaff}
+            isLoading={isLoading}
+            onClick={handleUpdateStaff}
           />
           <IoClose
             onClick={() => {
@@ -462,30 +478,41 @@ const EditStaffComponent = ({
           {staffQualification.length < 1 ? (
             <div>No Qualifications Added</div>
           ) : (
-            staffQualification.map(({ _id, qualificationName, schoolName, startDate, endDate }: any) => (
-              <ContainerComponent key={_id} style="flex flex-col w-[300px] hover:cursor-pointer">
-                <div className="flex gap-5 justify-between items-center">
-                  <span className="whitespace-nowrap font-bold">{qualificationName.slice(0, 20)}</span>{" "}
-                  <CgTrash
-                    className="text-[25px] hover:text-red-500"
-                    onClick={() => {
-                      setUnsaved(true);
-                      setLocalData((prev: any) => ({
-                        ...prev,
-                        staffQualification: prev.staffQualification.filter(
-                          (qualification: any) => qualification._id !== _id
-                        )
-                      }));
-                    }}
-                  />
+            staffQualification.map((qualification: any) => {
+              const { _id, qualificationName, schoolName, startDate, endDate } = qualification;
+              return (
+                <div
+                  key={_id}
+                  className="flex flex-col w-[300px] hover:cursor-pointer hover:bg-foregroundColor-5 border border-foregroundColor-15 rounded-lg shadow p-4"
+                  onClick={() => {
+                    setEditQualficationData(qualification);
+                    setEditQualficationDialog(true);
+                  }}
+                >
+                  <div className="flex gap-5 justify-between items-center">
+                    <span className="whitespace-nowrap font-bold text-[19px]">{qualificationName.slice(0, 20)}</span>{" "}
+                    <CgTrash
+                      className="text-[25px] hover:text-red-500"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setUnsaved(true);
+                        setLocalData((prev: any) => ({
+                          ...prev,
+                          staffQualification: prev.staffQualification.filter(
+                            (qualification: any) => qualification._id !== _id
+                          )
+                        }));
+                      }}
+                    />
+                  </div>
+                  <span className="whitespace-nowrap font-bold text-foregroundColor-60 text-[18px]">{schoolName}</span>
+                  <div className="flex flex-col mt-2">
+                    <span>{formatDate(startDate)}</span>
+                    <span>{formatDate(endDate)}</span>
+                  </div>
                 </div>
-                <span className="whitespace-nowrap font-bold text-foregroundColor-60">{schoolName}</span>
-                <div className="flex flex-col mt-2">
-                  <span>{formatDate(startDate)}</span>
-                  <span>{formatDate(endDate)}</span>
-                </div>
-              </ContainerComponent>
-            ))
+              );
+            })
           )}
         </div>
       </div>

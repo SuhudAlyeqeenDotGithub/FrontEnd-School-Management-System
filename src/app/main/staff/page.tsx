@@ -16,6 +16,7 @@ import { resetUsers } from "@/redux/features/admin/users/usersSlice";
 import NewStaffComponent from "@/lib/component/staff/newStaffComp";
 import { getStaffProfiles } from "@/redux/features/staff/staffThunks";
 import { MdContentCopy } from "react-icons/md";
+import EditStaffComponent from "@/lib/component/staff/editStaffComp";
 
 const StaffProfile = () => {
   const dispatch = useAppDispatch();
@@ -26,10 +27,10 @@ const StaffProfile = () => {
   const [error, setError] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openEditUserDialog, setOpenEditUserDialog] = useState(false);
+  const [openEditUserDialog, setOpenEditStaffDialog] = useState(false);
   const [openNewStaffDialog, setOpenNewStaffDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
-  const [onOpenEditUserData, setOnOpenEditUserData] = useState<any>({});
+  const [onOpenEditUserData, setOnOpenEditStaffData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
@@ -133,31 +134,23 @@ const StaffProfile = () => {
 
       {/* data table section */}
       <div className="">
-        {/* {openEditUserDialog && (
+        {openEditUserDialog && (
           <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
-            <EditUserComponent
+            <EditStaffComponent
               onClose={(open: boolean) => {
                 document.body.style.overflow = "";
-                setOpenEditUserDialog(!open);
+                setOpenEditStaffDialog(!open);
                 return {};
               }}
-              onUpdate={(notSave) => {
+              onSave={(notSave) => {
                 document.body.style.overflow = "";
-                setOpenEditUserDialog(!notSave);
+                setOpenEditStaffDialog(!notSave);
                 return {};
               }}
-              userData={onOpenEditUserData}
-              rolesData={roles
-                .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-                .map(({ _id, roleName, tabAccess }: any) => ({
-                  _id,
-                  name: roleName,
-                  tabAccess,
-                  searchText: _id + roleName
-                }))}
+              data={onOpenEditUserData}
             />
           </div>
-        )} */}
+        )}
         {openNewStaffDialog && (
           <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
             <NewStaffComponent
@@ -302,22 +295,13 @@ const StaffProfile = () => {
                     <div
                       key={profileId}
                       onClick={() => {
-                        // if (hasActionAccess("Edit User")) {
-                        //   document.body.style.overflow = "hidden";
-                        //   setOpenEditUserDialog(true);
-                        //   setOnOpenEditUserData({
-                        //     userId: accountId,
-                        //     staffId,
-                        //     userName: accountName,
-                        //     userEmail: accountEmail,
-                        //     userStatus: accountStatus,
-                        //     userPassword: accountPassword,
-                        //     onEditUserIsAbsoluteAdmin: roleId.absoluteAdmin,
-                        //     roleId: roleId._id + "|" + roleId.roleName
-                        //   });
-                        // } else {
-                        //   setError("You do not have Edit User Access - Please contact your admin");
-                        // }
+                        if (hasActionAccess("Edit Staff")) {
+                          document.body.style.overflow = "hidden";
+                          setOpenEditStaffDialog(true);
+                          setOnOpenEditStaffData(doc);
+                        } else {
+                          setError("You do not have Edit User Access - Please contact your admin");
+                        }
                       }}
                       className="w-full flex items-center px-4 border border-foregroundColor-15 rounded-md shadow-sm py-2 hover:bg-foregroundColor-5 hover:cursor-pointer"
                     >
