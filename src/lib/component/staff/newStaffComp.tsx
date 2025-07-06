@@ -216,6 +216,7 @@ const NewStaffComponent = ({
     staffAddress: "",
     staffPostCode: "",
     staffImage: "",
+    staffImageDestination: "",
     staffMaritalStatus: "",
     staffStartDate: "",
     staffEndDate: "",
@@ -249,6 +250,7 @@ const NewStaffComponent = ({
     staffAddress,
     staffPostCode,
     staffImage,
+    staffImageDestination,
     staffMaritalStatus,
     staffStartDate,
     staffEndDate,
@@ -276,6 +278,7 @@ const NewStaffComponent = ({
     const {
       staffCustomId,
       staffImage,
+      staffImageDestination,
       staffMiddleName,
       staffQualification,
       staffPostCode,
@@ -320,10 +323,10 @@ const NewStaffComponent = ({
           );
 
           if (response) {
-            const { signedUrl, publicUrl }: any = response.data;
+            const { signedUrl, publicUrl, destination }: any = response.data;
             // update local image with the public url
 
-            const updatedLocalData = { ...localData, staffImage: publicUrl };
+            const updatedLocalData = { ...localData, staffImage: publicUrl, staffImageDestination: destination };
             setLocalData(updatedLocalData);
 
             // send put request to upload image

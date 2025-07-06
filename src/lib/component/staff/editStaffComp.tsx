@@ -41,6 +41,7 @@ const EditStaffComponent = ({
     startDate: "",
     endDate: ""
   });
+
   const [localData, setLocalData] = useState({
     staffCustomId: data.staffCustomId,
     staffFirstName: data.staffFirstName,
@@ -53,6 +54,7 @@ const EditStaffComponent = ({
     staffAddress: data.staffAddress,
     staffPostCode: data.staffPostCode,
     staffImage: data.staffImage,
+    staffImageDestination: data.staffImageDestination,
     staffMaritalStatus: data.staffMaritalStatus,
     staffStartDate: data.staffStartDate,
     staffEndDate: data.staffEndDate,
@@ -86,6 +88,7 @@ const EditStaffComponent = ({
     staffAddress,
     staffPostCode,
     staffImage,
+    staffImageDestination,
     staffMaritalStatus,
     staffStartDate,
     staffEndDate,
@@ -113,6 +116,7 @@ const EditStaffComponent = ({
     const {
       staffCustomId,
       staffImage,
+      staffImageDestination,
       staffMiddleName,
       staffQualification,
       staffPostCode,
@@ -130,63 +134,91 @@ const EditStaffComponent = ({
     return true;
   };
 
+  const handleRegularUpdate = async (staffData: any) => {
+    try {
+      const response = await dispatch(updateStaffProfile(staffData)).unwrap();
+      if (response) {
+        onSave(true);
+      }
+    } catch (err: any) {
+      setError(err);
+    }
+  };
+
+  // function to handle image deletion
+  const handledDeleteImage = async () => {
+    // handle deleting current image on googlecloud
+    try {
+      const response = await handleApiRequest("delete", "http://localhost:5000/alyeqeenschoolapp/api/staffimage", {
+        staffImageDestination
+      });
+      // if image deletion was successful, start procedure to upload the new one
+      if (response) {
+        return true;
+      }
+    } catch (error: any) {
+      setError(error.response?.data.message || error.message || "Error deleting image");
+    }
+    return false;
+  };
+
+  // function to handle image upload and update backend
+  const handleUploadImage = async () => {
+    try {
+      const signedUrlParamData = { imageName: sanitizeStaffImageName(imageName), imageType };
+      const response = await handleApiRequest(
+        "post",
+        "http://localhost:5000/alyeqeenschoolapp/api/signedurl",
+        signedUrlParamData
+      );
+
+      if (response) {
+        const { signedUrl, publicUrl, destination }: any = response.data;
+        // update local image with the public url
+
+        const updatedLocalData = { ...localData, staffImage: publicUrl, staffImageDestination: destination };
+        setLocalData(updatedLocalData);
+
+        // send put request to upload image
+        try {
+          const uploadResponse = await axios.put(signedUrl, imageFile, {
+            headers: {
+              "Content-Type": imageType // important!
+            }
+          });
+
+          if (uploadResponse) {
+            handleRegularUpdate(updatedLocalData);
+          }
+        } catch (error: any) {
+          setError(error.response?.data.message || error.message || "Error getting uploading image");
+        }
+      }
+    } catch (error: any) {
+      setError(error.response?.data.message || error.message || "Error getting image upload resources");
+    }
+  };
+
+  // general function for all update handling
   const handleUpdateStaff = async () => {
     if (validationPassed()) {
       setError("");
 
       // get signed url from the backend
-      if (staffImage !== "" || imageName === "") {
-        try {
-          const response = await dispatch(updateStaffProfile(localData)).unwrap();
-          if (response) {
-            onSave(true);
-          }
-        } catch (err: any) {
-          setError(err);
-        }
+      if (imageName === "") {
+        handleRegularUpdate(localData);
         return;
       }
-
       if (imageName !== "") {
-        try {
-          const signedUrlParamData = { imageName: sanitizeStaffImageName(imageName), imageType };
-          const response = await handleApiRequest(
-            "post",
-            "http://localhost:5000/alyeqeenschoolapp/api/signedurl",
-            signedUrlParamData
-          );
-
-          if (response) {
-            const { signedUrl, publicUrl }: any = response.data;
-            // update local image with the public url
-
-            const updatedLocalData = { ...localData, staffImage: publicUrl };
-            setLocalData(updatedLocalData);
-
-            // send put request to upload image
-            try {
-              const uploadResponse = await axios.put(signedUrl, imageFile, {
-                headers: {
-                  "Content-Type": imageType // important!
-                }
-              });
-
-              if (uploadResponse) {
-                try {
-                  const response = await dispatch(updateStaffProfile(updatedLocalData)).unwrap();
-                  if (response) {
-                    onSave(true);
-                  }
-                } catch (err: any) {
-                  setError(err);
-                }
-              }
-            } catch (error: any) {
-              setError(error.response?.data.message || error.message || "Error getting uploading image");
-            }
+        if (staffImage !== "" && staffImageDestination !== "") {
+          const deletionDone = await handledDeleteImage();
+          if (deletionDone) {
+            handleUploadImage();
+          } else {
+            return;
           }
-        } catch (error: any) {
-          setError(error.response?.data.message || error.message || "Error getting image upload resources");
+        } else {
+          handleUploadImage();
         }
       }
     }

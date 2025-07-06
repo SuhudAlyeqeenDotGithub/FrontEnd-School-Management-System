@@ -168,6 +168,7 @@ export interface ReturnStaffType {
   staffAddress: string;
   staffPostCode?: string;
   staffImage?: string;
+  staffImageDestination?: string;
   staffMaritalStatus: string;
   staffStartDate: string;
   staffEndDate?: string;
@@ -198,6 +199,7 @@ export interface ParamStaffType {
   staffAddress: string;
   staffPostCode?: string;
   staffImage?: string;
+  staffImageDestination?: string;
   staffMaritalStatus: string;
   staffStartDate: string;
   staffEndDate?: string;

@@ -314,7 +314,8 @@ const StaffProfile = () => {
                           <MdContentCopy
                             title="copy id"
                             className="text-[20px] text-foregroundColor-80 hover:text-foregroundColor-50 hover:cursor-pointer"
-                            onClick={async () => {
+                            onClick={async (e) => {
+                              e.stopPropagation();
                               await navigator.clipboard.writeText(staffCustomId);
                             }}
                           />
