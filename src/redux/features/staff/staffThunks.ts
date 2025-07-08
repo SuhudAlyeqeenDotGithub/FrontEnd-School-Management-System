@@ -49,7 +49,7 @@ export const updateStaffProfile = createAsyncThunk<ReturnStaffType[], ParamStaff
   }
 );
 
-export const deleteStaffProfile = createAsyncThunk<ReturnStaffType[], { staffToDelete: string }>(
+export const deleteStaffProfile = createAsyncThunk<ReturnStaffType[], { StaffIDToDelete: string }>(
   "orgaccount/deletestaff",
   async (staffDeleteData, { rejectWithValue }) => {
     try {

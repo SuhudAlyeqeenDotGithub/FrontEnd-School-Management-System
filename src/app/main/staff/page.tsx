@@ -14,13 +14,12 @@ import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/compon
 import EditUserComponent from "@/lib/component/admin/editUserComponent";
 import { resetUsers } from "@/redux/features/admin/users/usersSlice";
 import NewStaffComponent from "@/lib/component/staff/newStaffComp";
-import { getStaffProfiles } from "@/redux/features/staff/staffThunks";
+import { deleteStaffProfile, getStaffProfiles } from "@/redux/features/staff/staffThunks";
 import { MdContentCopy } from "react-icons/md";
 import EditStaffComponent from "@/lib/component/staff/editStaffComp";
 
 const StaffProfile = () => {
   const dispatch = useAppDispatch();
-  const { users, isLoading } = useAppSelector((state) => state.usersData);
   const { staff, isLoading: staffIsLoading } = useAppSelector((state) => state.staffData);
   const { accountData } = useAppSelector((state) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
@@ -167,16 +166,7 @@ const StaffProfile = () => {
             />
           </div>
         )}
-        {/* {openDisallowedDeleteDialog && (
-          <DisallowedActionDialog
-            warningText="This delete action is disallowed as it relates to the default Admin / organisation account"
-            onOk={() => {
-              document.body.style.overflow = "";
-              setOpenDisallowedDeleteDialog(false);
-              setError("");
-            }}
-          />
-        )} */}
+
         {openConfirmDelete && (
           <ConfirmActionByInputDialog
             returnObject={confirmWithReturnObj}
@@ -190,7 +180,7 @@ const StaffProfile = () => {
               setError("");
               if (confirmed) {
                 try {
-                  await dispatch(deleteUser(returnObject)).unwrap();
+                  await dispatch(deleteStaffProfile(returnObject)).unwrap();
                 } catch (err: any) {
                   setError(err);
                 }
@@ -200,7 +190,7 @@ const StaffProfile = () => {
               setOpenConfirmDelete(false);
               document.body.style.overflow = "";
             }}
-            warningText="Please confirm the ID of the user/account you want to delete"
+            warningText="Please confirm the ID of the staff profile you want to delete"
           />
         )}
         {/* data table div */}
@@ -273,19 +263,19 @@ const StaffProfile = () => {
 
             {/* table data */}
             <div className="flex flex-col gap-2 mt-3">
-              {isLoading ? (
+              {staffIsLoading ? (
                 <div className="flex items-center justify-center mt-10">
                   <LoaderDiv
                     type="spinnerText"
                     borderColor="foregroundColor"
-                    text="Loading Users..."
+                    text="Loading Staff Profile..."
                     textColor="foregroundColor"
                     dimension="h-10 w-10"
                   />
                 </div>
               ) : localData.length < 1 && searchValue ? (
                 <div className="flex justify-center mt-6">No search result found</div>
-              ) : localData.length < 1 && !isLoading ? (
+              ) : localData.length < 1 && !staffIsLoading ? (
                 <div className="flex justify-center mt-6">No data available</div>
               ) : (
                 localData.map((doc: any, index: any) => {
@@ -338,31 +328,18 @@ const StaffProfile = () => {
                         className="text-[25px] hover:text-red-500"
                         onClick={(e) => {
                           e.stopPropagation();
-                          // if (roleId.absoluteAdmin) {
-                          //   setError(
-                          //     "Disallowed Action: Default Absolute Admin / organisation account Cannot be deleted"
-                          //   );
-                          //   setOpenDisallowedDeleteDialog(true);
-                          // } else {
-                          //   if (hasActionAccess("Delete User")) {
-                          //     document.body.style.overflow = "hidden";
-                          //     setOpenConfirmDelete(true);
-                          //     setConfirmWithText(accountId);
-                          //     setConfirmWithReturnObj({
-                          //       accountIdToDelete: accountId,
-                          //       accountType,
-                          //       staffId,
-                          //       userName: accountName,
-                          //       userEmail: accountEmail,
-                          //       userStatus: accountStatus,
-                          //       roleId
-                          //     });
-                          //   } else {
-                          //     setError(
-                          //       "Unauthorised Action: You do not have Delete User Access - Please contact your admin"
-                          //     );
-                          //   }
-                          // }
+                          if (hasActionAccess("Delete Staff")) {
+                            document.body.style.overflow = "hidden";
+                            setOpenConfirmDelete(true);
+                            setConfirmWithText(staffCustomId);
+                            setConfirmWithReturnObj({
+                              StaffIDToDelete: staffCustomId
+                            });
+                          } else {
+                            setError(
+                              "Unauthorised Action: You do not have Delete Staff Access - Please contact your admin"
+                            );
+                          }
                         }}
                       />
                     </div>
