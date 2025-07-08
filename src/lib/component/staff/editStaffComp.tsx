@@ -5,7 +5,7 @@ import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { useNavigationHandler } from "../../shortFunctions/clientFunctions";
 import { CgTrash } from "react-icons/cg";
-import { formatDate } from "../../shortFunctions/shortFunctions";
+import { formatDate, handledDeleteImage } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../../component/general/compLibrary";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import ImageUploadDiv from "../general/imageUploadCom";
@@ -146,21 +146,6 @@ const EditStaffComponent = ({
   };
 
   // function to handle image deletion
-  const handledDeleteImage = async () => {
-    // handle deleting current image on googlecloud
-    try {
-      const response = await handleApiRequest("delete", "http://localhost:5000/alyeqeenschoolapp/api/staffimage", {
-        staffImageDestination
-      });
-      // if image deletion was successful, start procedure to upload the new one
-      if (response) {
-        return true;
-      }
-    } catch (error: any) {
-      setError(error.response?.data.message || error.message || "Error deleting image");
-    }
-    return false;
-  };
 
   // function to handle image upload and update backend
   const handleUploadImage = async () => {
@@ -211,11 +196,15 @@ const EditStaffComponent = ({
       }
       if (imageName !== "") {
         if (staffImage !== "" && staffImageDestination !== "") {
-          const deletionDone = await handledDeleteImage();
-          if (deletionDone) {
-            handleUploadImage();
-          } else {
-            return;
+          try {
+            const deletionDone = await handledDeleteImage(staffImageDestination);
+            if (deletionDone) {
+              handleUploadImage();
+            } else {
+              return;
+            }
+          } catch (error: any) {
+            setError(error);
           }
         } else {
           handleUploadImage();

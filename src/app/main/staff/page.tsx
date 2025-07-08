@@ -1,5 +1,5 @@
 "use client";
-import { checkDataType } from "@/lib/shortFunctions/shortFunctions";
+import { checkDataType, handledDeleteImage } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { useEffect, useState } from "react";
 import { ErrorDiv, LoaderDiv } from "@/lib/component/general/compLibrary";
@@ -178,11 +178,29 @@ const StaffProfile = () => {
             }}
             onConfirm={async (confirmed, returnObject) => {
               setError("");
+              console.log("deletion confimed", confirmed);
+              console.log("confirming delete for", returnObject);
               if (confirmed) {
+                console.log("deleting confirmed for", returnObject);
                 try {
-                  await dispatch(deleteStaffProfile(returnObject)).unwrap();
+                  let imageDeletionDone = false;
+                  if (returnObject.staffImageDestination || returnObject.staffImageDestination !== "") {
+                    console.log("deleting image for", returnObject.staffImageDestination);
+                    imageDeletionDone = await handledDeleteImage(returnObject.staffImageDestination);
+                  } else {
+                    console.log("no image to delete for", returnObject.staffIDToDelete);
+                    imageDeletionDone = true;
+                  }
+
+                  if (imageDeletionDone) {
+                    console.log("deleting staff profile for on backend", returnObject.staffIDToDelete);
+                    await dispatch(deleteStaffProfile({ staffIDToDelete: returnObject.staffIDToDelete })).unwrap();
+                  } else {
+                    return;
+                  }
                 } catch (err: any) {
-                  setError(err);
+                  console.log("error deleting staff profile", err.message);
+                  setError(err.message);
                 }
               } else {
                 setError("An error occured while deleting - Please try again");
@@ -330,11 +348,12 @@ const StaffProfile = () => {
                           e.stopPropagation();
                           if (hasActionAccess("Delete Staff")) {
                             document.body.style.overflow = "hidden";
-                            setOpenConfirmDelete(true);
                             setConfirmWithText(staffCustomId);
                             setConfirmWithReturnObj({
-                              StaffIDToDelete: staffCustomId
+                              staffIDToDelete: staffCustomId,
+                              staffImageDestination: doc.staffImageDestination
                             });
+                            setOpenConfirmDelete(true);
                           } else {
                             setError(
                               "Unauthorised Action: You do not have Delete Staff Access - Please contact your admin"
