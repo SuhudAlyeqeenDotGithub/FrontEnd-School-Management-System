@@ -11,9 +11,9 @@ import axios from "axios";
 import { ErrorDiv } from "@/lib/component/general/compLibrary";
 import { resetAccount } from "@/redux/features/accounts/accountSlice";
 import { useRouter } from "next/navigation";
-import { useNavigationHandler } from "@/lib/shortFunctions/clientFunctions";
-
+import { useNavigationHandler } from "@/lib/shortFunctions/clientFunctions.ts/clientFunctions";
 import { setTriggerUnsavedDialog } from "@/redux/features/general/generalSlice";
+import useWebSocketHandler from "@/lib/shortFunctions/clientFunctions.ts/websocketHandler";
 
 const layout = ({ children }: { children: ReactNode }) => {
   const dispatch = useAppDispatch();
@@ -24,6 +24,15 @@ const layout = ({ children }: { children: ReactNode }) => {
   const [openProfile, setOpenProfile] = useState(false);
   const [lightTheme, setLightTheme] = useState(true);
   const [error, setError] = useState("");
+
+  try {
+    useWebSocketHandler((error) => {
+      setError(error);
+    }); // call the hook — no need for useEffect
+  } catch (err: any) {
+    // This won't catch async errors inside the hook — just immediate ones
+    setError(err.message || "Something went wrong");
+  }
 
   useEffect(() => {
     const fetchAccountFunc = async () => {

@@ -3,7 +3,7 @@
 import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "../../component/general/compLibrary";
 import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
-import { useNavigationHandler } from "../../shortFunctions/clientFunctions";
+import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/clientFunctions";
 import { CgTrash } from "react-icons/cg";
 import { formatDate, handledDeleteImage } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../../component/general/compLibrary";

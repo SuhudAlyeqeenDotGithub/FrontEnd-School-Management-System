@@ -4,7 +4,7 @@ import { IoClose } from "react-icons/io5";
 import { MdContentCopy } from "react-icons/md";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useNavigationHandler } from "../../shortFunctions/clientFunctions";
+import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/clientFunctions";
 import { setTriggerUnsavedDialog } from "@/redux/features/general/generalSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { LuArrowUpDown } from "react-icons/lu";

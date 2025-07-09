@@ -14,6 +14,7 @@ import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/compon
 import EditUserComponent from "@/lib/component/admin/editUserComponent";
 import { resetUsers } from "@/redux/features/admin/users/usersSlice";
 import type { RootState } from "@/redux/store";
+import { tableRowStyle, dataRowCellStyle } from "@/lib/generalStyles";
 
 const Users = () => {
   const dispatch = useAppDispatch();
@@ -286,7 +287,7 @@ const Users = () => {
 
           <div className="flex flex-col gap-2">
             {/* table header */}
-            <div className="w-full flex px-4 py-3 p-2 h-[50px]">
+            <div className="w-full flex px-4 py-3 p-2 h-[50px] overflow-hidden">
               <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
                 <span className="whitespace-nowrap flex items-center justify-center w-10 h-10 rounded-full font-semibold"></span>
                 {(["User Name", "User Role", "User Email", "Account Status", "Created At"] as const).map((header) => (
@@ -369,31 +370,21 @@ const Users = () => {
                           setError("You do not have Edit User Access - Please contact your admin");
                         }
                       }}
-                      className="w-full flex items-center px-4 border border-foregroundColor-15 rounded-md shadow-sm py-2 hover:bg-foregroundColor-5 hover:cursor-pointer"
+                      className={tableRowStyle}
                     >
                       <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
                         <span className="whitespace-nowrap flex items-center justify-center w-10 h-10 bg-foregroundColor-10 rounded-full font-semibold">
                           {accountName.slice(0, 2)}
                         </span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {accountName}
-                        </span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {roleId.roleName.slice(0, 15)}
-                        </span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {accountEmail}
-                        </span>
-                        <span className={`whitespace-nowrap flex items-center justify-center w-[200px] h-9 rounded-lg`}>
-                          {accountStatus}
-                        </span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {formatDate(createdAt)}
-                        </span>
+                        <span className={dataRowCellStyle}>{accountName}</span>
+                        <span className={dataRowCellStyle}>{roleId.roleName.slice(0, 15)}</span>
+                        <span className={dataRowCellStyle}>{accountEmail}</span>
+                        <span className={dataRowCellStyle}>{accountStatus}</span>
+                        <span className={dataRowCellStyle}>{formatDate(createdAt)}</span>
                       </div>
 
                       <CgTrash
-                        className="text-[25px] hover:text-red-500"
+                        className="text-[25px] hover:text-red-500 bg-backgroundColor w-full"
                         onClick={(e) => {
                           e.stopPropagation();
                           if (roleId.absoluteAdmin) {

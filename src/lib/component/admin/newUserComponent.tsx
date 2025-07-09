@@ -4,7 +4,7 @@ import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "../.
 import { IoClose } from "react-icons/io5";
 import { MdContentCopy } from "react-icons/md";
 import { useEffect, useState } from "react";
-import { useNavigationHandler } from "../../shortFunctions/clientFunctions";
+import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/clientFunctions";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";

@@ -17,6 +17,7 @@ import NewStaffComponent from "@/lib/component/staff/newStaffComp";
 import { deleteStaffProfile, getStaffProfiles } from "@/redux/features/staff/staffThunks";
 import { MdContentCopy } from "react-icons/md";
 import EditStaffComponent from "@/lib/component/staff/editStaffComp";
+import { tableRowStyle, dataRowCellStyle } from "@/lib/generalStyles";
 
 const StaffProfile = () => {
   const dispatch = useAppDispatch();
@@ -178,17 +179,12 @@ const StaffProfile = () => {
             }}
             onConfirm={async (confirmed, returnObject) => {
               setError("");
-              console.log("deletion confimed", confirmed);
-              console.log("confirming delete for", returnObject);
               if (confirmed) {
-                console.log("deleting confirmed for", returnObject);
                 try {
                   let imageDeletionDone = false;
                   if (returnObject.staffImageDestination || returnObject.staffImageDestination !== "") {
-                    console.log("deleting image for", returnObject.staffImageDestination);
                     imageDeletionDone = await handledDeleteImage(returnObject.staffImageDestination);
                   } else {
-                    console.log("no image to delete for", returnObject.staffIDToDelete);
                     imageDeletionDone = true;
                   }
 
@@ -224,7 +220,7 @@ const StaffProfile = () => {
             <div className="flex w-[700px] h-[50px] items-center gap-2">
               <input
                 className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-                placeholder="Search Staff (Custom ID, Names, Email, Gender, Nationality, Next of Kin, Qualification)"
+                placeholder="Search Staff (Custom ID, Names, Email, Gender, Nationality, Next of Kin)"
                 name="searchValue"
                 onChange={(e) => {
                   setSearchValue(e.target.value);
@@ -254,7 +250,7 @@ const StaffProfile = () => {
 
           <div className="flex flex-col gap-2">
             {/* table header */}
-            <div className="w-full flex px-4 py-3 p-2 h-[50px]">
+            <div className="w-full flex px-4 py-3 p-2 h-[50px] overflow-hidden">
               <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
                 <span className="whitespace-nowrap flex items-center justify-center w-10 h-10 rounded-full font-semibold"></span>
                 {(["Staff Custom ID", "First Name", "Last Name", "Gender", "Email"] as const).map((header) => (
@@ -311,7 +307,7 @@ const StaffProfile = () => {
                           setError("You do not have Edit User Access - Please contact your admin");
                         }
                       }}
-                      className="w-full flex items-center px-4 border border-foregroundColor-15 rounded-md shadow-sm py-2 hover:bg-foregroundColor-5 hover:cursor-pointer"
+                      className={tableRowStyle}
                     >
                       <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
                         <span className="whitespace-nowrap flex items-center justify-center w-10 h-10 bg-foregroundColor-10 rounded-full font-semibold">
@@ -328,22 +324,14 @@ const StaffProfile = () => {
                             }}
                           />
                         </span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {staffFirstName.slice(0, 10)}
-                        </span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {staffLastName.slice(0, 10)}
-                        </span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {staffGender}
-                        </span>
-                        <span className={`whitespace-nowrap flex items-center justify-center w-[200px] h-9 rounded-lg`}>
-                          {staffEmail}
-                        </span>
+                        <span className={dataRowCellStyle}>{staffFirstName.slice(0, 10)}</span>
+                        <span className={dataRowCellStyle}>{staffLastName.slice(0, 10)}</span>
+                        <span className={dataRowCellStyle}>{staffGender}</span>
+                        <span className={dataRowCellStyle}>{staffEmail}</span>
                       </div>
 
                       <CgTrash
-                        className="text-[25px] hover:text-red-500"
+                        className="text-[25px] hover:text-red-500 bg-backgroundColor w-full"
                         onClick={(e) => {
                           e.stopPropagation();
                           if (hasActionAccess("Delete Staff")) {

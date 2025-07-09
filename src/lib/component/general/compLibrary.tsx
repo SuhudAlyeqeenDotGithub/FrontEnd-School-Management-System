@@ -10,7 +10,7 @@ import { formatDate } from "../../shortFunctions/shortFunctions";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/redux/hooks";
 import { setTriggerUnsavedDialog } from "@/redux/features/general/generalSlice";
-import { useNavigationHandler } from "../../shortFunctions/clientFunctions";
+import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/clientFunctions";
 import { IoClose } from "react-icons/io5";
 export const InputComponent = ({
   type = "text",

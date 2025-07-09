@@ -13,6 +13,7 @@ import { setOnOpenRoleData } from "@/redux/features/general/generalSlice";
 import { NewRoleDialog } from "@/lib/component/admin/newRoleComponent";
 import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/component/general/compLibrary2";
 import { resetRoles } from "@/redux/features/admin/roles/roleSlice";
+import { tableRowStyle, dataRowCellStyle } from "@/lib/generalStyles";
 
 const RolesAccess = () => {
   const dispatch = useAppDispatch();
@@ -241,7 +242,7 @@ const RolesAccess = () => {
 
           <div className="flex flex-col gap-2">
             {/* table header */}
-            <div className="w-full flex px-4 py-3 p-2 h-[50px]">
+            <div className="w-full flex px-4 py-3 p-2 h-[50px] overflow-hidden">
               <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
                 {(["Role Name", "Created By", "Created At", "Tab Access"] as const).map((header) => (
                   <div
@@ -303,23 +304,17 @@ const RolesAccess = () => {
                           setError("You do not have Edit Role Access - Please contact your admin");
                         }
                       }}
-                      className="w-full flex px-4 border border-foregroundColor-15 rounded-md shadow-sm py-3 hover:bg-foregroundColor-5 hover:cursor-pointer"
+                      className={tableRowStyle}
                     >
                       <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {roleName.slice(0, 15)}
-                        </span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {accountId.accountName}
-                        </span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px]">
-                          {formatDate(createdAt)}
-                        </span>
+                        <span className={dataRowCellStyle}>{roleName.slice(0, 15)}</span>
+                        <span className={dataRowCellStyle}>{accountId.accountName}</span>
+                        <span className={dataRowCellStyle}>{formatDate(createdAt)}</span>
                         <span className="whitespace-nowrap flex items-center justify-center w-full">{tabs}.....</span>
                       </div>
 
                       <CgTrash
-                        className="text-[25px] hover:text-red-500"
+                        className="text-[25px] hover:text-red-500 bg-backgroundColor w-full"
                         onClick={(e) => {
                           e.stopPropagation();
                           if (doc.absoluteAdmin) {
