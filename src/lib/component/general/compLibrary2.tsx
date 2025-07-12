@@ -29,8 +29,8 @@ export const SearchableDropDownInput = ({
   defaultText?: string;
   data: any[];
   displayKeys: string[];
-  onSelected: (selectedDataId: string, save: boolean) => {};
-  onClearSearch: (cleared: boolean) => {};
+  onSelected: (selectedDataId: string[], save: boolean) => void;
+  onClearSearch: (cleared: boolean) => void;
 }) => {
   const [searchValue, setSearchValue] = useState(defaultText.split("|")[1] || "");
   const [localData, setLocalData] = useState<any>([]);
@@ -42,7 +42,7 @@ export const SearchableDropDownInput = ({
 
   useEffect(() => {
     if (defaultText) {
-      onSelected(defaultText.split("|")[0], false);
+      onSelected([defaultText.split("|")[0]], false);
     }
   }, []);
 
@@ -90,9 +90,12 @@ export const SearchableDropDownInput = ({
                 className="w-full flex items-center hover:bg-foregroundColor-5 hover:cursor-pointer px-5 py-1 rounded-md"
                 key={index}
                 onClick={() => {
-                  setSearchValue(option["name"]);
+                  setSearchValue(option[displayKeys[1]]);
                   setOpenOptions(false);
-                  onSelected(option["_id"], true);
+                  onSelected(
+                    displayKeys.map((key: string) => option[key]),
+                    true
+                  );
                 }}
               >
                 {displayKeys

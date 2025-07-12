@@ -12,7 +12,7 @@ import ImageUploadDiv from "../general/imageUploadCom";
 import { handleApiRequest } from "@/axios/axiosClient";
 import axios from "axios";
 import { updateStaffProfile } from "@/redux/features/staff/staffThunks";
-import { QualificationDialog } from "./newStaffComp";
+import { QualificationDialog } from "./staffShortDialogComp";
 
 const EditStaffComponent = ({
   data,
@@ -153,7 +153,7 @@ const EditStaffComponent = ({
       const signedUrlParamData = { imageName: sanitizeStaffImageName(imageName), imageType };
       const response = await handleApiRequest(
         "post",
-        "http://localhost:5000/alyeqeenschoolapp/api/signedurl",
+        "BASE_API_URL/alyeqeenschoolapp/api/signedurl",
         signedUrlParamData
       );
 

@@ -7,29 +7,25 @@ import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
-import { ConfirmActionByInputDialog } from "@/lib/component/general/compLibrary2";
-import NewStaffContractComponent from "@/lib/component/staff/newContractComp";
-import { getStaffContracts, deleteStaffContract } from "@/redux/features/staff/contractThunk";
+import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/component/general/compLibrary2";
+import NewAcademicYearComponent from "@/lib/component/academicYear/newAcademicYearComp";
+import { deleteAcademicYear, getAcademicYears } from "@/redux/features/general/academicYear/academicYearThunk";
 import { MdContentCopy } from "react-icons/md";
-import EditStaffContractComponent from "@/lib/component/staff/editStaffComp";
-import { tableRowStyle, dataRowCellStyle } from "@/lib/generalStyles";
-import { getStaffProfiles } from "@/redux/features/staff/staffThunks";
-import { getAcademicYears } from "@/redux/features/general/academicYear/academicYearThunk";
 
-const StaffContracts = () => {
+import { tableRowStyle, dataRowCellStyle } from "@/lib/generalStyles";
+
+const AcademicYear = () => {
   const dispatch = useAppDispatch();
-  const { staffContracts, isLoading: staffContractsLoading } = useAppSelector((state) => state.staffContract);
-  const { staff, isLoading: staffIsLoading } = useAppSelector((state) => state.staffData);
-  const { academicYears, isLoading: academicYearsLoading } = useAppSelector((state) => state.academicYear);
+  const { academicYears, isLoading: academicYearsIsLoading } = useAppSelector((state) => state.academicYear);
   const { accountData } = useAppSelector((state) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openEditUserDialog, setOpenEditStaffContractDialog] = useState(false);
-  const [openNewStaffContractDialog, setOpenNewStaffContractDialog] = useState(false);
+  const [openEditUserDialog, setOpenEditAcademicYearDialog] = useState(false);
+  const [openNewAcademicYearDialog, setOpenNewAcademicYearDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
-  const [onOpenEditUserData, setOnOpenEditStaffData] = useState<any>({});
+  const [onOpenEditUserData, setOnOpenEditAcademicYearData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
@@ -40,54 +36,6 @@ const StaffContracts = () => {
   const hasActionAccess = (action: string) => {
     return accountPermittedActions.includes(action);
   };
-  useEffect(() => {
-    if (!accountData.accountStatus) {
-      return;
-    }
-    const fetchStaffL = async () => {
-      try {
-        if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
-          setError("Your account is no longer active - Please contact your admin");
-          return;
-        }
-        if (!hasActionAccess("View Staff") && !accountData.roleId.absoluteAdmin) {
-          setError("Unauthorized: You do not have access to view staff contracts - Please contact your admin");
-          return;
-        }
-
-        await dispatch(getStaffContracts()).unwrap();
-      } catch (error: any) {
-        setError(error);
-      }
-    };
-
-    fetchStaffL();
-  }, [accountData]);
-
-  useEffect(() => {
-    if (!accountData.accountStatus) {
-      return;
-    }
-    const fetchStaffL = async () => {
-      try {
-        if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
-          setError("Your account is no longer active - Please contact your admin");
-          return;
-        }
-        if (!hasActionAccess("View Staff") && !accountData.roleId.absoluteAdmin) {
-          setError("Unauthorized: You do not have access to view staff profiles - Please contact your admin");
-          return;
-        }
-
-        await dispatch(getStaffProfiles()).unwrap();
-      } catch (error: any) {
-        setError(error);
-      }
-    };
-
-    fetchStaffL();
-  }, [accountData]);
-
   useEffect(() => {
     if (!accountData.accountStatus) {
       return;
@@ -113,17 +61,17 @@ const StaffContracts = () => {
   }, [accountData]);
 
   useEffect(() => {
-    setLocalData(staffContracts);
-  }, [staffContracts]);
+    setLocalData(academicYears);
+  }, [academicYears]);
 
   useEffect(() => {
     if (searchValue !== "") {
-      const filteredData = staffContracts.filter((obj: any) =>
+      const filteredData = academicYears.filter((obj: any) =>
         obj.searchText.toLowerCase().includes(searchValue.toLowerCase())
       );
       setLocalData(filteredData);
     } else {
-      setLocalData(staffContracts);
+      setLocalData(academicYears);
     }
   }, [searchValue]);
 
@@ -183,43 +131,41 @@ const StaffContracts = () => {
 
       {/* data table section */}
       <div className="">
-        {openEditUserDialog && (
+        {/* {openEditUserDialog && (
           <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
-            <EditStaffContractComponent
+            <EditAcademicYearComponent
               onClose={(open: boolean) => {
                 document.body.style.overflow = "";
-                setOpenEditStaffContractDialog(!open);
+                setOpenEditAcademicYearDialog(!open);
                 return {};
               }}
               onSave={(notSave) => {
                 document.body.style.overflow = "";
-                setOpenEditStaffContractDialog(!notSave);
+                setOpenEditAcademicYearDialog(!notSave);
                 return {};
               }}
               data={onOpenEditUserData}
             />
           </div>
-        )}
-        {openNewStaffContractDialog && (
+        )} */}
+        {openNewAcademicYearDialog && (
           <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
-            <NewStaffContractComponent
-              academicYears={academicYears}
-              staff={staff}
+            <NewAcademicYearComponent
               onClose={(open: boolean) => {
                 document.body.style.overflow = "";
-                setOpenNewStaffContractDialog(!open);
+                setOpenNewAcademicYearDialog(!open);
                 return {};
               }}
               onCreate={(notSave) => {
                 document.body.style.overflow = "";
-                setOpenNewStaffContractDialog(!notSave);
+                setOpenNewAcademicYearDialog(!notSave);
                 return {};
               }}
             />
           </div>
         )}
 
-        {openConfirmDelete && (
+        {/* {openConfirmDelete && (
           <ConfirmActionByInputDialog
             returnObject={confirmWithReturnObj}
             confirmWithText={confirmWithText}
@@ -231,19 +177,38 @@ const StaffContracts = () => {
             onConfirm={async (confirmed, returnObject) => {
               setError("");
               if (confirmed) {
-                setOpenConfirmDelete(false);
-                document.body.style.overflow = "";
+                try {
+                  let imageDeletionDone = false;
+                  if (returnObject.staffImageDestination || returnObject.staffImageDestination !== "") {
+                    imageDeletionDone = await handledDeleteImage(returnObject.staffImageDestination);
+                  } else {
+                    imageDeletionDone = true;
+                  }
+
+                  if (imageDeletionDone) {
+                    console.log("deleting academic year for on backend", returnObject.staffIDToDelete);
+                    await dispatch(deleteAcademicYear({ staffIDToDelete: returnObject.staffIDToDelete })).unwrap();
+                  } else {
+                    return;
+                  }
+                } catch (err: any) {
+                  console.log("error deleting academic year", err.message);
+                  setError(err.message);
+                }
+              } else {
+                setError("An error occured while deleting - Please try again");
               }
+              setOpenConfirmDelete(false);
+              document.body.style.overflow = "";
             }}
-            warningText="Please confirm the ID of the staff contract you want to delete"
+            warningText="Please confirm the ID of the academic year you want to delete"
           />
-        )}
+        )} */}
         {/* data table div */}
         <div className="flex flex-col gap-4">
           {/* title */}
           <div className="flex flex-col gap-2 mb-5">
-            <h2>Staff Contract</h2>
-            <h3>Create and manage staff contracts</h3>
+            <h2>Academic Year</h2>
           </div>
           {/* search bar and new action Button */}
           <div className="flex justify-between items-center">
@@ -251,7 +216,7 @@ const StaffContracts = () => {
             <div className="flex w-[700px] h-[50px] items-center gap-2">
               <input
                 className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-                placeholder="(Staff Custom ID, Staff Names, Contract Dates, Job Title, Contract Type/Status"
+                placeholder="Search AcademicYear (Name, Start Date, End Date)"
                 name="searchValue"
                 onChange={(e) => {
                   setSearchValue(e.target.value);
@@ -263,16 +228,16 @@ const StaffContracts = () => {
             <div>
               <button
                 onClick={() => {
-                  if (hasActionAccess("Create Staff Contract")) {
+                  if (hasActionAccess("Create Academic Year")) {
                     document.body.style.overflow = "hidden";
-                    setOpenNewStaffContractDialog(true);
+                    setOpenNewAcademicYearDialog(true);
                   } else {
-                    setError("You do not have Create Staff Contract Access - Please contact your admin");
+                    setError("You do not have Create Academic Year Access - Please contact your admin");
                   }
                 }}
-                disabled={!hasActionAccess("Create Staff Contract")}
+                disabled={!hasActionAccess("Create Academic Year")}
               >
-                New Staff Contract
+                New Academic Year
               </button>
             </div>
           </div>
@@ -283,19 +248,15 @@ const StaffContracts = () => {
             {/* table header */}
             <div className="w-full flex px-4 py-3 p-2 h-[55px] overflow-hidden">
               <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
-                {(
-                  ["Contract Id", "Staff Custom ID", "Staff Name", "Job Title", "Start Date", "Contact Status"] as const
-                ).map((header) => (
+                {(["Academic Year Id", "Academic Year", "Start Date", "End Date"] as const).map((header) => (
                   <div
                     key={header}
                     onClick={() => {
                       const key_Name = {
-                        "Contract Id": "_id",
-                        "Staff Custom ID": "staffCustomId",
-                        "Staff Name": "staffFullName",
-                        "Job Title": "jobTitle",
-                        "Start Date": "contractStartDate",
-                        "Contact Status": "contractStatus"
+                        "Academic Year Id": "_id",
+                        "Academic Year": "academicYear",
+                        "Start Date": "startDate",
+                        "End Date": "endDate"
                       };
                       const sortKey = key_Name[header];
                       handleSort(sortKey);
@@ -310,39 +271,32 @@ const StaffContracts = () => {
 
             {/* table data */}
             <div className="flex flex-col gap-2 mt-3">
-              {staffContractsLoading ? (
+              {academicYearsIsLoading ? (
                 <div className="flex items-center justify-center mt-10">
                   <LoaderDiv
                     type="spinnerText"
                     borderColor="foregroundColor"
-                    text="Loading Staff Contracts..."
+                    text="Loading AcademicYear Profile..."
                     textColor="foregroundColor"
                     dimension="h-10 w-10"
                   />
                 </div>
               ) : localData.length < 1 && searchValue ? (
                 <div className="flex justify-center mt-6">No search result found</div>
-              ) : localData.length < 1 && !staffContractsLoading ? (
+              ) : localData.length < 1 && !academicYearsIsLoading ? (
                 <div className="flex justify-center mt-6">No data available</div>
               ) : (
                 localData.map((doc: any, index: any) => {
-                  const {
-                    _id: contractId,
-                    staffCustomId,
-                    staffFullName,
-                    jobTitle,
-                    contractStartDate,
-                    contractStatus
-                  } = doc;
+                  const { _id: academicYearId, academicYear, startDate, endDate } = doc;
 
                   return (
                     <div
-                      key={contractId}
+                      key={academicYearId}
                       onClick={() => {
-                        if (hasActionAccess("Edit Staff")) {
+                        if (hasActionAccess("Edit AcademicYear")) {
                           document.body.style.overflow = "hidden";
-                          setOpenEditStaffContractDialog(true);
-                          setOnOpenEditStaffData(doc);
+                          setOpenEditAcademicYearDialog(true);
+                          setOnOpenEditAcademicYearData(doc);
                         } else {
                           setError("You do not have Edit User Access - Please contact your admin");
                         }
@@ -351,48 +305,38 @@ const StaffContracts = () => {
                     >
                       <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
                         <span className="whitespace-nowrap flex items-center justify-center w-[200px] gap-3">
-                          Copy ID
+                          Copy Id
                           <MdContentCopy
                             title="copy id"
                             className="text-[20px] text-foregroundColor-80 hover:text-foregroundColor-50 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(contractId);
+                              await navigator.clipboard.writeText(academicYearId);
                             }}
                           />
                         </span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px] gap-3">
-                          {staffCustomId.slice(0, 10)}
-                          <MdContentCopy
-                            title="copy id"
-                            className="text-[20px] text-foregroundColor-80 hover:text-foregroundColor-50 hover:cursor-pointer"
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              await navigator.clipboard.writeText(staffCustomId);
-                            }}
-                          />
-                        </span>
-
-                        <span className={dataRowCellStyle}>{staffFullName.slice(0, 10)}</span>
-                        <span className={dataRowCellStyle}>{jobTitle.slice(0, 10)}</span>
-                        <span className={dataRowCellStyle}>{contractStartDate}</span>
-                        <span className={dataRowCellStyle}>{contractStatus}</span>
+                        <span className={dataRowCellStyle}> {academicYear}</span>
+                        <span className={dataRowCellStyle}>{formatDate(startDate)}</span>
+                        <span className={dataRowCellStyle}>{formatDate(endDate)}</span>
                       </div>
 
                       <CgTrash
                         className="text-[25px] text-red-500 bg-backgroundColor hover:cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (hasActionAccess("Delete Staff")) {
+                          if (hasActionAccess("Delete Academic Year")) {
                             document.body.style.overflow = "hidden";
-                            setConfirmWithText(contractId);
+                            setConfirmWithText(academicYearId);
                             setConfirmWithReturnObj({
-                              contractId
+                              academicYearId,
+                              academicYear,
+                              startDate,
+                              endDate
                             });
                             setOpenConfirmDelete(true);
                           } else {
                             setError(
-                              "Unauthorised Action: You do not have Delete Staff Access - Please contact your admin"
+                              "Unauthorised Action: You do not have Delete AcademicYear Access - Please contact your admin"
                             );
                           }
                         }}
@@ -410,4 +354,4 @@ const StaffContracts = () => {
   );
 };
 
-export default StaffContracts;
+export default AcademicYear;

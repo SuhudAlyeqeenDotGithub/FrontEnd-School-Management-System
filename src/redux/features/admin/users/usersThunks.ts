@@ -1,10 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { ReturnUserType, ParamUserType, DeleteParamUserType, EditParamUserType } from "@/interfaces/interfaces";
 import { handleApiRequest } from "@/axios/axiosClient";
+import { BASE_API_URL } from "@/lib/shortFunctions/shortFunctions";
 
 export const getUsers = createAsyncThunk<ReturnUserType[]>("orgaccount/getusers", async (_, { rejectWithValue }) => {
   try {
-    const response = await handleApiRequest("get", "http://localhost:5000/alyeqeenschoolapp/api/admin/getusers");
+    const response = await handleApiRequest("get", `${BASE_API_URL}/alyeqeenschoolapp/api/admin/getusers`);
 
     return response?.data;
   } catch (error: any) {
@@ -16,11 +17,7 @@ export const createUser = createAsyncThunk<ReturnUserType[], ParamUserType>(
   "orgaccount/createuser",
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest(
-        "post",
-        "http://localhost:5000/alyeqeenschoolapp/api/admin/createuser",
-        userData
-      );
+      const response = await handleApiRequest("post", `${BASE_API_URL}/alyeqeenschoolapp/api/admin/createuser`, userData);
 
       return response?.data;
     } catch (error: any) {
@@ -35,7 +32,7 @@ export const updateUser = createAsyncThunk<ReturnUserType[], EditParamUserType>(
     try {
       const response = await handleApiRequest(
         "put",
-        "http://localhost:5000/alyeqeenschoolapp/api/admin/updateuser",
+        `${BASE_API_URL}/alyeqeenschoolapp/api/admin/updateuser`,
         userUpdateData
       );
 
@@ -52,7 +49,7 @@ export const deleteUser = createAsyncThunk<ReturnUserType[], DeleteParamUserType
     try {
       const response = await handleApiRequest(
         "delete",
-        "http://localhost:5000/alyeqeenschoolapp/api/admin/deleteuser",
+        `${BASE_API_URL}/alyeqeenschoolapp/api/admin/deleteuser`,
         userDeleteData
       );
 

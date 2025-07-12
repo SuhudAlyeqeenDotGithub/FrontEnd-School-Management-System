@@ -217,3 +217,40 @@ export interface ParamStaffType {
     endDate: string;
   }[];
 }
+
+export interface BaseStaffContractType {
+  academicYearId: string;
+  staffId: string;
+  staffCustomId: string;
+  staffFullName: string;
+  jobTitle: string;
+  contractStartDate: string;
+  contractEndDate: string;
+  responsibilities: { responsibility: string; description: string }[];
+  searchText: string;
+  contractType: string;
+  contractStatus: string;
+  contractSalary: string;
+  workingSchedule: { day: string; startTime: string; endTime: string; hours: string }[];
+}
+
+// Used when sending data (input parameters)
+export interface ParamStaffContractType extends BaseStaffContractType {}
+
+// Used when receiving data (includes _id and organisationId)
+export interface ReturnStaffContractType extends BaseStaffContractType {
+  _id: string;
+  organisationId: string;
+}
+
+export interface ReturnAcademicYearType {
+  _id: string;
+  academicYear: string;
+  startDate: string;
+  endDate: string;
+}
+export interface ParamAcademicYearType {
+  academicYear: string;
+  startDate: string;
+  endDate: string;
+}

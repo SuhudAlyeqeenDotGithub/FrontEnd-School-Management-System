@@ -1,13 +1,13 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { ReturnStaffType, ParamStaffType } from "@/interfaces/interfaces";
+import { ParamStaffContractType, ReturnStaffContractType } from "@/interfaces/interfaces";
 import { handleApiRequest } from "@/axios/axiosClient";
 import { BASE_API_URL } from "@/lib/shortFunctions/shortFunctions";
 
-export const getStaffProfiles = createAsyncThunk<ReturnStaffType[]>(
-  "orgaccount/getstaff",
+export const getStaffContracts = createAsyncThunk<ReturnStaffContractType[]>(
+  "orgaccount/getstaffcontracts",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest("get", `${BASE_API_URL}/alyeqeenschoolapp/api/staff/profiles`);
+      const response = await handleApiRequest("get", `${BASE_API_URL}/alyeqeenschoolapp/api/staff/contracts`);
 
       return response?.data;
     } catch (error: any) {
@@ -16,11 +16,15 @@ export const getStaffProfiles = createAsyncThunk<ReturnStaffType[]>(
   }
 );
 
-export const createStaffProfile = createAsyncThunk<ReturnStaffType[], ParamStaffType>(
-  "orgaccount/createstaff",
-  async (staffData, { rejectWithValue }) => {
+export const createStaffContract = createAsyncThunk<ReturnStaffContractType[], ParamStaffContractType>(
+  "orgaccount/createstaffcontract",
+  async (staffContractData, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest("post", `${BASE_API_URL}/alyeqeenschoolapp/api/staff/profiles`, staffData);
+      const response = await handleApiRequest(
+        "post",
+        `${BASE_API_URL}/alyeqeenschoolapp/api/staff/contracts`,
+        staffContractData
+      );
 
       return response?.data;
     } catch (error: any) {
@@ -29,13 +33,13 @@ export const createStaffProfile = createAsyncThunk<ReturnStaffType[], ParamStaff
   }
 );
 
-export const updateStaffProfile = createAsyncThunk<ReturnStaffType[], ParamStaffType>(
-  "orgaccount/updatestaff",
+export const updateStaffContract = createAsyncThunk<ReturnStaffContractType[], ParamStaffContractType>(
+  "orgaccount/updatestaffcontract",
   async (staffUpdateData, { rejectWithValue }) => {
     try {
       const response = await handleApiRequest(
         "put",
-        `${BASE_API_URL}/alyeqeenschoolapp/api/staff/profiles`,
+        `${BASE_API_URL}/alyeqeenschoolapp/api/staff/contracts`,
         staffUpdateData
       );
 
@@ -46,13 +50,13 @@ export const updateStaffProfile = createAsyncThunk<ReturnStaffType[], ParamStaff
   }
 );
 
-export const deleteStaffProfile = createAsyncThunk<ReturnStaffType[], { staffIDToDelete: string }>(
-  "orgaccount/deletestaff",
+export const deleteStaffContract = createAsyncThunk<ReturnStaffContractType[], { staffContractIdToDelete: string }>(
+  "orgaccount/deletestaffcontract",
   async (staffDeleteData, { rejectWithValue }) => {
     try {
       const response = await handleApiRequest(
         "delete",
-        `${BASE_API_URL}/alyeqeenschoolapp/api/staff/profiles`,
+        `${BASE_API_URL}/alyeqeenschoolapp/api/staff/contracts`,
         staffDeleteData
       );
 

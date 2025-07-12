@@ -36,7 +36,7 @@ const SendResetCode = () => {
       setError("");
       try {
         const response = await axios.post(
-          "http://localhost:5000/alyeqeenschoolapp/api/orgaccount/resetpassword",
+          "BASE_API_URL/alyeqeenschoolapp/api/orgaccount/resetpassword",
           { email },
           {
             withCredentials: true

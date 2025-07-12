@@ -61,7 +61,7 @@ const layout = ({ children }: { children: ReactNode }) => {
 
   const handleSignout = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/alyeqeenschoolapp/api/orgaccount/signout", {
+      const response = await axios.get("BASE_API_URL/alyeqeenschoolapp/api/orgaccount/signout", {
         withCredentials: true
       });
       if (response) {
@@ -96,6 +96,7 @@ const layout = ({ children }: { children: ReactNode }) => {
     "/main/admin/activitylog": "Admin",
     "/main/course": "Course",
     "/main/student": "Student",
+    "/main/academicyear": "Academic Year",
     "/main/enrollment": "Enrollment",
     "/main/attendance": "Attendance",
     "/main/attendance/persession": "Attendance",
@@ -112,7 +113,8 @@ const layout = ({ children }: { children: ReactNode }) => {
     Student: "/main/student",
     Enrollment: "/main/enrollment",
     Attendance: "/main/attendance",
-    Staff: "/main/staff"
+    Staff: "/main/staff",
+    "Academic Year": "/main/academicyear"
   };
 
   const profileDialog = (
@@ -185,7 +187,9 @@ const layout = ({ children }: { children: ReactNode }) => {
               className={`${
                 pathToNameValue === tab ? "border-b-3" : ""
               } hover:cursor-pointer hover:border-b-3 hover:border-foregroundColor-30`}
-              onClick={() => handleNavigation(`${name_PathMap[tab as keyof typeof name_PathMap]}`)}
+              onClick={() => {
+                handleNavigation(`${name_PathMap[tab as keyof typeof name_PathMap]}`);
+              }}
             >
               {tab}
             </span>

@@ -1,12 +1,13 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { ReturnRoleType, ParamRoleType, DeleteParamRoleType } from "@/interfaces/interfaces";
 import { handleApiRequest } from "@/axios/axiosClient";
+import { BASE_API_URL } from "@/lib/shortFunctions/shortFunctions";
 
 export const fetchRolesAccess = createAsyncThunk<ReturnRoleType[]>(
   "orgaccount/fetchrolesaccess",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest("get", "http://localhost:5000/alyeqeenschoolapp/api/admin/getroles");
+      const response = await handleApiRequest("get", `${BASE_API_URL}/alyeqeenschoolapp/api/admin/getroles`);
 
       return response?.data;
     } catch (error: any) {
@@ -19,11 +20,7 @@ export const createRole = createAsyncThunk<ReturnRoleType[], ParamRoleType>(
   "orgaccount/createrolesaccess",
   async (roleData, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest(
-        "post",
-        "http://localhost:5000/alyeqeenschoolapp/api/admin/createrole",
-        roleData
-      );
+      const response = await handleApiRequest("post", `${BASE_API_URL}/alyeqeenschoolapp/api/admin/createrole`, roleData);
 
       return response?.data;
     } catch (error: any) {
@@ -38,7 +35,7 @@ export const updateRole = createAsyncThunk<ReturnRoleType[], ParamRoleType>(
     try {
       const response = await handleApiRequest(
         "put",
-        "http://localhost:5000/alyeqeenschoolapp/api/admin/updaterole",
+        `${BASE_API_URL}/alyeqeenschoolapp/api/admin/updaterole`,
         roleUpdateData
       );
 
@@ -55,7 +52,7 @@ export const deleteRole = createAsyncThunk<ReturnRoleType[], DeleteParamRoleType
     try {
       const response = await handleApiRequest(
         "delete",
-        "http://localhost:5000/alyeqeenschoolapp/api/admin/deleterole",
+        `${BASE_API_URL}/alyeqeenschoolapp/api/admin/deleterole`,
         roleDeleteData
       );
 

@@ -314,7 +314,7 @@ const RolesAccess = () => {
                       </div>
 
                       <CgTrash
-                        className="text-[25px] hover:text-red-500 bg-backgroundColor w-full"
+                        className="text-[25px] text-red-500 bg-backgroundColor hover:cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           if (doc.absoluteAdmin) {

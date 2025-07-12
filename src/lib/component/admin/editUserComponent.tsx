@@ -226,10 +226,10 @@ const EditUserComponent = ({
           placeholder="Search Role - (ID, Name)"
           data={rolesData}
           displayKeys={["_id", "name", "searchText"]}
-          onSelected={(roleId, save) => {
-            setLocalData((prev) => ({ ...prev, roleId: roleId }));
+          onSelected={(selectedData, save) => {
+            setLocalData((prev) => ({ ...prev, roleId: selectedData[0] }));
             setUnsaved(save);
-            const roleObj = rolesData.find((role: any) => role._id === roleId);
+            const roleObj = rolesData.find((role: any) => role._id === selectedData[0]);
             const userTabs = roleObj && roleObj.tabAccess ? roleObj.tabAccess.map((tab: any) => tab.tab) : [];
             const userActions =
               roleObj && roleObj.tabAccess
@@ -240,14 +240,12 @@ const EditUserComponent = ({
                 : [];
             setUserTabs(userTabs);
             setUserPermittedActions(userActions);
-            return {};
           }}
           onClearSearch={(clearTabPermission) => {
             if (clearTabPermission) {
               setUserTabs([]);
               setUserPermittedActions([]);
             }
-            return {};
           }}
         />
         <select

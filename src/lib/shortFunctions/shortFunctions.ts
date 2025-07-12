@@ -1,5 +1,7 @@
 import { handleApiRequest } from "@/axios/axiosClient";
 
+export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export const checkDataType = (value: any) => {
   if (Array.isArray(value)) {
     return "array";
@@ -23,7 +25,7 @@ export const formatDate = (dateStr: any) => {
 export const handledDeleteImage = async (imageDestination?: string) => {
   // handle deleting current image on googlecloud
   try {
-    const response = await handleApiRequest("delete", "http://localhost:5000/alyeqeenschoolapp/api/staffimage", {
+    const response = await handleApiRequest("delete", "BASE_API_URL/alyeqeenschoolapp/api/staffimage", {
       staffImageDestination: imageDestination
     });
     // if image deletion was successful, start procedure to upload the new one

@@ -5,6 +5,8 @@ import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { fetchRolesAccess } from "@/redux/features/admin/roles/roleThunks";
 import { getUsers } from "@/redux/features/admin/users/usersThunks";
 import { getStaffProfiles } from "@/redux/features/staff/staffThunks";
+import { getAcademicYears } from "@/redux/features/general/academicYear/academicYearThunk";
+import { getStaffContracts } from "@/redux/features/staff/contractThunk";
 
 const useWebSocketHandler = (onError?: (error: string) => void) => {
   const socketRef = useRef<any>(null);
@@ -24,19 +26,25 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
     console.log("Handling data fetch for collection:", collectionName);
     try {
       if ((hasActionAccess("View Roles") || accountData.roleId.absoluteAdmin) && collectionName === "roles") {
-        console.log("Fetching roles access");
         const response = await dispatch(fetchRolesAccess()).unwrap();
-        console.log("Roles access fetched:", response);
       }
       if ((hasActionAccess("View Users") || accountData.roleId.absoluteAdmin) && collectionName === "accounts") {
-        console.log("Fetching users");
         const response = await dispatch(getUsers()).unwrap();
-        console.log("Users fetched:", response);
       }
       if ((hasActionAccess("View Staff") || accountData.roleId.absoluteAdmin) && collectionName === "staffs") {
-        console.log("Fetching staff profiles");
         const response = await dispatch(getStaffProfiles()).unwrap();
-        console.log("Staff profiles fetched:", response);
+      }
+      if (
+        (hasActionAccess("View Academic Years") || accountData.roleId.absoluteAdmin) &&
+        collectionName === "academicyears"
+      ) {
+        const response = await dispatch(getAcademicYears()).unwrap();
+      }
+      if (
+        (hasActionAccess("View Staff Contracts") || accountData.roleId.absoluteAdmin) &&
+        collectionName === "staffcontracts"
+      ) {
+        const response = await dispatch(getStaffContracts()).unwrap();
       }
     } catch (error: any) {
       if (onError) onError(error || "An error occurred while fetching data");
@@ -45,7 +53,7 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
   useEffect(() => {
     if (!organisationId) return;
 
-    socketRef.current = io("http://localhost:5000");
+    socketRef.current = io("BASE_API_URL");
 
     socketRef.current.on("connect", () => {
       console.log("Connected to io server");
@@ -66,7 +74,6 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
     });
 
     socketRef.current.on("databaseChange", (collectionName: string) => {
-      console.log("📥 Received databaseChange for:", collectionName);
       handleDataFetch(collectionName);
     });
 

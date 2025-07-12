@@ -33,7 +33,7 @@ const signInPage = () => {
       try {
         const email = localStorage.getItem("accountEmail");
         const response = await axios.post(
-          "http://localhost:5000/alyeqeenschoolapp/api/orgaccount/resetpassword/verifycode",
+          "BASE_API_URL/alyeqeenschoolapp/api/orgaccount/resetpassword/verifycode",
           { code, email },
           {
             withCredentials: true

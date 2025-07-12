@@ -1,4 +1,5 @@
 import axios from "axios";
+import { BASE_API_URL } from "@/lib/shortFunctions/shortFunctions";
 
 export const handleApiRequest = async (method: "get" | "post" | "put" | "delete", url: string, data?: any) => {
   try {
@@ -18,7 +19,7 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
     if (isUnauthenticated) {
       try {
         const refreshResponse = await axios.post(
-          "http://localhost:5000/alyeqeenschoolapp/api/orgaccount/refreshaccesstoken",
+          `${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/refreshaccesstoken`,
           {},
           {
             withCredentials: true
@@ -39,7 +40,7 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
         const status = refreshErr.response?.status;
         const unAuthorisedRefresh = status === 401 || status === 403;
         try {
-          const response = await axios.get("http://localhost:5000/alyeqeenschoolapp/api/orgaccount/signout", {
+          const response = await axios.get(`${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/signout`, {
             withCredentials: true
           });
           if (response) {
