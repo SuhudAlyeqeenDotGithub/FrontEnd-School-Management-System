@@ -7,7 +7,7 @@ export const getAcademicYears = createAsyncThunk<ReturnAcademicYearType[]>(
   "orgaccount/getacademicyears",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest("get", `${BASE_API_URL}/alyeqeenschoolapp/api/academicyears`);
+      const response = await handleApiRequest("get", `alyeqeenschoolapp/api/academicyears`);
 
       return response?.data;
     } catch (error: any) {
@@ -20,11 +20,7 @@ export const createAcademicYear = createAsyncThunk<ReturnAcademicYearType[], Par
   "orgaccount/createacademicyear",
   async (academicYearData, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest(
-        "post",
-        `${BASE_API_URL}/alyeqeenschoolapp/api/academicyears`,
-        academicYearData
-      );
+      const response = await handleApiRequest("post", `alyeqeenschoolapp/api/academicyears`, academicYearData);
 
       return response?.data;
     } catch (error: any) {
@@ -37,11 +33,7 @@ export const updateAcademicYear = createAsyncThunk<ReturnAcademicYearType[], Par
   "orgaccount/updateacademicyear",
   async (academicYearUpdateData, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest(
-        "put",
-        `${BASE_API_URL}/alyeqeenschoolapp/api/academicyears`,
-        academicYearUpdateData
-      );
+      const response = await handleApiRequest("put", `alyeqeenschoolapp/api/academicyears`, academicYearUpdateData);
 
       return response?.data;
     } catch (error: any) {
@@ -54,11 +46,7 @@ export const deleteAcademicYear = createAsyncThunk<ReturnAcademicYearType[], { a
   "orgaccount/deleteacademicyear",
   async (academicYearDeleteData, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest(
-        "delete",
-        `${BASE_API_URL}/alyeqeenschoolapp/api/academicyears`,
-        academicYearDeleteData
-      );
+      const response = await handleApiRequest("delete", `alyeqeenschoolapp/api/academicyears`, academicYearDeleteData);
 
       return response?.data;
     } catch (error: any) {

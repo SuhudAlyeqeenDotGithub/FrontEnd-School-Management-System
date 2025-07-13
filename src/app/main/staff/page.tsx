@@ -1,5 +1,5 @@
 "use client";
-import { checkDataType, handledDeleteImage } from "@/lib/shortFunctions/shortFunctions";
+import { BASE_API_URL, checkDataType, handledDeleteImage } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { useEffect, useState } from "react";
 import { ErrorDiv, LoaderDiv } from "@/lib/component/general/compLibrary";
@@ -18,10 +18,16 @@ import { deleteStaffProfile, getStaffProfiles } from "@/redux/features/staff/sta
 import { MdContentCopy } from "react-icons/md";
 import EditStaffComponent from "@/lib/component/staff/editStaffComp";
 import { tableRowStyle, dataRowCellStyle } from "@/lib/generalStyles";
+import { useQuery } from "@tanstack/react-query";
+import { handleApiRequest } from "@/axios/axiosClient";
+import { tanFetchStaffProfiles } from "@/tanStack/staff/fetch";
+import { useStaffProfileMutation } from "@/tanStack/staff/mutate";
 
 const StaffProfile = () => {
   const dispatch = useAppDispatch();
-  const { staff, isLoading: staffIsLoading } = useAppSelector((state) => state.staffData);
+  const { tanDeleteStaffProfile } = useStaffProfileMutation();
+
+  // const { staff, isLoading: staffIsLoading } = useAppSelector((state) => state.staffData);
   const { accountData } = useAppSelector((state) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
@@ -41,35 +47,61 @@ const StaffProfile = () => {
   const hasActionAccess = (action: string) => {
     return accountPermittedActions.includes(action);
   };
-  useEffect(() => {
-    if (!accountData.accountStatus) {
-      return;
-    }
-    const fetchStaffL = async () => {
-      try {
-        if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
-          setError("Your account is no longer active - Please contact your admin");
-          return;
-        }
-        if (!hasActionAccess("View Staff") && !accountData.roleId.absoluteAdmin) {
-          setError("Unauthorized: You do not have access to view staff profiles - Please contact your admin");
-          return;
-        }
 
-        await dispatch(getStaffProfiles()).unwrap();
-      } catch (error: any) {
-        setError(error);
-      }
-    };
-
-    fetchStaffL();
-  }, [accountData]);
+  const {
+    data: staff,
+    isLoading: staffIsLoading,
+    refetch,
+    isFetching,
+    error: queryError,
+    isError
+  } = useQuery({
+    queryKey: ["staffProfiles"],
+    queryFn: () => tanFetchStaffProfiles(accountData, accountPermittedActions, "View Staff"),
+    enabled: Boolean(accountData?.accountStatus),
+    retry: false
+  });
 
   useEffect(() => {
+    if (!staff) return;
+
+    setError("");
     setLocalData(staff);
-  }, [staff]);
+  }, [staff, staffIsLoading]);
 
   useEffect(() => {
+    console.log("query error", queryError);
+    if (queryError) {
+      setError(queryError.message);
+    }
+  }, [queryError, isError]);
+
+  // useEffect(() => {
+  //   if (!accountData.accountStatus) {
+  //     return;
+  //   }
+  //   const fetchStaffL = async () => {
+  //     try {
+  //       if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
+  //         setError("Your account is no longer active - Please contact your admin");
+  //         return;
+  //       }
+  //       if (!hasActionAccess("View Staff") && !accountData.roleId.absoluteAdmin) {
+  //         setError("Unauthorized: You do not have access to view staff profiles - Please contact your admin");
+  //         return;
+  //       }
+
+  //       await dispatch(getStaffProfiles()).unwrap();
+  //     } catch (error: any) {
+  //       setError(error);
+  //     }
+  //   };
+
+  //   fetchStaffL();
+  // }, [accountData]);
+
+  useEffect(() => {
+    if (!staff) return;
     if (searchValue !== "") {
       const filteredData = staff.filter((obj: any) => obj.searchText.toLowerCase().includes(searchValue.toLowerCase()));
       setLocalData(filteredData);
@@ -117,6 +149,33 @@ const StaffProfile = () => {
     setLocalData(sortedData);
     setSortOrderTracker((prev: any) => ({ ...prev, [sortKey]: nextOrder }));
   };
+
+  if (!accountData || staffIsLoading || isFetching) {
+    return (
+      <div className="flex items-center justify-center mt-10">
+        <LoaderDiv
+          type="spinnerText"
+          borderColor="foregroundColor"
+          text="Loading Staff Profile..."
+          textColor="foregroundColor"
+          dimension="h-10 w-10"
+        />
+      </div>
+    );
+  }
+  if (queryError)
+    return (
+      <ErrorDiv
+        onClose={(close) => {
+          if (close) {
+            setError("");
+          }
+        }}
+      >
+        {error}
+      </ErrorDiv>
+    );
+  if (!staff || staff.length === 0) return <p>No staff found.</p>;
 
   return (
     <div className="px-8 py-6 w-full">
@@ -189,8 +248,7 @@ const StaffProfile = () => {
                   }
 
                   if (imageDeletionDone) {
-                    console.log("deleting staff profile for on backend", returnObject.staffIDToDelete);
-                    await dispatch(deleteStaffProfile({ staffIDToDelete: returnObject.staffIDToDelete })).unwrap();
+                    await tanDeleteStaffProfile.mutateAsync({ staffIDToDelete: returnObject.staffIDToDelete });
                   } else {
                     return;
                   }

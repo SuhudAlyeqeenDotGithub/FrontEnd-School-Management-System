@@ -25,7 +25,7 @@ export const formatDate = (dateStr: any) => {
 export const handledDeleteImage = async (imageDestination?: string) => {
   // handle deleting current image on googlecloud
   try {
-    const response = await handleApiRequest("delete", "BASE_API_URL/alyeqeenschoolapp/api/staffimage", {
+    const response = await handleApiRequest("delete", "alyeqeenschoolapp/api/staffimage", {
       staffImageDestination: imageDestination
     });
     // if image deletion was successful, start procedure to upload the new one

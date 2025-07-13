@@ -5,7 +5,7 @@ import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/clientFunctions";
 import { CgTrash } from "react-icons/cg";
-import { formatDate } from "../../shortFunctions/shortFunctions";
+import { BASE_API_URL, formatDate } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../general/compLibrary";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { QualificationType } from "@/interfaces/interfaces";
@@ -15,6 +15,7 @@ import { handleApiRequest } from "@/axios/axiosClient";
 import axios from "axios";
 import { createStaffProfile } from "@/redux/features/staff/staffThunks";
 import { QualificationDialog } from "./staffShortDialogComp";
+import { useStaffProfileMutation } from "@/tanStack/staff/mutate";
 
 const NewStaffComponent = ({
   onClose,
@@ -25,6 +26,7 @@ const NewStaffComponent = ({
 }) => {
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
+  const { tanCreateStaffProfile } = useStaffProfileMutation();
   const { isLoading } = useAppSelector((state) => state.staffData);
   const [unsaved, setUnsaved] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -140,8 +142,8 @@ const NewStaffComponent = ({
       // get signed url from the backend
       if (imageName === "") {
         try {
-          const response = await dispatch(createStaffProfile(localData)).unwrap();
-          if (response) {
+          const response = await tanCreateStaffProfile.mutateAsync(localData);
+          if (response?.data) {
             onCreate(true);
           }
         } catch (err: any) {
@@ -153,11 +155,7 @@ const NewStaffComponent = ({
       if (imageName !== "") {
         try {
           const signedUrlParamData = { imageName: sanitizeStaffImageName(imageName), imageType };
-          const response = await handleApiRequest(
-            "post",
-            "BASE_API_URL/alyeqeenschoolapp/api/signedurl",
-            signedUrlParamData
-          );
+          const response = await handleApiRequest("post", `alyeqeenschoolapp/api/signedurl`, signedUrlParamData);
 
           if (response) {
             const { signedUrl, publicUrl, destination }: any = response.data;
@@ -176,8 +174,8 @@ const NewStaffComponent = ({
 
               if (uploadResponse) {
                 try {
-                  const response = await dispatch(createStaffProfile(updatedLocalData)).unwrap();
-                  if (response) {
+                  const response = await tanCreateStaffProfile.mutateAsync(updatedLocalData);
+                  if (response?.data) {
                     onCreate(true);
                   }
                 } catch (err: any) {

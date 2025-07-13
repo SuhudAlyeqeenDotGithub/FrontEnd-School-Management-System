@@ -8,7 +8,7 @@ export const orgSignUp = createAsyncThunk<AccountType, OrgSignUpType>(
   "orgaccount/signup",
   async (orgData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/signup`, orgData, {
+      const response = await axios.post(`alyeqeenschoolapp/api/orgaccount/signup`, orgData, {
         withCredentials: true
       });
       return response.data;
@@ -22,7 +22,7 @@ export const signIn = createAsyncThunk<AccountType, SignInType>(
   "orgaccount/signin",
   async (signInData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/signin`, signInData, {
+      const response = await axios.post(`alyeqeenschoolapp/api/orgaccount/signin`, signInData, {
         withCredentials: true
       });
       return response.data;
@@ -34,7 +34,7 @@ export const signIn = createAsyncThunk<AccountType, SignInType>(
 
 export const fetchAccount = createAsyncThunk<AccountType>("orgaccount/fetchAccount", async (_, { rejectWithValue }) => {
   try {
-    const response = await handleApiRequest("get", `${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/fetchAccount`);
+    const response = await handleApiRequest("get", `alyeqeenschoolapp/api/orgaccount/fetchAccount`);
 
     return response?.data;
   } catch (error: any) {
@@ -46,13 +46,9 @@ export const setNewPassword = createAsyncThunk<AccountType, ResetPasswordType>(
   "orgaccount/setnewpassword",
   async (newPasswordData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/resetpassword/newpassword`,
-        newPasswordData,
-        {
-          withCredentials: true
-        }
-      );
+      const response = await axios.post(`alyeqeenschoolapp/api/orgaccount/resetpassword/newpassword`, newPasswordData, {
+        withCredentials: true
+      });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data.message || error.message);

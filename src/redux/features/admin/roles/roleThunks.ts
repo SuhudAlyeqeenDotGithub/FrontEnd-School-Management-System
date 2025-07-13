@@ -7,7 +7,7 @@ export const fetchRolesAccess = createAsyncThunk<ReturnRoleType[]>(
   "orgaccount/fetchrolesaccess",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest("get", `${BASE_API_URL}/alyeqeenschoolapp/api/admin/getroles`);
+      const response = await handleApiRequest("get", `alyeqeenschoolapp/api/admin/getroles`);
 
       return response?.data;
     } catch (error: any) {
@@ -20,7 +20,7 @@ export const createRole = createAsyncThunk<ReturnRoleType[], ParamRoleType>(
   "orgaccount/createrolesaccess",
   async (roleData, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest("post", `${BASE_API_URL}/alyeqeenschoolapp/api/admin/createrole`, roleData);
+      const response = await handleApiRequest("post", `alyeqeenschoolapp/api/admin/createrole`, roleData);
 
       return response?.data;
     } catch (error: any) {
@@ -33,11 +33,7 @@ export const updateRole = createAsyncThunk<ReturnRoleType[], ParamRoleType>(
   "orgaccount/updaterolesaccess",
   async (roleUpdateData, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest(
-        "put",
-        `${BASE_API_URL}/alyeqeenschoolapp/api/admin/updaterole`,
-        roleUpdateData
-      );
+      const response = await handleApiRequest("put", `alyeqeenschoolapp/api/admin/updaterole`, roleUpdateData);
 
       return response?.data;
     } catch (error: any) {
@@ -50,11 +46,7 @@ export const deleteRole = createAsyncThunk<ReturnRoleType[], DeleteParamRoleType
   "orgaccount/deleterolesaccess",
   async (roleDeleteData, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest(
-        "delete",
-        `${BASE_API_URL}/alyeqeenschoolapp/api/admin/deleterole`,
-        roleDeleteData
-      );
+      const response = await handleApiRequest("delete", `alyeqeenschoolapp/api/admin/deleterole`, roleDeleteData);
 
       return response?.data;
     } catch (error: any) {

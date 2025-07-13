@@ -7,7 +7,7 @@ export const getStaffContracts = createAsyncThunk<ReturnStaffContractType[]>(
   "orgaccount/getstaffcontracts",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest("get", `${BASE_API_URL}/alyeqeenschoolapp/api/staff/contracts`);
+      const response = await handleApiRequest("get", `alyeqeenschoolapp/api/staff/contracts`);
 
       return response?.data;
     } catch (error: any) {
@@ -20,11 +20,7 @@ export const createStaffContract = createAsyncThunk<ReturnStaffContractType[], P
   "orgaccount/createstaffcontract",
   async (staffContractData, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest(
-        "post",
-        `${BASE_API_URL}/alyeqeenschoolapp/api/staff/contracts`,
-        staffContractData
-      );
+      const response = await handleApiRequest("post", `alyeqeenschoolapp/api/staff/contracts`, staffContractData);
 
       return response?.data;
     } catch (error: any) {
@@ -37,11 +33,7 @@ export const updateStaffContract = createAsyncThunk<ReturnStaffContractType[], P
   "orgaccount/updatestaffcontract",
   async (staffUpdateData, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest(
-        "put",
-        `${BASE_API_URL}/alyeqeenschoolapp/api/staff/contracts`,
-        staffUpdateData
-      );
+      const response = await handleApiRequest("put", `alyeqeenschoolapp/api/staff/contracts`, staffUpdateData);
 
       return response?.data;
     } catch (error: any) {
@@ -54,11 +46,7 @@ export const deleteStaffContract = createAsyncThunk<ReturnStaffContractType[], {
   "orgaccount/deletestaffcontract",
   async (staffDeleteData, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest(
-        "delete",
-        `${BASE_API_URL}/alyeqeenschoolapp/api/staff/contracts`,
-        staffDeleteData
-      );
+      const response = await handleApiRequest("delete", `alyeqeenschoolapp/api/staff/contracts`, staffDeleteData);
 
       return response?.data;
     } catch (error: any) {

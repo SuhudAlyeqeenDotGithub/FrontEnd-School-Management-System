@@ -13,6 +13,7 @@ import { handleApiRequest } from "@/axios/axiosClient";
 import axios from "axios";
 import { updateStaffProfile } from "@/redux/features/staff/staffThunks";
 import { QualificationDialog } from "./staffShortDialogComp";
+import { useStaffProfileMutation } from "@/tanStack/staff/mutate";
 
 const EditStaffComponent = ({
   data,
@@ -25,6 +26,7 @@ const EditStaffComponent = ({
 }) => {
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
+  const { tanUpdateStaffProfile } = useStaffProfileMutation();
   const { isLoading } = useAppSelector((state) => state.staffData);
   const [unsaved, setUnsaved] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -136,8 +138,8 @@ const EditStaffComponent = ({
 
   const handleRegularUpdate = async (staffData: any) => {
     try {
-      const response = await dispatch(updateStaffProfile(staffData)).unwrap();
-      if (response) {
+      const response = await tanUpdateStaffProfile.mutateAsync(staffData);
+      if (response?.data) {
         onSave(true);
       }
     } catch (err: any) {
@@ -151,11 +153,7 @@ const EditStaffComponent = ({
   const handleUploadImage = async () => {
     try {
       const signedUrlParamData = { imageName: sanitizeStaffImageName(imageName), imageType };
-      const response = await handleApiRequest(
-        "post",
-        "BASE_API_URL/alyeqeenschoolapp/api/signedurl",
-        signedUrlParamData
-      );
+      const response = await handleApiRequest("post", "alyeqeenschoolapp/api/signedurl", signedUrlParamData);
 
       if (response) {
         const { signedUrl, publicUrl, destination }: any = response.data;

@@ -7,6 +7,8 @@ import { getUsers } from "@/redux/features/admin/users/usersThunks";
 import { getStaffProfiles } from "@/redux/features/staff/staffThunks";
 import { getAcademicYears } from "@/redux/features/general/academicYear/academicYearThunk";
 import { getStaffContracts } from "@/redux/features/staff/contractThunk";
+import { useQueryClient } from "@tanstack/react-query";
+import { BASE_API_URL } from "../shortFunctions";
 
 const useWebSocketHandler = (onError?: (error: string) => void) => {
   const socketRef = useRef<any>(null);
@@ -17,13 +19,13 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
   const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
     tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
   );
+  const queryClient = useQueryClient();
 
   const hasActionAccess = (action: string) => {
     return accountPermittedActions.includes(action);
   };
 
   const handleDataFetch = async (collectionName: string) => {
-    console.log("Handling data fetch for collection:", collectionName);
     try {
       if ((hasActionAccess("View Roles") || accountData.roleId.absoluteAdmin) && collectionName === "roles") {
         const response = await dispatch(fetchRolesAccess()).unwrap();
@@ -32,7 +34,7 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
         const response = await dispatch(getUsers()).unwrap();
       }
       if ((hasActionAccess("View Staff") || accountData.roleId.absoluteAdmin) && collectionName === "staffs") {
-        const response = await dispatch(getStaffProfiles()).unwrap();
+        queryClient.invalidateQueries({ queryKey: ["staffProfiles"] });
       }
       if (
         (hasActionAccess("View Academic Years") || accountData.roleId.absoluteAdmin) &&
@@ -53,7 +55,7 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
   useEffect(() => {
     if (!organisationId) return;
 
-    socketRef.current = io("BASE_API_URL");
+    socketRef.current = io(BASE_API_URL);
 
     socketRef.current.on("connect", () => {
       console.log("Connected to io server");
