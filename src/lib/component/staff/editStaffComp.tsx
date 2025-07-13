@@ -13,7 +13,7 @@ import { handleApiRequest } from "@/axios/axiosClient";
 import axios from "axios";
 import { updateStaffProfile } from "@/redux/features/staff/staffThunks";
 import { QualificationDialog } from "./staffShortDialogComp";
-import { useStaffProfileMutation } from "@/tanStack/staff/mutate";
+import { useStaffMutation } from "@/tanStack/staff/mutate";
 
 const EditStaffComponent = ({
   data,
@@ -26,7 +26,7 @@ const EditStaffComponent = ({
 }) => {
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
-  const { tanUpdateStaffProfile } = useStaffProfileMutation();
+  const { tanUpdateStaffProfile } = useStaffMutation();
   const { isLoading } = useAppSelector((state) => state.staffData);
   const [unsaved, setUnsaved] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);

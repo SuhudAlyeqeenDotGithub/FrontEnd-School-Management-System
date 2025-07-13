@@ -21,11 +21,11 @@ import { tableRowStyle, dataRowCellStyle } from "@/lib/generalStyles";
 import { useQuery } from "@tanstack/react-query";
 import { handleApiRequest } from "@/axios/axiosClient";
 import { tanFetchStaffProfiles } from "@/tanStack/staff/fetch";
-import { useStaffProfileMutation } from "@/tanStack/staff/mutate";
+import { useStaffMutation } from "@/tanStack/staff/mutate";
 
 const StaffProfile = () => {
   const dispatch = useAppDispatch();
-  const { tanDeleteStaffProfile } = useStaffProfileMutation();
+  const { tanDeleteStaffProfile } = useStaffMutation();
 
   // const { staff, isLoading: staffIsLoading } = useAppSelector((state) => state.staffData);
   const { accountData } = useAppSelector((state) => state.accountData);
@@ -51,7 +51,6 @@ const StaffProfile = () => {
   const {
     data: staff,
     isLoading: staffIsLoading,
-    refetch,
     isFetching,
     error: queryError,
     isError
@@ -64,13 +63,12 @@ const StaffProfile = () => {
 
   useEffect(() => {
     if (!staff) return;
-
     setError("");
     setLocalData(staff);
   }, [staff, staffIsLoading]);
 
   useEffect(() => {
-    console.log("query error", queryError);
+    if (!isError) return;
     if (queryError) {
       setError(queryError.message);
     }
@@ -175,7 +173,6 @@ const StaffProfile = () => {
         {error}
       </ErrorDiv>
     );
-  if (!staff || staff.length === 0) return <p>No staff found.</p>;
 
   return (
     <div className="px-8 py-6 w-full">
@@ -347,7 +344,7 @@ const StaffProfile = () => {
                 </div>
               ) : localData.length < 1 && searchValue ? (
                 <div className="flex justify-center mt-6">No search result found</div>
-              ) : localData.length < 1 && !staffIsLoading ? (
+              ) : (localData.length < 1 && !staffIsLoading) || !staff || staff.length === 0 ? (
                 <div className="flex justify-center mt-6">No data available</div>
               ) : (
                 localData.map((doc: any, index: any) => {

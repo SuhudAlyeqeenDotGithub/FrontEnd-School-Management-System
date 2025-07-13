@@ -46,6 +46,7 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
         (hasActionAccess("View Staff Contracts") || accountData.roleId.absoluteAdmin) &&
         collectionName === "staffcontracts"
       ) {
+        queryClient.invalidateQueries({ queryKey: ["staffContracts"] });
         const response = await dispatch(getStaffContracts()).unwrap();
       }
     } catch (error: any) {

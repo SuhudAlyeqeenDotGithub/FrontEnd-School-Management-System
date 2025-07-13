@@ -15,11 +15,13 @@ import EditStaffContractComponent from "@/lib/component/staff/editStaffComp";
 import { tableRowStyle, dataRowCellStyle } from "@/lib/generalStyles";
 import { getStaffProfiles } from "@/redux/features/staff/staffThunks";
 import { getAcademicYears } from "@/redux/features/general/academicYear/academicYearThunk";
+import { tanFetchStaffContracts, tanFetchStaffProfiles } from "@/tanStack/staff/fetch";
+import { useQuery } from "@tanstack/react-query";
 
 const StaffContracts = () => {
   const dispatch = useAppDispatch();
-  const { staffContracts, isLoading: staffContractsLoading } = useAppSelector((state) => state.staffContract);
-  const { staff, isLoading: staffIsLoading } = useAppSelector((state) => state.staffData);
+  // const { staffContracts, isLoading: staffContractsLoading } = useAppSelector((state) => state.staffContract);
+  // const { staff, isLoading: staffIsLoading } = useAppSelector((state) => state.staffData);
   const { academicYears, isLoading: academicYearsLoading } = useAppSelector((state) => state.academicYear);
   const { accountData } = useAppSelector((state) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
@@ -40,53 +42,58 @@ const StaffContracts = () => {
   const hasActionAccess = (action: string) => {
     return accountPermittedActions.includes(action);
   };
+
+  const {
+    data: staffProfiles,
+    isLoading: staffIsLoading,
+    isFetching: isFetchingStaffProfiles,
+    error: queryError,
+    isError: isStaffProfilesError
+  } = useQuery({
+    queryKey: ["staffProfiles"],
+    queryFn: () => tanFetchStaffProfiles(accountData, accountPermittedActions, "View Staff"),
+    enabled: Boolean(accountData?.accountStatus),
+    retry: false
+  });
+
+  const {
+    data: staffContracts,
+    isLoading: staffContractsIsLoading,
+    isFetching: isFetchingStaffContracts,
+    error: staffContractsQueryError,
+    isError: isStaffContractsError
+  } = useQuery({
+    queryKey: ["staffContratcs"],
+    queryFn: () => tanFetchStaffContracts(accountData, accountPermittedActions, "View Staff Contracts"),
+    enabled: Boolean(accountData?.accountStatus),
+    retry: false
+  });
+
   useEffect(() => {
-    if (!accountData.accountStatus) {
-      return;
-    }
-    const fetchStaffL = async () => {
-      try {
-        if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
-          setError("Your account is no longer active - Please contact your admin");
-          return;
-        }
-        if (!hasActionAccess("View Staff") && !accountData.roleId.absoluteAdmin) {
-          setError("Unauthorized: You do not have access to view staff contracts - Please contact your admin");
-          return;
-        }
-
-        await dispatch(getStaffContracts()).unwrap();
-      } catch (error: any) {
-        setError(error);
-      }
-    };
-
-    fetchStaffL();
-  }, [accountData]);
+    if (!staffProfiles) return;
+    setError("");
+    setLocalData(staffProfiles);
+  }, [staffProfiles, staffIsLoading]);
 
   useEffect(() => {
-    if (!accountData.accountStatus) {
-      return;
+    if (!isStaffProfilesError) return;
+    if (queryError) {
+      setError(queryError.message);
     }
-    const fetchStaffL = async () => {
-      try {
-        if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
-          setError("Your account is no longer active - Please contact your admin");
-          return;
-        }
-        if (!hasActionAccess("View Staff") && !accountData.roleId.absoluteAdmin) {
-          setError("Unauthorized: You do not have access to view staff profiles - Please contact your admin");
-          return;
-        }
+  }, [queryError, isStaffProfilesError]);
 
-        await dispatch(getStaffProfiles()).unwrap();
-      } catch (error: any) {
-        setError(error);
-      }
-    };
+  useEffect(() => {
+    if (!staffContracts) return;
+    setError("");
+    setLocalData(staffContracts);
+  }, [staffContracts, staffContractsIsLoading]);
 
-    fetchStaffL();
-  }, [accountData]);
+  useEffect(() => {
+    if (!isStaffContractsError) return;
+    if (staffContractsQueryError) {
+      setError(staffContractsQueryError.message);
+    }
+  }, [staffContractsQueryError, isStaffContractsError]);
 
   useEffect(() => {
     if (!accountData.accountStatus) {
@@ -113,10 +120,7 @@ const StaffContracts = () => {
   }, [accountData]);
 
   useEffect(() => {
-    setLocalData(staffContracts);
-  }, [staffContracts]);
-
-  useEffect(() => {
+    if (!staffContracts) return;
     if (searchValue !== "") {
       const filteredData = staffContracts.filter((obj: any) =>
         obj.searchText.toLowerCase().includes(searchValue.toLowerCase())
@@ -126,6 +130,33 @@ const StaffContracts = () => {
       setLocalData(staffContracts);
     }
   }, [searchValue]);
+
+  if (!accountData || staffContractsIsLoading || isFetchingStaffContracts) {
+    return (
+      <div className="flex items-center justify-center mt-10">
+        <LoaderDiv
+          type="spinnerText"
+          borderColor="foregroundColor"
+          text="Loading Staff Contracts..."
+          textColor="foregroundColor"
+          dimension="h-10 w-10"
+        />
+      </div>
+    );
+  }
+  if (queryError)
+    return (
+      <ErrorDiv
+        onClose={(close) => {
+          if (close) {
+            setError("");
+          }
+        }}
+      >
+        {error}
+      </ErrorDiv>
+    );
+  // if (!staffContracts || staffContracts.length === 0) return <p>No staff Contract found.</p>;
 
   // function to handle sorting
   const handleSort = (sortKey: any) => {
@@ -204,7 +235,7 @@ const StaffContracts = () => {
           <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
             <NewStaffContractComponent
               academicYears={academicYears}
-              staff={staff}
+              staff={staffProfiles}
               onClose={(open: boolean) => {
                 document.body.style.overflow = "";
                 setOpenNewStaffContractDialog(!open);
@@ -310,7 +341,7 @@ const StaffContracts = () => {
 
             {/* table data */}
             <div className="flex flex-col gap-2 mt-3">
-              {staffContractsLoading ? (
+              {staffContractsIsLoading ? (
                 <div className="flex items-center justify-center mt-10">
                   <LoaderDiv
                     type="spinnerText"
@@ -322,7 +353,9 @@ const StaffContracts = () => {
                 </div>
               ) : localData.length < 1 && searchValue ? (
                 <div className="flex justify-center mt-6">No search result found</div>
-              ) : localData.length < 1 && !staffContractsLoading ? (
+              ) : (localData.length < 1 && !staffContractsIsLoading) ||
+                !staffContracts ||
+                staffContracts.length === 0 ? (
                 <div className="flex justify-center mt-6">No data available</div>
               ) : (
                 localData.map((doc: any, index: any) => {

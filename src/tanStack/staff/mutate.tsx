@@ -3,7 +3,7 @@ import { handleApiRequest } from "@/axios/axiosClient";
 import { ParamStaffType } from "@/interfaces/interfaces";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const useStaffProfileMutation = () => {
+export const useStaffMutation = () => {
   const queryClient = useQueryClient();
 
   const useCreateStaffProfile = useMutation({
@@ -45,9 +45,50 @@ export const useStaffProfileMutation = () => {
     }
   });
 
+  const useCreateStaffContract = useMutation({
+    mutationFn: (data: ParamStaffType) => {
+      return handleApiRequest("post", `alyeqeenschoolapp/api/staff/contracts`, data);
+    },
+    onSuccess: (returnedData) => {
+      const updatedData = returnedData?.data;
+      queryClient.setQueryData(["staffContracts"], updatedData);
+    },
+    onError: (error: any) => {
+      throw new Error(error.response?.data.message || error.message || "Error creating staff contract");
+    }
+  });
+
+  const useUpdateStaffContract = useMutation({
+    mutationFn: (data: ParamStaffType) => {
+      return handleApiRequest("put", `alyeqeenschoolapp/api/staff/contracts`, data);
+    },
+    onSuccess: (returnedData) => {
+      const updatedData = returnedData?.data;
+      queryClient.setQueryData(["staffContracts"], updatedData);
+    },
+    onError: (error: any) => {
+      throw new Error(error.response?.data.message || error.message || "Error creating updating contract");
+    }
+  });
+
+  const useDeleteStaffContract = useMutation({
+    mutationFn: (data: { staffIDToDelete: string }) => {
+      return handleApiRequest("delete", `alyeqeenschoolapp/api/staff/contracts`, data);
+    },
+    onSuccess: (returnedData) => {
+      const updatedData = returnedData?.data;
+      queryClient.setQueryData(["staffContracts"], updatedData);
+    },
+    onError: (error: any) => {
+      throw new Error(error.response?.data.message || error.message || "Error deleting staff contract");
+    }
+  });
   return {
     tanCreateStaffProfile: useCreateStaffProfile,
     tanUpdateStaffProfile: useUpdateStaffProfile,
-    tanDeleteStaffProfile: useDeleteStaffProfile
+    tanDeleteStaffProfile: useDeleteStaffProfile,
+    tanCreateStaffContract: useCreateStaffContract,
+    tanUpdateStaffContract: useUpdateStaffContract,
+    tanDeleteStaffContract: useDeleteStaffContract
   };
 };
