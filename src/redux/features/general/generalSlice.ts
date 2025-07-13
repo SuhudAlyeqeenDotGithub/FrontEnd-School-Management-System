@@ -6,12 +6,13 @@ const initialState: {
 
   proceedUrl: string;
   onOpenRoleData: any;
+  academicYearOnFocus: string;
 } = {
   hasBeforeUnloadListener: false,
   triggerUnsavedDialog: false,
-
   proceedUrl: "",
-  onOpenRoleData: {}
+  onOpenRoleData: {},
+  academicYearOnFocus: ""
 };
 
 export const generalSlice = createSlice({
@@ -29,10 +30,18 @@ export const generalSlice = createSlice({
     },
     setOnOpenRoleData: (state, action) => {
       state.onOpenRoleData = action.payload;
+    },
+    setAcademicYearOnFocus: (state, action) => {
+      state.academicYearOnFocus = action.payload;
     }
   }
 });
 
-export const { setHasBeforeUnloadListener, setTriggerUnsavedDialog, setProceedUrl, setOnOpenRoleData } =
-  generalSlice.actions;
+export const {
+  setHasBeforeUnloadListener,
+  setTriggerUnsavedDialog,
+  setProceedUrl,
+  setOnOpenRoleData,
+  setAcademicYearOnFocus
+} = generalSlice.actions;
 export default generalSlice.reducer;

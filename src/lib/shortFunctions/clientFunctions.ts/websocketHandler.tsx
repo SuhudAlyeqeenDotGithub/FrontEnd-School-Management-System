@@ -47,7 +47,6 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
         collectionName === "staffcontracts"
       ) {
         queryClient.invalidateQueries({ queryKey: ["staffContracts"] });
-        const response = await dispatch(getStaffContracts()).unwrap();
       }
     } catch (error: any) {
       if (onError) onError(error || "An error occurred while fetching data");

@@ -1,6 +1,6 @@
 "use client";
 import { handleApiRequest } from "@/axios/axiosClient";
-import { ParamStaffType } from "@/interfaces/interfaces";
+import { ParamStaffContractType, ParamStaffType } from "@/interfaces/interfaces";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useStaffMutation = () => {
@@ -46,7 +46,7 @@ export const useStaffMutation = () => {
   });
 
   const useCreateStaffContract = useMutation({
-    mutationFn: (data: ParamStaffType) => {
+    mutationFn: (data: ParamStaffContractType) => {
       return handleApiRequest("post", `alyeqeenschoolapp/api/staff/contracts`, data);
     },
     onSuccess: (returnedData) => {
@@ -59,7 +59,7 @@ export const useStaffMutation = () => {
   });
 
   const useUpdateStaffContract = useMutation({
-    mutationFn: (data: ParamStaffType) => {
+    mutationFn: (data: ParamStaffContractType) => {
       return handleApiRequest("put", `alyeqeenschoolapp/api/staff/contracts`, data);
     },
     onSuccess: (returnedData) => {
@@ -72,7 +72,7 @@ export const useStaffMutation = () => {
   });
 
   const useDeleteStaffContract = useMutation({
-    mutationFn: (data: { staffIDToDelete: string }) => {
+    mutationFn: (data: { staffContractIdToDelete: string }) => {
       return handleApiRequest("delete", `alyeqeenschoolapp/api/staff/contracts`, data);
     },
     onSuccess: (returnedData) => {

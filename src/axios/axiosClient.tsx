@@ -4,12 +4,14 @@ import { BASE_API_URL } from "@/lib/shortFunctions/shortFunctions";
 export const handleApiRequest = async (method: "get" | "post" | "put" | "delete", url: string, data?: any) => {
   const refinedUrl = `${BASE_API_URL}/${url}`;
   try {
-    const response = await axios.request({
+    const config = {
       method,
       url: refinedUrl,
-      data,
-      withCredentials: true
-    });
+      withCredentials: true,
+      ...(method === "get" ? { params: data } : { data })
+    };
+
+    const response = await axios.request(config);
     if (response.data) {
       return response;
     }
@@ -27,12 +29,13 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
           }
         );
         if (refreshResponse.data) {
-          const requestRetrial = await axios.request({
+          const config = {
             method,
             url: refinedUrl,
-            data,
-            withCredentials: true
-          });
+            withCredentials: true,
+            ...(method === "get" ? { params: data } : { data })
+          };
+          const requestRetrial = await axios.request(config);
           if (requestRetrial.data) {
             return requestRetrial;
           }

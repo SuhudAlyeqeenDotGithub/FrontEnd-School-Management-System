@@ -27,10 +27,20 @@ export const tanFetchStaffProfiles = async (accountData: any, permittedActions: 
   }
 };
 
-export const tanFetchStaffContracts = async (accountData: any, permittedActions: string[], action: string) => {
+export const tanFetchStaffContracts = async (
+  accountData: any,
+  permittedActions: string[],
+  action: string,
+  academicYearOnFocus: string
+) => {
   if (!accountData) {
     const msg = "Account data not found.";
     // setError(msg);
+    throw new Error(msg);
+  }
+
+  if (academicYearOnFocus === "") {
+    const msg = "Academic year not found.";
     throw new Error(msg);
   }
 
@@ -46,7 +56,8 @@ export const tanFetchStaffContracts = async (accountData: any, permittedActions:
     throw new Error(msg);
   }
 
-  const res = await handleApiRequest("get", `alyeqeenschoolapp/api/staff/contracts`);
+  const data = { academicYearOnFocus };
+  const res = await handleApiRequest("get", `alyeqeenschoolapp/api/staff/contracts`, data);
   const responseData = res?.data;
   if (responseData) {
     return res?.data;

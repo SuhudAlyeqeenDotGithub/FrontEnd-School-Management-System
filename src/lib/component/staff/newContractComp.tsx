@@ -16,38 +16,49 @@ import { createStaffProfile } from "@/redux/features/staff/staffThunks";
 import { createStaffContract } from "@/redux/features/staff/contractThunk";
 import { inputStyle } from "@/lib/generalStyles";
 import { SearchableDropDownInput } from "../general/compLibrary2";
+import { ResponsibilityDialog, WorkingScheduleDialog } from "./staffShortDialogComp";
+import { useStaffMutation } from "@/tanStack/staff/mutate";
 
 const NewStaffContractComponent = ({
   academicYears,
+  academicYearOnFocus,
   staff,
   onClose,
   onCreate
 }: {
   academicYears: any[];
+  academicYearOnFocus: string;
   staff: any[];
   onClose: (close: boolean) => {};
   onCreate: (create: boolean) => {};
 }) => {
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
-  const { isLoading: staffContractsLoading } = useAppSelector((state) => state.staffContract);
+  const { tanCreateStaffContract } = useStaffMutation();
+  // const { isLoading: staffContractsLoading } = useAppSelector((state) => state.staffContract);
   const [unsaved, setUnsaved] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageName, setImageName] = useState("");
-  const [imageType, setImageType] = useState("");
   const [error, setError] = useState("");
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
-  const [newQualficationDialog, setNewQualficationDialog] = useState(false);
-  const [editQualficationDialog, setEditQualficationDialog] = useState(false);
-  const [editQualficationData, setEditQualficationData] = useState({
+  const [isLoading, setIsLoading] = useState(false);
+  const [newWorkingScheduleDialog, setNewWorkingScheduleDialog] = useState(false);
+  const [newResponsibilityDialog, setNewResponsibilityDialog] = useState(false);
+  const [editWorkingScheduleDialog, setEditWorkingScheduleDialog] = useState(false);
+  const [editResponsibilityDialog, setEditResponsibilityDialog] = useState(false);
+  const [editResponsibilityData, setEditResponsibilityData] = useState({
     _id: "",
-    qualificationName: "",
-    schoolName: "",
-    startDate: "",
-    endDate: ""
+    responsibility: "",
+    description: ""
+  });
+  const [editWorkingScheduleData, setEditWorkingScheduleData] = useState({
+    _id: "",
+    day: "",
+    startTime: "",
+    endTime: "",
+    hours: ""
   });
   const [localData, setLocalData] = useState({
-    academicYearId: "",
+    academicYearId: academicYearOnFocus,
+    academicYear: "",
     staffId: "",
     staffCustomId: "",
     staffFullName: "",
@@ -55,7 +66,6 @@ const NewStaffContractComponent = ({
     contractStartDate: "",
     contractEndDate: "",
     responsibilities: [],
-    searchText: "",
     contractType: "",
     contractStatus: "",
     contractSalary: "",
@@ -73,6 +83,7 @@ const NewStaffContractComponent = ({
 
   const {
     academicYearId,
+    academicYear,
     staffId,
     staffCustomId,
     staffFullName,
@@ -80,7 +91,6 @@ const NewStaffContractComponent = ({
     contractStartDate,
     contractEndDate,
     responsibilities,
-    searchText,
     contractType,
     contractStatus,
     contractSalary,
@@ -92,14 +102,9 @@ const NewStaffContractComponent = ({
     const { name, value } = e.target;
     setLocalData((prev: any) => ({ ...prev, [name]: value }));
   };
-  const sanitizeStaffImageName = (originalName: string) => {
-    const timestamp = Date.now();
-    const extension = originalName.split(".").pop();
-    return `staff_${timestamp}.${extension}`;
-  };
 
   const validationPassed = () => {
-    const { contractEndDate, ...copyLocalData } = localData;
+    const { contractEndDate, workingSchedule, responsibilities, ...copyLocalData } = localData;
 
     for (const [key, value] of Object.entries(copyLocalData)) {
       if (!value || (typeof value === "string" && value.trim() === "")) {
@@ -111,38 +116,77 @@ const NewStaffContractComponent = ({
     return true;
   };
 
-  const handleCreateStaff = async () => {
+  const handleCreateStaffContract = async () => {
+    setIsLoading(true);
     if (validationPassed()) {
       setError("");
 
       try {
-        const response = await dispatch(createStaffContract(localData)).unwrap();
-        if (response) {
+        const response = await tanCreateStaffContract.mutateAsync(localData);
+        if (response?.data) {
           onCreate(true);
         }
       } catch (err: any) {
-        setError(err);
+        console.log("error creating staff contract", err);
+        setIsLoading(false);
+        setError(err.message || err.response.data.message || "Error Creating Staff Contract");
       }
     }
   };
 
-  const textAreaStyle =
-    "border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full h-[100px] overflow-auto";
-
   return (
-    <ContainerComponent id="staffDialogContainer" style="w-[80%] h-[90%] gap-5 overflow-auto flex flex-col">
-      {/* {newQualficationDialog && (
-        <QualificationDialog
+    <ContainerComponent id="staffDialogContainer" style="w-[60%] h-[90%] gap-5 overflow-auto flex flex-col">
+      {newResponsibilityDialog && (
+        <ResponsibilityDialog
           type="new"
           data={{
             _id: "",
-            qualificationName: "",
-            schoolName: "",
-            startDate: "",
-            endDate: ""
+            responsibility: "",
+            description: ""
           }}
           onSave={(save, returnData) => {
-            setNewQualficationDialog(!save);
+            setNewResponsibilityDialog(!save);
+            setLocalData((prev: any) => ({
+              ...prev,
+              responsibilities: [...prev.responsibilities, returnData]
+            }));
+            setUnsaved(true);
+          }}
+          onClose={(open) => {
+            setNewResponsibilityDialog(!open);
+          }}
+        />
+      )}
+      {editResponsibilityDialog && (
+        <ResponsibilityDialog
+          type="edit"
+          data={editResponsibilityData}
+          onSave={(save, returnData) => {
+            setEditResponsibilityDialog(!save);
+            setLocalData((prev: any) => ({
+              ...prev,
+              responsibilities: [...prev.responsibilities].map((responsibility: any) =>
+                responsibility._id === returnData._id ? returnData : responsibility
+              )
+            }));
+          }}
+          onClose={(open) => {
+            setEditResponsibilityDialog(!open);
+          }}
+        />
+      )}
+      {newWorkingScheduleDialog && (
+        <WorkingScheduleDialog
+          type="new"
+          data={{
+            _id: "",
+            day: "",
+            startTime: "",
+            endTime: "",
+            hours: ""
+          }}
+          onSave={(save, returnData) => {
+            setNewWorkingScheduleDialog(!save);
             setLocalData((prev: any) => ({
               ...prev,
               workingSchedule: [...prev.workingSchedule, returnData]
@@ -150,28 +194,28 @@ const NewStaffContractComponent = ({
             setUnsaved(true);
           }}
           onClose={(open) => {
-            setNewQualficationDialog(!open);
+            setNewWorkingScheduleDialog(!open);
           }}
         />
       )}
-      {editQualficationDialog && (
-        <QualificationDialog
+      {editWorkingScheduleDialog && (
+        <WorkingScheduleDialog
           type="edit"
-          data={editQualficationData}
+          data={editWorkingScheduleData}
           onSave={(save, returnData) => {
-            setEditQualficationDialog(!save);
+            setEditWorkingScheduleDialog(!save);
             setLocalData((prev: any) => ({
               ...prev,
-              workingSchedule: [...prev.workingSchedule].map((qualification: any) =>
-                qualification._id === returnData._id ? returnData : qualification
+              workingSchedule: [...prev.workingSchedule].map((workingSchedule: any) =>
+                workingSchedule._id === returnData._id ? returnData : workingSchedule
               )
             }));
           }}
           onClose={(open) => {
-            setEditQualficationDialog(!open);
+            setEditWorkingScheduleDialog(!open);
           }}
         />
-      )} */}
+      )}
       {openUnsavedDialog && (
         <YesNoDialog
           warningText="You have unsaved changes. Are you sure you want to proceed?"
@@ -197,8 +241,8 @@ const NewStaffContractComponent = ({
             loadingButtonText="Creating Staff Contract..."
             disabled={!unsaved}
             buttonStyle="w-full"
-            isLoading={staffContractsLoading}
-            onClick={handleCreateStaff}
+            isLoading={tanCreateStaffContract.isPending}
+            onClick={handleCreateStaffContract}
           />
           <IoClose
             onClick={() => {
@@ -238,7 +282,8 @@ const NewStaffContractComponent = ({
               if (save) {
                 setLocalData((prev: any) => ({
                   ...prev,
-                  academicYearId: selectedData[0]
+                  academicYearId: selectedData[0],
+                  academicYear: selectedData[1]
                 }));
                 setUnsaved(true);
               }
@@ -331,7 +376,9 @@ const NewStaffContractComponent = ({
           {/* heading and action button */}
           <div className="flex justify-between gap-5">
             <h2>Working Schedule</h2>
-            <div>{/* <button onClick={() => setNewWorkingScheduleDialog(true)}>Add Schedule</button> */}</div>
+            <div>
+              <button onClick={() => setNewWorkingScheduleDialog(true)}>Add Schedule</button>
+            </div>
           </div>
           {/* body */}
           <div className="flex flex-wrap gap-2">
@@ -339,20 +386,18 @@ const NewStaffContractComponent = ({
               <div>No Working Schedule Added</div>
             ) : (
               workingSchedule.map((workingSchedule: any) => {
-                const { _id, workingScheduleName, schoolName, startDate, endDate } = workingSchedule;
+                const { _id, day, startTime, endTime, hours } = workingSchedule;
                 return (
                   <div
                     key={_id}
-                    className="flex flex-col w-[300px] hover:cursor-pointer hover:bg-foregroundColor-5 border border-foregroundColor-15 rounded-lg shadow p-4"
+                    className="flex flex-col w-[300px] max-h-[300px] min-h-[150px] hover:cursor-pointer hover:bg-foregroundColor-5 border border-foregroundColor-15 rounded-lg shadow p-4"
                     onClick={() => {
-                      setEditQualficationData(workingSchedule);
-                      setEditQualficationDialog(true);
+                      setEditWorkingScheduleData(workingSchedule);
+                      setEditWorkingScheduleDialog(true);
                     }}
                   >
                     <div className="flex gap-5 justify-between items-center">
-                      <span className="whitespace-nowrap font-bold text-[19px]">
-                        {workingScheduleName.slice(0, 20)}
-                      </span>{" "}
+                      <span className="whitespace-nowrap font-bold text-[19px]">{day.slice(0, 20)}</span>{" "}
                       <CgTrash
                         className="text-[25px] hover:text-red-500"
                         onClick={(e) => {
@@ -367,12 +412,10 @@ const NewStaffContractComponent = ({
                         }}
                       />
                     </div>
-                    <span className="whitespace-nowrap font-bold text-foregroundColor-60 text-[18px]">
-                      {schoolName}
-                    </span>
-                    <div className="flex flex-col mt-2">
-                      <span>{formatDate(startDate)}</span>
-                      <span>{formatDate(endDate)}</span>
+                    <span className="whitespace-nowrap font-bold text-foregroundColor-60">Working Hours: {hours}</span>
+                    <div className="flex flex-col mt-2 overflow-auto">
+                      <span>{startTime}</span>
+                      <span>{endTime}</span>
                     </div>
                   </div>
                 );
@@ -386,7 +429,7 @@ const NewStaffContractComponent = ({
           <div className="flex justify-between gap-5">
             <h2>Responsibilities</h2>
             <div>
-              <button onClick={() => setNewQualficationDialog(true)}>Add Responsibility</button>
+              <button onClick={() => setNewResponsibilityDialog(true)}>Add Responsibility</button>
             </div>
           </div>
           {/* body */}
@@ -394,19 +437,19 @@ const NewStaffContractComponent = ({
             {responsibilities.length < 1 ? (
               <div>No Responsibilities Added</div>
             ) : (
-              responsibilities.map((responsibility: any) => {
-                const { _id, responsibilityName, schoolName, startDate, endDate } = responsibility;
+              responsibilities.map((responsibilityV: any) => {
+                const { _id, responsibility, description } = responsibilityV;
                 return (
                   <div
                     key={_id}
-                    className="flex flex-col w-[300px] hover:cursor-pointer hover:bg-foregroundColor-5 border border-foregroundColor-15 rounded-lg shadow p-4"
+                    className="flex flex-col w-[300px] max-h-[300px] min-h-[150px] hover:cursor-pointer hover:bg-foregroundColor-5 border border-foregroundColor-15 rounded-lg shadow p-4"
                     onClick={() => {
-                      setEditQualficationData(responsibility);
-                      setEditQualficationDialog(true);
+                      setEditResponsibilityData(responsibilityV);
+                      setEditResponsibilityDialog(true);
                     }}
                   >
                     <div className="flex gap-5 justify-between items-center">
-                      <span className="whitespace-nowrap font-bold text-[19px]">{responsibilityName.slice(0, 20)}</span>{" "}
+                      <span className="whitespace-nowrap font-bold text-[19px]">{responsibility.slice(0, 20)}</span>
                       <CgTrash
                         className="text-[25px] hover:text-red-500"
                         onClick={(e) => {
@@ -421,12 +464,9 @@ const NewStaffContractComponent = ({
                         }}
                       />
                     </div>
-                    <span className="whitespace-nowrap font-bold text-foregroundColor-60 text-[18px]">
-                      {schoolName}
-                    </span>
-                    <div className="flex flex-col mt-2">
-                      <span>{formatDate(startDate)}</span>
-                      <span>{formatDate(endDate)}</span>
+
+                    <div className="flex flex-col mt-2 overflow-auto">
+                      <span>{description}</span>
                     </div>
                   </div>
                 );

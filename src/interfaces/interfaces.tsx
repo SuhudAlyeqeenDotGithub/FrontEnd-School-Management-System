@@ -220,6 +220,7 @@ export interface ParamStaffType {
 
 export interface BaseStaffContractType {
   academicYearId: string;
+  academicYear: string;
   staffId: string;
   staffCustomId: string;
   staffFullName: string;
@@ -227,7 +228,6 @@ export interface BaseStaffContractType {
   contractStartDate: string;
   contractEndDate: string;
   responsibilities: { responsibility: string; description: string }[];
-  searchText: string;
   contractType: string;
   contractStatus: string;
   contractSalary: string;
