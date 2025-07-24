@@ -49,7 +49,19 @@ const layout = ({ children }: { children: ReactNode }) => {
     fetchAccountFunc();
   }, []);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperDivRef.current && !wrapperDivRef.current.contains(event.target as Node)) {
+        setOpenProfile(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -121,7 +133,10 @@ const layout = ({ children }: { children: ReactNode }) => {
   };
 
   const profileDialog = (
-    <div className="flex flex-col border border-foregroundColor-20 w-[400px] max-h-[80vh] p-5 mt-1 gap-5 rounded-lg shadow-md absolute top-[100%] right-5 z-20 bg-backgroundColor">
+    <div
+      ref={wrapperDivRef}
+      className="flex flex-col border border-foregroundColor-20 w-[400px] max-h-[80vh] p-5 mt-1 gap-5 rounded-lg shadow-md absolute top-[100%] right-5 z-20 bg-backgroundColor"
+    >
       {error && (
         <ErrorDiv
           onClose={(close) => {
@@ -158,7 +173,7 @@ const layout = ({ children }: { children: ReactNode }) => {
   );
 
   return (
-    <div ref={wrapperDivRef} className="">
+    <div className="">
       {triggerUnsavedDialog && (
         <YesNoDialog
           warningText="You have unsaved changes. Are you sure you want to proceed?"
