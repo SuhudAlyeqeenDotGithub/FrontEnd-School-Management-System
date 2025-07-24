@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, LoaderButton, SuccessDiv } from "@/lib/component/general/compLibrary";
+import { InputComponent, ErrorDiv, LoaderButton, SuccessDiv } from "@/lib/customComponents/general/compLibrary";
 import Link from "next/link";
 import { useAppDispatch } from "@/redux/hooks";
 import { useAppSelector } from "@/redux/hooks";

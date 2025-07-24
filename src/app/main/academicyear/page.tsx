@@ -2,13 +2,13 @@
 import { checkDataType, handledDeleteImage } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { useEffect, useState } from "react";
-import { ErrorDiv, LoaderDiv } from "@/lib/component/general/compLibrary";
+import { ErrorDiv, LoaderDiv } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
-import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/component/general/compLibrary2";
-import NewAcademicYearComponent from "@/lib/component/academicYear/newAcademicYearComp";
+import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/customComponents/general/compLibrary2";
+import NewAcademicYearComponent from "@/lib/customComponents/academicYear/newAcademicYearComp";
 import { deleteAcademicYear, getAcademicYears } from "@/redux/features/general/academicYear/academicYearThunk";
 import { MdContentCopy } from "react-icons/md";
 

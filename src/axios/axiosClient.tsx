@@ -8,7 +8,8 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
       method,
       url: refinedUrl,
       withCredentials: true,
-      ...(method === "get" ? { params: data } : { data })
+      ...(method === "get" && data ? { params: data } : {}),
+      ...(method !== "get" && data ? { data } : {})
     };
 
     const response = await axios.request(config);
@@ -33,7 +34,8 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
             method,
             url: refinedUrl,
             withCredentials: true,
-            ...(method === "get" ? { params: data } : { data })
+            ...(method === "get" && data ? { params: data } : {}),
+            ...(method !== "get" && data ? { data } : {})
           };
           const requestRetrial = await axios.request(config);
           if (requestRetrial.data) {

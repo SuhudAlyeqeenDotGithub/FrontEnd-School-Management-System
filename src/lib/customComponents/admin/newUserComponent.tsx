@@ -1,6 +1,6 @@
 "use client";
 
-import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "../../component/general/compLibrary";
+import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "../general/compLibrary";
 import { IoClose } from "react-icons/io5";
 import { MdContentCopy } from "react-icons/md";
 import { useEffect, useState } from "react";
@@ -9,23 +9,20 @@ import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { checkDataType } from "../../shortFunctions/shortFunctions";
-import { YesNoDialog } from "../../component/general/compLibrary";
+import { YesNoDialog } from "../general/compLibrary";
 import { DisallowedActionDialog, SearchableDropDownInput } from "../general/compLibrary2";
 import { TabActionDialog } from "./editRoleComponents";
-import { updateUser } from "@/redux/features/admin/users/usersThunks";
+import { createUser } from "@/redux/features/admin/users/usersThunks";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { EditParamUserType } from "@/interfaces/interfaces";
 
-const EditUserComponent = ({
+const NewUserComponent = ({
   onClose,
-  onUpdate,
-  userData,
+  onCreate,
   rolesData
 }: {
   onClose: (close: boolean) => {};
-  onUpdate: (update: boolean) => {};
+  onCreate: (create: boolean) => {};
   rolesData: any[];
-  userData: EditParamUserType;
 }) => {
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
@@ -36,12 +33,12 @@ const EditUserComponent = ({
   const [userTabs, setUserTabs] = useState<string[]>([]);
   const [userPermittedActions, setUserPermittedActions] = useState<string[]>([]);
   const [localData, setLocalData] = useState({
-    staffId: userData.staffId,
-    userName: userData.userName,
-    userEmail: userData.userEmail,
-    userPassword: "Change01@Password123?",
-    userStatus: userData.userStatus,
-    roleId: userData.roleId.split("|")[0]
+    staffId: "",
+    userName: "",
+    userEmail: "",
+    userPassword: "",
+    userStatus: "",
+    roleId: ""
   });
 
   useEffect(() => {
@@ -54,6 +51,7 @@ const EditUserComponent = ({
   }, [unsaved]);
 
   const { staffId, userName, userEmail, userPassword, userStatus, roleId } = localData;
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setUnsaved(true);
     const { name, value } = e.target;
@@ -65,7 +63,7 @@ const EditUserComponent = ({
       setError("Missing Data: Please enter a user name");
       return false;
     }
-    if (!staffId && !userData.onEditUserIsAbsoluteAdmin) {
+    if (!staffId) {
       setError("Missing Data: Please enter a staff Id");
       return false;
     }
@@ -87,11 +85,6 @@ const EditUserComponent = ({
       );
       return;
     }
-
-    // if (userPassword === "Change01@Password123?") {
-    //   setError("Change01@Password123? cannot be used for password as it is reserved");
-    //   return;
-    // }
 
     if (!roleId) {
       setError("Data Error: Role name is too short");
@@ -132,23 +125,11 @@ const EditUserComponent = ({
       )}
       {/* top div */}
       <div className="flex justify-between items-center">
-        <div className="flex gap-5 items-center">
-          <h2>Edit User</h2>
-          <div className="flex gap-2 items-center">
-            <h3>{userData.userId.slice(0, 5)}.......</h3>
-            <MdContentCopy
-              title="copy id"
-              className="text-[20px] text-foregroundColor-80 hover:text-foregroundColor-50 hover:cursor-pointer"
-              onClick={async () => {
-                await navigator.clipboard.writeText(userData.userId);
-              }}
-            />
-          </div>
-        </div>
+        <h2>New User</h2>
         <div className="flex justify-between items-center gap-5">
           <LoaderButton
-            buttonText="Update"
-            loadingButtonText="Saving User..."
+            buttonText="Create"
+            loadingButtonText="Creating User..."
             disabled={!unsaved}
             buttonStyle="w-full"
             isLoading={isLoading}
@@ -156,18 +137,9 @@ const EditUserComponent = ({
               if (validationPassed()) {
                 setError("");
                 try {
-                  const dataToUpdate = {
-                    ...localData,
-                    userId: userData.userId,
-                    userPassword:
-                      userPassword === "Change01@Password123?" ? userData.userPassword : localData.userPassword,
-                    onEditUserIsAbsoluteAdmin: userData.onEditUserIsAbsoluteAdmin,
-                    passwordChanged:
-                      userPassword !== "Change01@Password123?" && userData.userPassword !== localData.userPassword
-                  };
-                  const response = await dispatch(updateUser(dataToUpdate)).unwrap();
+                  const response = await dispatch(createUser(localData)).unwrap();
                   if (response) {
-                    onUpdate(true);
+                    onCreate(true);
                   }
                 } catch (err: any) {
                   setError(err);
@@ -221,8 +193,6 @@ const EditUserComponent = ({
           onChange={handleInputChange}
         />
         <SearchableDropDownInput
-          disabled={userData.onEditUserIsAbsoluteAdmin}
-          defaultText={userData.roleId}
           placeholder="Search Role - (ID, Name)"
           data={rolesData}
           displayKeys={["_id", "name", "searchText"]}
@@ -249,7 +219,6 @@ const EditUserComponent = ({
           }}
         />
         <select
-          disabled={userData.onEditUserIsAbsoluteAdmin}
           name="userStatus"
           value={userStatus}
           onChange={handleInputChange}
@@ -266,9 +235,7 @@ const EditUserComponent = ({
       <div className="flex flex-col gap-5">
         <h2>Tab Access</h2>
         <div className="flex flex-wrap gap-2">
-          {userData.onEditUserIsAbsoluteAdmin ? (
-            <div>Has All Access</div>
-          ) : userTabs.length < 1 ? (
+          {userTabs.length < 1 ? (
             <div>No Tab Access</div>
           ) : (
             userTabs.map((tab: any) => (
@@ -282,9 +249,7 @@ const EditUserComponent = ({
       <div className="flex flex-col gap-5">
         <h2>Permitted Actions</h2>
         <div className="flex flex-wrap gap-2">
-          {userData.onEditUserIsAbsoluteAdmin ? (
-            <div>Has All Permissions</div>
-          ) : userPermittedActions.length < 1 ? (
+          {userPermittedActions.length < 1 ? (
             <div>No Permitted Actions</div>
           ) : (
             userPermittedActions.map((action: any) => (
@@ -299,4 +264,4 @@ const EditUserComponent = ({
   );
 };
 
-export default EditUserComponent;
+export default NewUserComponent;

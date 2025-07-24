@@ -1,5 +1,5 @@
 "use client";
-import { SubTabNav } from "@/lib/component/general/compLibrary";
+import { SubTabNav } from "@/lib/customComponents/general/compLibrary";
 import { ReactNode } from "react";
 import { FaRegUserCircle } from "react-icons/fa";
 import { LiaFileContractSolid } from "react-icons/lia";

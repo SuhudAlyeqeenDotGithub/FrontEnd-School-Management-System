@@ -1,14 +1,14 @@
 "use client";
-import { ReactNode } from "react";
+import { ReactNode, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { LoaderButton, YesNoDialog } from "@/lib/component/general/compLibrary";
+import { LoaderButton, YesNoDialog } from "@/lib/customComponents/general/compLibrary";
 import Link from "next/link";
 import { ImBrightnessContrast } from "react-icons/im";
 import { useState, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { fetchAccount } from "@/redux/features/accounts/accountThunks";
 import axios from "axios";
-import { ErrorDiv } from "@/lib/component/general/compLibrary";
+import { ErrorDiv } from "@/lib/customComponents/general/compLibrary";
 import { resetAccount } from "@/redux/features/accounts/accountSlice";
 import { useRouter } from "next/navigation";
 import { useNavigationHandler } from "@/lib/shortFunctions/clientFunctions.ts/clientFunctions";
@@ -24,6 +24,7 @@ const layout = ({ children }: { children: ReactNode }) => {
   const [openProfile, setOpenProfile] = useState(false);
   const [lightTheme, setLightTheme] = useState(true);
   const [error, setError] = useState("");
+  const wrapperDivRef = useRef<HTMLDivElement>(null);
 
   try {
     useWebSocketHandler((error) => {
@@ -47,6 +48,8 @@ const layout = ({ children }: { children: ReactNode }) => {
 
     fetchAccountFunc();
   }, []);
+
+  useEffect(() => {}, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -155,7 +158,7 @@ const layout = ({ children }: { children: ReactNode }) => {
   );
 
   return (
-    <div className="">
+    <div ref={wrapperDivRef} className="">
       {triggerUnsavedDialog && (
         <YesNoDialog
           warningText="You have unsaved changes. Are you sure you want to proceed?"

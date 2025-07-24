@@ -19,7 +19,9 @@ export const InputComponent = ({
   required = false,
   name,
   value,
-  onChange
+  onChange,
+  onFocus,
+  onBlur
 }: InputComponentType) => {
   const inputStyle =
     "border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full";
@@ -33,6 +35,7 @@ export const InputComponent = ({
       required={required}
       className={inputStyle}
       onChange={onChange}
+      onFocus={onFocus}
     />
   );
 };

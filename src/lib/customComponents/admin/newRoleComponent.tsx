@@ -1,5 +1,5 @@
 "use client";
-import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "../../component/general/compLibrary";
+import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "../general/compLibrary";
 import { IoClose } from "react-icons/io5";
 import { MdContentCopy } from "react-icons/md";
 import { useEffect, useState } from "react";
@@ -8,7 +8,7 @@ import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { checkDataType } from "../../shortFunctions/shortFunctions";
-import { YesNoDialog } from "../../component/general/compLibrary";
+import { YesNoDialog } from "../general/compLibrary";
 import { DisallowedActionDialog } from "../general/compLibrary2";
 import { TabActionDialog } from "./editRoleComponents";
 import { createRole } from "@/redux/features/admin/roles/roleThunks";

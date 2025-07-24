@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, LoaderButton } from "@/lib/component/general/compLibrary";
+import { InputComponent, ErrorDiv, LoaderButton } from "@/lib/customComponents/general/compLibrary";
 import Link from "next/link";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { orgSignUp } from "@/redux/features/accounts/accountThunks";

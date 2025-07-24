@@ -227,7 +227,7 @@ export const ResponsibilityDialog = ({
   };
   return (
     <div className="flex justify-center items-center absolute bg-foregroundColor-70 inset-0">
-      <ContainerComponent style="w-[55%] h-[40%] gap-10 flex flex-col z-40 bg-backgroundColor overflow-auto">
+      <ContainerComponent style="w-[55%] h-[55%] gap-10 flex flex-col z-40 bg-backgroundColor overflow-auto">
         {error && (
           <ErrorDiv
             onClose={(close) => {
