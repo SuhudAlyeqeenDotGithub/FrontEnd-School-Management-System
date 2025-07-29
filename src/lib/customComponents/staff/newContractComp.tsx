@@ -21,7 +21,6 @@ import { useStaffMutation } from "@/tanStack/staff/mutate";
 
 const NewStaffContractComponent = ({
   academicYears,
-
   staff,
   onClose,
   onCreate

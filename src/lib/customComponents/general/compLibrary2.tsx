@@ -87,6 +87,7 @@ export const SearchableDropDownInput = ({
       <InputComponent
         placeholder={placeholder}
         required
+        autocomplete="off"
         disabled={disabled}
         name="searchValue"
         value={searchValue}
@@ -110,7 +111,7 @@ export const SearchableDropDownInput = ({
             localData.map((option: any, index: number) => {
               return (
                 <div
-                  className="w-full flex items-center hover:bg-foregroundColor-5 hover:cursor-pointer px-5 py-1 rounded-md"
+                  className="w-full flex items-center hover:bg-foregroundColor-5 hover:cursor-pointer px-5 py-1"
                   key={index}
                   onClick={() => {
                     setSearchValue(option[displayKeys[1]]);

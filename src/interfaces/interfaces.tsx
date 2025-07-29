@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 export interface InputComponentType {
   disabled?: boolean;
   type?: string;
+  autocomplete?: string;
   placeholder: string;
   required?: boolean;
   name: string;

@@ -14,6 +14,7 @@ import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/cl
 import { IoClose } from "react-icons/io5";
 export const InputComponent = ({
   type = "text",
+  autocomplete,
   disabled = false,
   placeholder,
   required = false,
@@ -29,6 +30,7 @@ export const InputComponent = ({
     <input
       disabled={disabled}
       type={type}
+      autoComplete={autocomplete}
       placeholder={placeholder}
       name={name}
       value={value}

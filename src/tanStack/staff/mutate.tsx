@@ -23,10 +23,7 @@ export const useStaffMutation = () => {
     mutationFn: (data: ParamStaffType) => {
       return handleApiRequest("put", `alyeqeenschoolapp/api/staff/profiles`, data);
     },
-    onSuccess: (returnedData) => {
-      const updatedData = returnedData?.data;
-      queryClient.setQueryData(["staffProfiles"], updatedData);
-    },
+
     onError: (error: any) => {
       throw new Error(error.response?.data.message || error.message || "Error creating updating profile");
     }

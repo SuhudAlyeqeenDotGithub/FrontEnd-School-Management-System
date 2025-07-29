@@ -10,18 +10,23 @@ import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 import NewUserComponent from "@/lib/customComponents/admin/newUserComponent";
 import { deleteUser, getUsers } from "@/redux/features/admin/users/usersThunks";
 import { fetchRolesAccess } from "@/redux/features/admin/roles/roleThunks";
-import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/customComponents/general/compLibrary2";
+import {
+  DisallowedActionDialog,
+  ConfirmActionByInputDialog,
+  CustomFilterComponent
+} from "@/lib/customComponents/general/compLibrary2";
 import EditUserComponent from "@/lib/customComponents/admin/editUserComponent";
 import { resetUsers } from "@/redux/features/admin/users/usersSlice";
 import NewStaffComponent from "@/lib/customComponents/staff/newStaffComp";
 import { deleteStaffProfile, getStaffProfiles } from "@/redux/features/staff/staffThunks";
-import { MdContentCopy } from "react-icons/md";
-import EditStaffComponent from "@/lib/customComponents/staff/editStaffComp";
-import { tableRowStyle, dataRowCellStyle } from "@/lib/generalStyles";
+import { MdContentCopy, MdAdd, MdNavigateNext, MdNavigateBefore } from "react-icons/md";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { tableCellStyle, dataRowCellStyle } from "@/lib/generalStyles";
 import { useQuery } from "@tanstack/react-query";
 import { handleApiRequest } from "@/axios/axiosClient";
 import { tanFetchStaffProfiles } from "@/tanStack/staff/fetch";
 import { useStaffMutation } from "@/tanStack/staff/mutate";
+import EditStaffComponent from "@/lib/customComponents/staff/editStaffComp";
 
 const StaffProfile = () => {
   const dispatch = useAppDispatch();
@@ -43,6 +48,18 @@ const StaffProfile = () => {
   const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
     tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
   );
+  const [paginationData, setPaginationData] = useState<any>({
+    totalCount: 0,
+    chunkCount: 0,
+    nextCursor: "",
+    prevCursor: "",
+    hasNext: false,
+    hasPrev: false
+  });
+  const [page, setPage] = useState(1);
+
+  const baseUrl = "alyeqeenschoolapp/api/staff/contracts";
+  const searchUrl = new URLSearchParams({});
 
   const hasActionAccess = (action: string) => {
     return accountPermittedActions.includes(action);
@@ -269,147 +286,216 @@ const StaffProfile = () => {
             <h2>Staff Profile</h2>
             <h3>Register and manage staff</h3>
           </div>
-          {/* search bar and new action Button */}
-          <div className="flex justify-between items-center">
-            {/* search div */}
-            <div className="flex w-[700px] h-[50px] items-center gap-2">
-              <input
-                className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-                placeholder="Search Staff (Custom ID, Names, Email, Gender, Nationality, Next of Kin)"
-                name="searchValue"
-                onChange={(e) => {
-                  setSearchValue(e.target.value);
-                }}
-              />
-              <FaSearch className="text-foregroundColor size-5" />
-            </div>
-            {/* new action button */}
-            <div>
-              <button
-                onClick={() => {
-                  if (hasActionAccess("Create Staff")) {
-                    document.body.style.overflow = "hidden";
-                    setOpenNewStaffDialog(true);
-                  } else {
-                    setError("You do not have Create Staff Access - Please contact your admin");
-                  }
-                }}
-                disabled={!hasActionAccess("Create Staff")}
-              >
-                New Staff
-              </button>
-            </div>
-          </div>
+
+          <CustomFilterComponent
+            placeholder="Search Staff (Custom ID, Names, Email, Gender, Nationality, Next of Kin)"
+            filters={[
+              {
+                displayText: "Marital Status",
+                fieldName: "staffMaritalStatus",
+                options: ["All", "Married", "Single"]
+              },
+              {
+                displayText: "Gender",
+                fieldName: "staffGender",
+                options: ["All", "Male", "Female"]
+              }
+            ]}
+            onQuery={(query: any) => {
+              // for (const key in query) {
+              //   searchUrl.set(key, query[key]);
+              // }
+              // refetchStaffContracts();
+            }}
+          />
 
           {/* table body */}
 
-          <div className="flex flex-col gap-2">
-            {/* table header */}
-            <div className="w-full flex px-4 py-3 p-2 h-[50px] overflow-hidden">
-              <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
-                <span className="whitespace-nowrap flex items-center justify-center w-10 h-10 rounded-full font-semibold"></span>
-                {(["Staff Custom ID", "First Name", "Last Name", "Gender", "Email"] as const).map((header) => (
-                  <div
-                    key={header}
+          {staffIsLoading ? (
+            <div className="flex items-center justify-center mt-10">
+              <LoaderDiv
+                type="spinnerText"
+                borderColor="foregroundColor"
+                text="Loading User Data..."
+                textColor="foregroundColor"
+                dimension="h-10 w-10"
+              />
+            </div>
+          ) : (
+            <div className="border border-foregroundColor-25 bg-backgroundColor text-foregroundColor rounded-lg overflow-hidden mt-5 z-10">
+              {/* table header */}
+              <Table className="text-[16px]">
+                <TableHeader>
+                  <TableRow className="bg-foregroundColor-5 h-14">
+                    <TableHead className="text-center text-foregroundColor-70 w-[110px] font-semibold p-2 whitespace-nowrap"></TableHead>
+
+                    {(["Staff Custom ID", "First Name", "Last Name", "Gender", "Email"] as const).map((header) => (
+                      <TableHead
+                        key={header}
+                        onClick={() => {
+                          const key_Name = {
+                            "Staff Custom ID": "staffCustomId",
+                            "First Name": "staffFirstName",
+                            "Last Name": "staffLastName",
+                            Gender: "staffGender",
+                            Email: "staffEmail"
+                          };
+                          const sortKey = key_Name[header];
+                          handleSort(sortKey);
+                        }}
+                        className="text-center text-foregroundColor-70 w-[200px] font-semibold hover:cursor-pointer hover:bg-foregroundColor-5 p-2  whitespace-nowrap"
+                      >
+                        {header}
+                        <LuArrowUpDown className="inline-block ml-1" />
+                      </TableHead>
+                    ))}
+                    <TableHead className="text-center text-foregroundColor-70 font-semibold whitespace-nowrap">
+                      Delete
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+
+                {/* table data */}
+                <TableBody className="mt-3">
+                  {staffIsLoading ? (
+                    <tr>
+                      <td colSpan={8}>
+                        <div className="flex items-center justify-center mt-10">
+                          <LoaderDiv
+                            type="spinnerText"
+                            borderColor="foregroundColor"
+                            text="Loading Staff Profiles..."
+                            textColor="foregroundColor"
+                            dimension="h-10 w-10"
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ) : localData.length < 1 && searchValue ? (
+                    <tr>
+                      <td colSpan={8} className="text-center py-4">
+                        No search result found
+                      </td>
+                    </tr>
+                  ) : (localData.length < 1 && !staffIsLoading) || !staff || staff.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="text-center py-4">
+                        No data available
+                      </td>
+                    </tr>
+                  ) : (
+                    localData.map((doc: any, index: any) => {
+                      const {
+                        _id: profileId,
+                        staffCustomId,
+                        staffFirstName,
+                        staffLastName,
+                        staffGender,
+                        staffEmail
+                      } = doc;
+
+                      return (
+                        <TableRow
+                          key={profileId}
+                          onClick={() => {
+                            if (hasActionAccess("Edit Staff")) {
+                              document.body.style.overflow = "hidden";
+                              setOpenEditStaffDialog(true);
+                              setOnOpenEditStaffData(doc);
+                            } else {
+                              setError("You do not have Edit User Access - Please contact your admin");
+                            }
+                          }}
+                          className="hover:cursor-pointer"
+                        >
+                          <TableCell className="w-[110px] whitespace-nowrap text-center">
+                            <span className="rounded-full bg-foregroundColor-10 p-2">
+                              {staffFirstName.toUpperCase().slice(0, 2)}
+                            </span>
+                          </TableCell>
+                          <TableCell className="w-[200px] text-center whitespace-nowrap">
+                            {staffCustomId.slice(0, 10)}
+                            <MdContentCopy
+                              title="copy id"
+                              className="ml-2 inline-block text-[19px] text-foregroundColor-70 hover:text-foregroundColor-50 hover:cursor-pointer"
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                await navigator.clipboard.writeText(staffCustomId);
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell className={tableCellStyle}>{staffFirstName.slice(0, 10)}</TableCell>
+                          <TableCell className={tableCellStyle}>{staffLastName.slice(0, 10)}</TableCell>
+                          <TableCell className={tableCellStyle}>{staffGender}</TableCell>
+                          <TableCell className={tableCellStyle}>{staffEmail}</TableCell>
+
+                          <TableCell className="w-[200px] text-center whitespace-nowrap">
+                            <span
+                              className="text-[25px] text-red-500 bg-backgroundColor hover:cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (hasActionAccess("Delete Staff")) {
+                                  document.body.style.overflow = "hidden";
+                                  setConfirmWithText(staffCustomId);
+                                  setConfirmWithReturnObj({
+                                    staffIDToDelete: staffCustomId,
+                                    staffImageDestination: doc.staffImageDestination
+                                  });
+                                  setOpenConfirmDelete(true);
+                                } else {
+                                  setError(
+                                    "Unauthorised Action: You do not have Delete Staff Access - Please contact your admin"
+                                  );
+                                }
+                              }}
+                            >
+                              <CgTrash className="inline-block text-[20px]" />
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+              <div className="flex items-center justify-between px-6 py-4 border-t border-foregroundColor-25 text-[15px] font-semibold text-foregroundColor-60">
+                <div>
+                  Showing {paginationData.chunkCount} of {paginationData.totalCount} records
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
                     onClick={() => {
-                      const key_Name = {
-                        "Staff Custom ID": "staffCustomId",
-                        "First Name": "staffFirstName",
-                        "Last Name": "staffLastName",
-                        Gender: "staffGender",
-                        Email: "staffEmail"
-                      };
-                      const sortKey = key_Name[header];
-                      handleSort(sortKey);
+                      // searchUrl.set("cursorType", "prev");
+                      // searchUrl.set("prevCursor", paginationData.prevCursor);
+                      // setPage(page > 1 ? page - 1 : page);
+                      // refetchStaffContracts();
                     }}
-                    className={`hover:cursor-pointer hover:bg-foregroundColor-5 hover:border hover:border-foregroundColor-10 font-semibold flex gap-1 p-2 rounded-lg whitespace-nowrap items-center justify-center w-[200px]`}
+                    disabled={page < 2}
+                    className="ghostbutton"
                   >
-                    {header} <LuArrowUpDown />
-                  </div>
-                ))}
+                    <MdNavigateBefore className="text-[20px] inline-block" />
+                    Previous
+                  </button>
+                  <span className=" px-2">
+                    Page {page} of {Math.ceil(paginationData.totalCount / 4)}
+                  </span>
+                  <button
+                    onClick={() => {
+                      // searchUrl.set("cursorType", "next");
+                      // searchUrl.set("nextCursor", paginationData.nextCursor);
+                      // setPage(paginationData.hasNext ? page + 1 : page);
+                      // refetchStaffContracts();
+                    }}
+                    disabled={!paginationData.hasNext}
+                    className="ghostbutton"
+                  >
+                    Next
+                    <MdNavigateNext className=" text-[20px] inline-block" />
+                  </button>
+                </div>
               </div>
             </div>
-
-            {/* table data */}
-            <div className="flex flex-col gap-2 mt-3">
-              {staffIsLoading ? (
-                <div className="flex items-center justify-center mt-10">
-                  <LoaderDiv
-                    type="spinnerText"
-                    borderColor="foregroundColor"
-                    text="Loading Staff Profile..."
-                    textColor="foregroundColor"
-                    dimension="h-10 w-10"
-                  />
-                </div>
-              ) : localData.length < 1 && searchValue ? (
-                <div className="flex justify-center mt-6">No search result found</div>
-              ) : (localData.length < 1 && !staffIsLoading) || !staff || staff.length === 0 ? (
-                <div className="flex justify-center mt-6">No data available</div>
-              ) : (
-                localData.map((doc: any, index: any) => {
-                  const { _id: profileId, staffCustomId, staffFirstName, staffLastName, staffGender, staffEmail } = doc;
-
-                  return (
-                    <div
-                      key={profileId}
-                      onClick={() => {
-                        if (hasActionAccess("Edit Staff")) {
-                          document.body.style.overflow = "hidden";
-                          setOpenEditStaffDialog(true);
-                          setOnOpenEditStaffData(doc);
-                        } else {
-                          setError("You do not have Edit User Access - Please contact your admin");
-                        }
-                      }}
-                      className={tableRowStyle}
-                    >
-                      <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
-                        <span className="whitespace-nowrap flex items-center justify-center w-10 h-10 bg-foregroundColor-10 rounded-full font-semibold">
-                          {staffFirstName.toUpperCase().slice(0, 2)}
-                        </span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-[200px] gap-3">
-                          {staffCustomId.slice(0, 10)}
-                          <MdContentCopy
-                            title="copy id"
-                            className="text-[20px] text-foregroundColor-80 hover:text-foregroundColor-50 hover:cursor-pointer"
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              await navigator.clipboard.writeText(staffCustomId);
-                            }}
-                          />
-                        </span>
-                        <span className={dataRowCellStyle}>{staffFirstName.slice(0, 10)}</span>
-                        <span className={dataRowCellStyle}>{staffLastName.slice(0, 10)}</span>
-                        <span className={dataRowCellStyle}>{staffGender}</span>
-                        <span className={dataRowCellStyle}>{staffEmail}</span>
-                      </div>
-
-                      <CgTrash
-                        className="text-[25px] text-red-500 bg-backgroundColor hover:cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (hasActionAccess("Delete Staff")) {
-                            document.body.style.overflow = "hidden";
-                            setConfirmWithText(staffCustomId);
-                            setConfirmWithReturnObj({
-                              staffIDToDelete: staffCustomId,
-                              staffImageDestination: doc.staffImageDestination
-                            });
-                            setOpenConfirmDelete(true);
-                          } else {
-                            setError(
-                              "Unauthorised Action: You do not have Delete Staff Access - Please contact your admin"
-                            );
-                          }
-                        }}
-                      />
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
+          )}
         </div>
       </div>
       {/* end of data table */}

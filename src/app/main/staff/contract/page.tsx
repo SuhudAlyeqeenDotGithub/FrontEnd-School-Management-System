@@ -17,10 +17,7 @@ import { getStaffProfiles } from "@/redux/features/staff/staffThunks";
 import { getAcademicYears } from "@/redux/features/general/academicYear/academicYearThunk";
 import { tanFetchStaffContracts, tanFetchStaffProfiles } from "@/tanStack/staff/fetch";
 import { useQuery } from "@tanstack/react-query";
-import { setAcademicYearOnFocus } from "@/redux/features/general/generalSlice";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 const StaffContracts = () => {
   const dispatch = useAppDispatch();
@@ -58,6 +55,19 @@ const StaffContracts = () => {
   };
 
   const {
+    data: staffProfiles,
+    isLoading: staffIsLoading,
+    isFetching: isFetchingStaffProfiles,
+    error: queryError,
+    isError: isStaffProfilesError
+  } = useQuery({
+    queryKey: ["staffProfiles"],
+    queryFn: () => tanFetchStaffProfiles(accountData, accountPermittedActions, "View Staff"),
+    enabled: Boolean(accountData?.accountStatus),
+    retry: false
+  });
+
+  const {
     data: staffContracts,
     isLoading: staffContractsIsLoading,
     isFetching: isFetchingStaffContracts,
@@ -73,20 +83,7 @@ const StaffContracts = () => {
         "View Staff Contracts",
         baseUrl + "?" + searchUrl.toString()
       ),
-    enabled: Boolean(accountData?.accountStatus),
-    retry: false
-  });
-
-  const {
-    data: staffProfiles,
-    isLoading: staffIsLoading,
-    isFetching: isFetchingStaffProfiles,
-    error: queryError,
-    isError: isStaffProfilesError
-  } = useQuery({
-    queryKey: ["staffProfiles"],
-    queryFn: () => tanFetchStaffProfiles(accountData, accountPermittedActions, "View Staff"),
-    enabled: Boolean(Array.isArray(staffContracts) && accountData?.accountStatus),
+    enabled: Boolean(Array.isArray(staffProfiles) && accountData?.accountStatus),
     retry: false
   });
 
@@ -529,7 +526,7 @@ const StaffContracts = () => {
                     Previous
                   </button>
                   <span className=" px-2">
-                    Page {page} of {Math.ceil(paginationData.totalCount / 3)}
+                    Page {page} of {Math.ceil(paginationData.totalCount / 4)}
                   </span>
                   <button
                     onClick={() => {
