@@ -21,13 +21,12 @@ import { useStaffMutation } from "@/tanStack/staff/mutate";
 
 const NewStaffContractComponent = ({
   academicYears,
-  academicYearOnFocus,
+
   staff,
   onClose,
   onCreate
 }: {
   academicYears: any[];
-  academicYearOnFocus: string;
   staff: any[];
   onClose: (close: boolean) => {};
   onCreate: (create: boolean) => {};
@@ -57,7 +56,7 @@ const NewStaffContractComponent = ({
     hours: ""
   });
   const [localData, setLocalData] = useState({
-    academicYearId: academicYearOnFocus,
+    academicYearId: "",
     academicYear: "",
     staffId: "",
     staffCustomId: "",
@@ -127,7 +126,6 @@ const NewStaffContractComponent = ({
           onCreate(true);
         }
       } catch (err: any) {
-        console.log("error creating staff contract", err);
         setIsLoading(false);
         setError(err.message || err.response.data.message || "Error Creating Staff Contract");
       }

@@ -2,7 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ContainerComponent, ErrorDiv, InputComponent } from "./compLibrary";
 import { FaSearch } from "react-icons/fa";
-import { inputStyle } from "@/lib/generalStyles";
+
+import { IoClose } from "react-icons/io5";
 
 export const DisallowedActionDialog = ({ onOk, warningText }: { onOk: () => void; warningText: string }) => {
   return (
@@ -202,45 +203,53 @@ export const ConfirmActionByInputDialog = ({
 
 export const CustomFilterComponent = ({
   placeholder,
-  filters
+  filters,
+  onQuery
 }: {
   placeholder: string;
   filters: { displayText: string; fieldName: string; options: string[] }[];
+  onQuery: (query: any) => void;
 }) => {
-  const [searchValue, setSearchValue] = useState("");
-  const [filterQuery, setFilterQuery] = useState({});
-  console.log("filterQuery", filterQuery);
+  const [filterQuery, setFilterQuery] = useState<Record<string, string>>({ search: "" });
+  const [latestFilter, setLatestFilter] = useState(true);
+
+  const { search } = filterQuery;
+
   return (
     <div className="rounded-lg flex flex-col border border-foregroundColor-25 px-5 py-8">
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3 items-center">
         {filters.map((filter: any, index: number) => {
           return (
-            <select
-              key={index}
-              className="rounded-lg hover:cursor-pointer border border-foregroundColor-25 p-2 bg-backgroundColor text-foregroundColor"
-              onChange={(e) => {
-                console.log("query", { [filter.fieldName]: e.target.value });
-                setFilterQuery({
-                  ...filterQuery,
-                  [filter.fieldName]: e.target.value
-                });
-              }}
-            >
-              <option value="" disabled>
-                {filter.displayText}
-              </option>
-              <option value="all">All</option>
-              {filter.options.map((option: string, index: number) => {
-                return (
-                  <option key={index} className="bg-backgroundColor text-foregroundColor" value={option}>
-                    {option}
-                  </option>
-                );
-              })}
-            </select>
+            <div key={index} className="flex flex-col gap-2">
+              <span className="text-foregroundColor-70 text-[13px] font-semibold mt-2">{filter.displayText}</span>
+              <select
+                className="rounded-lg hover:cursor-pointer border border-foregroundColor-25 p-2 bg-backgroundColor text-foregroundColor"
+                value={filterQuery[filter.fieldName]}
+                onChange={(e) => {
+                  setFilterQuery((prev: any) => ({ ...prev, [filter.fieldName]: e.target.value }));
+                  setLatestFilter(false);
+                }}
+              >
+                {filter.options.map((option: string, index: number) => {
+                  return (
+                    <option
+                      key={index}
+                      className="bg-backgroundColor text-foregroundColor"
+                      value={option === "All" ? option.toLowerCase() : option}
+                    >
+                      {option}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
           );
         })}
-        <button>Apply</button>
+        <div className="flex gap-2 mt-7">
+          <button disabled={latestFilter} onClick={() => onQuery(filterQuery)}>
+            Apply
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-3 mt-7">
@@ -248,23 +257,53 @@ export const CustomFilterComponent = ({
           <input
             type="text"
             placeholder={placeholder}
-            name="searchValue"
-            value={searchValue}
+            name="search"
+            value={search}
             onChange={(e) => {
-              setSearchValue(e.target.value);
+              setFilterQuery((prev: any) => ({ ...prev, search: e.target.value.trim() }));
             }}
-            className="rounded-lg h-[48px] border border-foregroundColor-25 p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
+            className="rounded-lg h-[48px] border border-foregroundColor-25 p-2 pl-15 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
           />
-          <span className="absolute right-5 bg-backgroundColor">
-            <FaSearch className="text-foregroundColor-60 text-[20px] " />
+
+          <span className="absolute left-5 bg-backgroundColor">
+            <FaSearch className="text-foregroundColor-60 text-[19px] " />
+          </span>
+          <span
+            title="Clear"
+            hidden={!search}
+            className="absolute right-5 bg-backgroundColor hover:cursor-pointer"
+            onClick={() => {
+              setFilterQuery((prev: any) => ({ ...prev, search: "" }));
+            }}
+          >
+            <IoClose className="text-foregroundColor-60 text-[20px] " />
           </span>
         </div>
         <button
-          disabled={!searchValue}
+          disabled={!search}
           className="justify-center flex items-center gap-5 hover:cursor-pointer bg-foregroundColor text-backgroundColor rounded-r-lg p-2 w-50 h-[48px]"
+          onClick={() => onQuery(filterQuery)}
         >
           Search
         </button>
+      </div>
+      <div>
+        <div className="flex gap-3 mt-5">
+          <button
+            className="ghostbutton w-50 text-foregroundColor"
+            onClick={() => {
+              const copyQuery = { ...filterQuery };
+              for (const key in copyQuery) {
+                copyQuery[key] = key !== "search" ? "all" : "";
+              }
+              setFilterQuery(copyQuery);
+
+              onQuery({});
+            }}
+          >
+            Clear Filter and Search
+          </button>
+        </div>
       </div>
     </div>
   );
