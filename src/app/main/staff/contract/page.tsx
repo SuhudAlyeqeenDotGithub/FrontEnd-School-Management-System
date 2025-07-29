@@ -342,8 +342,6 @@ const StaffContracts = () => {
               for (const key in query) {
                 searchUrl.set(key, query[key]);
               }
-
-              console.log("searchUrl", searchUrl.toString());
               refetchStaffContracts();
             }}
           />
@@ -518,7 +516,12 @@ const StaffContracts = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setPage(page > 1 ? page - 1 : page)}
+                    onClick={() => {
+                      searchUrl.set("cursorType", "prev");
+                      searchUrl.set("prevCursor", paginationData.prevCursor);
+                      setPage(page > 1 ? page - 1 : page);
+                      refetchStaffContracts();
+                    }}
                     disabled={page < 2}
                     className="ghostbutton"
                   >
@@ -526,14 +529,14 @@ const StaffContracts = () => {
                     Previous
                   </button>
                   <span className=" px-2">
-                    Page {page} of {Math.ceil(paginationData.totalCount / 15)}
+                    Page {page} of {Math.ceil(paginationData.totalCount / 3)}
                   </span>
                   <button
                     onClick={() => {
-                      const cursor = { cursorType: "next", nextCursor: paginationData.nextCursor };
-                      const query = new URLSearchParams(cursor).toString();
-                      url.current = url.current + `${query}`;
+                      searchUrl.set("cursorType", "next");
+                      searchUrl.set("nextCursor", paginationData.nextCursor);
                       setPage(paginationData.hasNext ? page + 1 : page);
+                      refetchStaffContracts();
                     }}
                     disabled={!paginationData.hasNext}
                     className="ghostbutton"
