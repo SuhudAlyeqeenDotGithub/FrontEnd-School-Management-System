@@ -355,7 +355,7 @@ export const WorkingScheduleDialog = ({
     };
   }, [unsaved]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setUnsaved(true);
     setLocalData((prev: any) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -442,13 +442,16 @@ export const WorkingScheduleDialog = ({
           </div>
         </div>
         <div className="flex gap-3 flex-col">
-          <InputComponent
-            placeholder="Working Day - e.g Monday *"
-            required
-            name="day"
-            value={day}
-            onChange={handleInputChange}
-          />
+          <select name="day" value={day} onChange={handleInputChange} className={inputStyle}>
+            <option value="">Select Working Day</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+          </select>
           <InputComponent
             type="time"
             placeholder="Start Time *"

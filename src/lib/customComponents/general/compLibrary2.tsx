@@ -46,7 +46,7 @@ export const SearchableDropDownInput = ({
 
   useEffect(() => {
     if (defaultText) {
-      onSelected([defaultText.split("|")[0]], false);
+      onSelected([defaultText.split("|")[0], defaultText.split("|")[1]], false);
     }
   }, []);
 
@@ -96,7 +96,6 @@ export const SearchableDropDownInput = ({
           setSearchValue(e.target.value);
         }}
         onFocus={() => {
-          console.log("openOptions", openOptions);
           setOpenOptions(true);
           setLocalData(data);
         }}

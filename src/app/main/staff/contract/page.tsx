@@ -11,16 +11,18 @@ import { ConfirmActionByInputDialog, CustomFilterComponent } from "@/lib/customC
 import NewStaffContractComponent from "@/lib/customComponents/staff/newContractComp";
 import { getStaffContracts, deleteStaffContract } from "@/redux/features/staff/contractThunk";
 import { MdContentCopy, MdAdd, MdNavigateNext, MdNavigateBefore } from "react-icons/md";
-import EditStaffContractComponent from "@/lib/customComponents/staff/editStaffComp";
 import { tableCellStyle, dataRowCellStyle } from "@/lib/generalStyles";
 import { getStaffProfiles } from "@/redux/features/staff/staffThunks";
 import { getAcademicYears } from "@/redux/features/general/academicYear/academicYearThunk";
 import { tanFetchStaffContracts, tanFetchStaffProfiles } from "@/tanStack/staff/fetch";
 import { useQuery } from "@tanstack/react-query";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import EditStaffContractComponent from "@/lib/customComponents/staff/editContractComp";
+import { useStaffMutation } from "@/tanStack/staff/mutate";
 
 const StaffContracts = () => {
   const dispatch = useAppDispatch();
+  const { tanDeleteStaffContract } = useStaffMutation();
   // const { staffContracts, isLoading: staffContractsLoading } = useAppSelector((state) => state.staffContract);
   const { academicYears, isLoading: academicYearsLoading } = useAppSelector((state) => state.academicYear);
   const { accountData } = useAppSelector((state) => state.accountData);
@@ -28,10 +30,10 @@ const StaffContracts = () => {
   const [error, setError] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openEditUserDialog, setOpenEditStaffContractDialog] = useState(false);
+  const [openEditStaffContractDialog, setOpenEditStaffContractDialog] = useState(false);
   const [openNewStaffContractDialog, setOpenNewStaffContractDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
-  const [onOpenEditUserData, setOnOpenEditStaffData] = useState<any>({});
+  const [onOpenEditStaffContractData, setOnOpenEditStaffContractData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
@@ -225,9 +227,11 @@ const StaffContracts = () => {
 
       {/* data table section */}
       <div className="">
-        {openEditUserDialog && (
+        {openEditStaffContractDialog && (
           <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
             <EditStaffContractComponent
+              academicYears={academicYears}
+              staff={staffProfiles.staffProfiles}
               onClose={(open: boolean) => {
                 document.body.style.overflow = "";
                 setOpenEditStaffContractDialog(!open);
@@ -238,7 +242,7 @@ const StaffContracts = () => {
                 setOpenEditStaffContractDialog(!notSave);
                 return {};
               }}
-              data={onOpenEditUserData}
+              data={onOpenEditStaffContractData}
             />
           </div>
         )}
@@ -274,6 +278,14 @@ const StaffContracts = () => {
             onConfirm={async (confirmed, returnObject) => {
               setError("");
               if (confirmed) {
+                try {
+                  await tanDeleteStaffContract.mutateAsync({
+                    staffContractIDToDelete: returnObject.contractId
+                  });
+                } catch (err: any) {
+                  console.log("error deleting staff profile", err.message);
+                  setError(err.message);
+                }
                 setOpenConfirmDelete(false);
                 document.body.style.overflow = "";
               }
@@ -283,30 +295,6 @@ const StaffContracts = () => {
         )}
         {/* data table div */}
         <div className="flex flex-col gap-2">
-          <div className="flex justify-between gap-5 items-center">
-            {/* title */}
-            <div className="flex flex-col gap-2 mb-2">
-              <h2>Staff Contract</h2>
-              <h3>Create and manage staff contracts</h3>
-            </div>
-
-            <div>
-              <button
-                onClick={() => {
-                  if (hasActionAccess("Create Staff Contract")) {
-                    document.body.style.overflow = "hidden";
-                    setOpenNewStaffContractDialog(true);
-                  } else {
-                    setError("You do not have Create Staff Contract Access - Please contact your admin");
-                  }
-                }}
-                disabled={!hasActionAccess("Create Staff Contract")}
-              >
-                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Staff Contract
-              </button>
-            </div>
-          </div>
-
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
               placeholder="Search Staff Custom ID, Staff Names, Contract Dates, Job Title, Contract Type/Status"
@@ -348,16 +336,38 @@ const StaffContracts = () => {
             </div>
           ) : (
             <div className="flex flex-col w-full gap-3 z-10 mt-2">
-              <span
-                onClick={() => setOpenFilterDiv(!openFilterDiv)}
-                className="font-semibold cursor-pointer text-foregroundColor-80 ml-3 bg-foregroundColor-5 w-30 rounded-full text-center p-2 border border-foregroundColor-15"
-              >
-                {openFilterDiv ? "Close Filter" : "Open Filter"}
-              </span>
-              <div className="border border-foregroundColor-25 bg-backgroundColor text-foregroundColor rounded-lg overflow-hidden">
+              <div className="border border-foregroundColor-25 bg-foregroundColor-5 text-foregroundColor rounded-lg overflow-hidden">
+                <div className="flex justify-between gap-5 items-center px-4 py-4 border-b border-foregroundColor-25">
+                  {/* title */}
+                  <div className="flex flex-col gap-2 mb-2">
+                    <h2>Staff Contract</h2>
+                    <h3>Create and manage staff contracts</h3>
+                  </div>
+                  <span
+                    onClick={() => setOpenFilterDiv(!openFilterDiv)}
+                    className="font-semibold cursor-pointer text-foregroundColor-80 ml-3 bg-foregroundColor-10 w-30 rounded-lg text-center p-2 border border-foregroundColor-15"
+                  >
+                    {openFilterDiv ? "Close Filter" : "Open Filter"}
+                  </span>
+                  <div>
+                    <button
+                      onClick={() => {
+                        if (hasActionAccess("Create Staff Contract")) {
+                          document.body.style.overflow = "hidden";
+                          setOpenNewStaffContractDialog(true);
+                        } else {
+                          setError("You do not have Create Staff Contract Access - Please contact your admin");
+                        }
+                      }}
+                      disabled={!hasActionAccess("Create Staff Contract")}
+                    >
+                      <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Staff Contract
+                    </button>
+                  </div>
+                </div>
                 <Table className="text-[16px]">
                   <TableHeader>
-                    <TableRow className="bg-foregroundColor-5 h-14">
+                    <TableRow className="h-14">
                       <TableHead className="text-center text-foregroundColor-70 w-[110px] font-semibold p-2 whitespace-nowrap">
                         Contract Id
                       </TableHead>
@@ -396,7 +406,7 @@ const StaffContracts = () => {
                     </TableRow>
                   </TableHeader>
 
-                  <TableBody className="mt-3">
+                  <TableBody className="mt-3 bg-backgroundColor">
                     {staffContractsIsLoading ? (
                       <tr>
                         <td colSpan={8}>
@@ -438,7 +448,7 @@ const StaffContracts = () => {
                               if (hasActionAccess("Edit Staff")) {
                                 document.body.style.overflow = "hidden";
                                 setOpenEditStaffContractDialog(true);
-                                setOnOpenEditStaffData(doc);
+                                setOnOpenEditStaffContractData(doc);
                               } else {
                                 setError("You do not have Edit User Access - Please contact your admin");
                               }

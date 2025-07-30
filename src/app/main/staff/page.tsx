@@ -240,30 +240,6 @@ const StaffProfile = () => {
         )}
         {/* data table div */}
         <div className="flex flex-col gap-2">
-          <div className="flex justify-between gap-5 items-center">
-            {/* title */}
-            <div className="flex flex-col gap-2 mb-2">
-              <h2>Staff Profile</h2>
-              <h3>Register and manage staff</h3>
-            </div>
-            <div>
-              <button
-                onClick={() => {
-                  if (hasActionAccess("Create Staff")) {
-                    document.body.style.overflow = "hidden";
-                    setOpenNewStaffDialog(true);
-                  } else {
-                    setError("You do not have Create Staff Access - Please contact your admin");
-                  }
-                }}
-                disabled={!hasActionAccess("Create Staff")}
-              >
-                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Staff
-              </button>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2"></div>
-
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
               placeholder="Search Staff (Custom ID, Names, Email, Gender, Nationality, Next of Kin)"
@@ -300,18 +276,39 @@ const StaffProfile = () => {
             </div>
           ) : (
             <div className="flex flex-col w-full gap-3 z-10 mt-2">
-              <span
-                onClick={() => setOpenFilterDiv(!openFilterDiv)}
-                className="font-semibold cursor-pointer text-foregroundColor-80 ml-3 bg-foregroundColor-5 w-30 rounded-full text-center p-2 border border-foregroundColor-15"
-              >
-                {openFilterDiv ? "Close Filter" : "Open Filter"}
-              </span>
-              <div className="border border-foregroundColor-25 bg-backgroundColor text-foregroundColor rounded-lg overflow-hidden">
+              <div className="border border-foregroundColor-25 bg-foregroundColor-5 text-foregroundColor rounded-lg overflow-hidden">
                 {/* table header */}
-
+                <div className="flex justify-between gap-5 items-center px-4 py-4 border-b border-foregroundColor-25">
+                  {/* title */}
+                  <div className="flex flex-col gap-2 mb-2">
+                    <h2>Staff Profile</h2>
+                    <h3>Register and manage staff</h3>
+                  </div>
+                  <span
+                    onClick={() => setOpenFilterDiv(!openFilterDiv)}
+                    className="font-semibold cursor-pointer text-foregroundColor-80 ml-3 bg-foregroundColor-10 w-30 rounded-lg text-center p-2 border border-foregroundColor-15"
+                  >
+                    {openFilterDiv ? "Close Filter" : "Open Filter"}
+                  </span>
+                  <div>
+                    <button
+                      onClick={() => {
+                        if (hasActionAccess("Create Staff")) {
+                          document.body.style.overflow = "hidden";
+                          setOpenNewStaffDialog(true);
+                        } else {
+                          setError("You do not have Create Staff Access - Please contact your admin");
+                        }
+                      }}
+                      disabled={!hasActionAccess("Create Staff")}
+                    >
+                      <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Staff
+                    </button>
+                  </div>
+                </div>
                 <Table className="text-[16px]">
                   <TableHeader>
-                    <TableRow className="bg-foregroundColor-5 h-14">
+                    <TableRow className="h-14">
                       <TableHead className="text-center text-foregroundColor-70 w-[110px] font-semibold p-2 whitespace-nowrap"></TableHead>
 
                       {(["Staff Custom ID", "First Name", "Last Name", "Gender", "Email"] as const).map((header) => (
@@ -341,7 +338,7 @@ const StaffProfile = () => {
                   </TableHeader>
 
                   {/* table data */}
-                  <TableBody className="mt-3">
+                  <TableBody className="mt-3 bg-backgroundColor">
                     {staffIsLoading ? (
                       <tr>
                         <td colSpan={8}>

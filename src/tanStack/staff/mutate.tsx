@@ -56,7 +56,7 @@ export const useStaffMutation = () => {
   });
 
   const useDeleteStaffContract = useMutation({
-    mutationFn: (data: { staffContractIdToDelete: string }) => {
+    mutationFn: (data: { staffContractIDToDelete: string }) => {
       return handleApiRequest("delete", `alyeqeenschoolapp/api/staff/contracts`, data);
     },
 

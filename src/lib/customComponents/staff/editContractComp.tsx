@@ -12,20 +12,22 @@ import { SearchableDropDownInput } from "../general/compLibrary2";
 import { ResponsibilityDialog, WorkingScheduleDialog } from "./staffShortDialogComp";
 import { useStaffMutation } from "@/tanStack/staff/mutate";
 
-const NewStaffContractComponent = ({
+const EditStaffContractComponent = ({
+  data,
   academicYears,
   staff,
   onClose,
-  onCreate
+  onSave
 }: {
+  data: any;
   academicYears: any[];
   staff: any[];
   onClose: (close: boolean) => {};
-  onCreate: (create: boolean) => {};
+  onSave: (save: boolean) => {};
 }) => {
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
-  const { tanCreateStaffContract } = useStaffMutation();
+  const { tanUpdateStaffContract } = useStaffMutation();
   // const { isLoading: staffContractsLoading } = useAppSelector((state) => state.staffContract);
   const [unsaved, setUnsaved] = useState(false);
   const [error, setError] = useState("");
@@ -48,19 +50,20 @@ const NewStaffContractComponent = ({
     hours: ""
   });
   const [localData, setLocalData] = useState({
-    academicYearId: "",
-    academicYear: "",
-    staffId: "",
-    staffCustomId: "",
-    staffFullName: "",
-    jobTitle: "",
-    contractStartDate: "",
-    contractEndDate: "",
-    responsibilities: [],
-    contractType: "",
-    contractStatus: "",
-    contractSalary: "",
-    workingSchedule: []
+    _id: data._id,
+    academicYearId: data.academicYearId,
+    academicYear: data.academicYear,
+    staffId: data.staffId,
+    staffCustomId: data.staffCustomId,
+    staffFullName: data.staffFullName,
+    jobTitle: data.jobTitle,
+    contractStartDate: data.contractStartDate,
+    contractEndDate: data.contractEndDate,
+    responsibilities: data.responsibilities,
+    contractType: data.contractType,
+    contractStatus: data.contractStatus,
+    contractSalary: data.contractSalary,
+    workingSchedule: data.workingSchedule
   });
 
   useEffect(() => {
@@ -73,6 +76,7 @@ const NewStaffContractComponent = ({
   }, [unsaved]);
 
   const {
+    _id,
     academicYearId,
     academicYear,
     staffId,
@@ -107,19 +111,19 @@ const NewStaffContractComponent = ({
     return true;
   };
 
-  const handleCreateStaffContract = async () => {
+  const handleUpdateStaffContract = async () => {
     setIsLoading(true);
     if (validationPassed()) {
       setError("");
 
       try {
-        const response = await tanCreateStaffContract.mutateAsync(localData);
+        const response = await tanUpdateStaffContract.mutateAsync(localData);
         if (response?.data) {
-          onCreate(true);
+          onSave(true);
         }
       } catch (err: any) {
         setIsLoading(false);
-        setError(err.message || err.response.data.message || "Error Creating Staff Contract");
+        setError(err.message || err.response.data.message || "Error Updating Staff Contract");
       }
     }
   };
@@ -224,15 +228,15 @@ const NewStaffContractComponent = ({
       )}
       {/* top div */}
       <div className="flex justify-between items-center">
-        <h2>New Staff Contract</h2>
+        <h2>Edit Staff Contract</h2>
         <div className="flex justify-between items-center gap-5">
           <LoaderButton
-            buttonText="Create"
-            loadingButtonText="Creating Staff Contract..."
+            buttonText="Save"
+            loadingButtonText="Updating` Staff Contract..."
             disabled={!unsaved}
             buttonStyle="w-full"
-            isLoading={tanCreateStaffContract.isPending}
-            onClick={handleCreateStaffContract}
+            isLoading={tanUpdateStaffContract.isPending}
+            onClick={handleUpdateStaffContract}
           />
           <IoClose
             onClick={() => {
@@ -266,15 +270,16 @@ const NewStaffContractComponent = ({
         <div className="grid grid-cols-2 gap-3 w-full">
           <SearchableDropDownInput
             placeholder="Search Academic Year *"
+            defaultText={`${academicYearId}|${academicYear}`}
             data={academicYears}
             displayKeys={["_id", "academicYear"]}
             onSelected={(selectedData, save) => {
+              setLocalData((prev: any) => ({
+                ...prev,
+                academicYearId: selectedData[0],
+                academicYear: selectedData[1]
+              }));
               if (save) {
-                setLocalData((prev: any) => ({
-                  ...prev,
-                  academicYearId: selectedData[0],
-                  academicYear: selectedData[1]
-                }));
                 setUnsaved(true);
               }
             }}
@@ -286,16 +291,16 @@ const NewStaffContractComponent = ({
           />
           <SearchableDropDownInput
             placeholder="Search Staff - ID or Name *"
+            defaultText={`${staffId}|${staffCustomId}`}
             data={staff}
             displayKeys={["_id", "staffCustomId", "staffFirstName", "staffMiddleName", "staffLastName"]}
             onSelected={(selectedData, save) => {
+              setLocalData((prev: any) => ({
+                ...prev,
+                staffId: selectedData[0],
+                staffCustomId: selectedData[1]
+              }));
               if (save) {
-                setLocalData((prev: any) => ({
-                  ...prev,
-                  staffId: selectedData[0],
-                  staffCustomId: selectedData[1],
-                  staffFullName: `${selectedData[2]} ${selectedData[3] || ""} ${selectedData[4] || ""}`.trim()
-                }));
                 setUnsaved(true);
               }
             }}
@@ -469,4 +474,4 @@ const NewStaffContractComponent = ({
   );
 };
 
-export default NewStaffContractComponent;
+export default EditStaffContractComponent;
