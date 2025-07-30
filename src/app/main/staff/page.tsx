@@ -93,6 +93,7 @@ const StaffProfile = () => {
     if (!isError) return;
     if (queryError) {
       setError(queryError.message);
+      console.log("error from use effect", queryError);
     }
   }, [queryError, isError]);
 
@@ -238,10 +239,10 @@ const StaffProfile = () => {
           />
         )}
         {/* data table div */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           <div className="flex justify-between gap-5 items-center">
             {/* title */}
-            <div className="flex flex-col gap-2 mb-5">
+            <div className="flex flex-col gap-2 mb-2">
               <h2>Staff Profile</h2>
               <h3>Register and manage staff</h3>
             </div>
@@ -275,7 +276,7 @@ const StaffProfile = () => {
                 {
                   displayText: "Gender",
                   fieldName: "staffGender",
-                  options: ["All", "Male", "Female"]
+                  options: ["All", "Male", "Female", "Other"]
                 }
               ]}
               onQuery={(query: any) => {
@@ -288,7 +289,7 @@ const StaffProfile = () => {
           </div>
           {/* table body */}
           {staffIsLoading ? (
-            <div className="flex items-center justify-center mt-10">
+            <div className="flex items-center justify-center">
               <LoaderDiv
                 type="spinnerText"
                 borderColor="foregroundColor"
@@ -298,7 +299,7 @@ const StaffProfile = () => {
               />
             </div>
           ) : (
-            <div className="flex flex-col w-full gap-3 mt-5 z-10">
+            <div className="flex flex-col w-full gap-3 z-10 mt-2">
               <span
                 onClick={() => setOpenFilterDiv(!openFilterDiv)}
                 className="font-semibold cursor-pointer text-foregroundColor-80 ml-3 bg-foregroundColor-5 w-30 rounded-full text-center p-2 border border-foregroundColor-15"
@@ -353,12 +354,6 @@ const StaffProfile = () => {
                               dimension="h-10 w-10"
                             />
                           </div>
-                        </td>
-                      </tr>
-                    ) : localData.length < 1 && searchValue ? (
-                      <tr>
-                        <td colSpan={8} className="text-center py-4">
-                          No search result found
                         </td>
                       </tr>
                     ) : (localData.length < 1 && !staffIsLoading) || !staff || staff.length === 0 ? (

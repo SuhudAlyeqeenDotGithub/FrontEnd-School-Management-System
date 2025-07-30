@@ -142,8 +142,8 @@ const EditStaffComponent = ({
       if (response?.data) {
         onSave(true);
       }
-    } catch (err: any) {
-      setError(err);
+    } catch (error: any) {
+      setError(error.response?.data.message || error.message || "Error creating profile");
     }
   };
 

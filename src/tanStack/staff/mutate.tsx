@@ -10,10 +10,6 @@ export const useStaffMutation = () => {
     mutationFn: (data: ParamStaffType) => {
       return handleApiRequest("post", `alyeqeenschoolapp/api/staff/profiles`, data);
     },
-    onSuccess: (returnedData) => {
-      const updatedData = returnedData?.data;
-      queryClient.setQueryData(["staffProfiles"], updatedData);
-    },
     onError: (error: any) => {
       throw new Error(error.response?.data.message || error.message || "Error creating staff profile");
     }
@@ -25,7 +21,7 @@ export const useStaffMutation = () => {
     },
 
     onError: (error: any) => {
-      throw new Error(error.response?.data.message || error.message || "Error creating updating profile");
+      throw new Error(error.response?.data.message || error.message || "Error updating profile");
     }
   });
 
@@ -33,10 +29,7 @@ export const useStaffMutation = () => {
     mutationFn: (data: { staffIDToDelete: string }) => {
       return handleApiRequest("delete", `alyeqeenschoolapp/api/staff/profiles`, data);
     },
-    onSuccess: (returnedData) => {
-      const updatedData = returnedData?.data;
-      queryClient.setQueryData(["staffProfiles"], updatedData);
-    },
+
     onError: (error: any) => {
       throw new Error(error.response?.data.message || error.message || "Error deleting staff profile");
     }
@@ -46,10 +39,7 @@ export const useStaffMutation = () => {
     mutationFn: (data: ParamStaffContractType) => {
       return handleApiRequest("post", `alyeqeenschoolapp/api/staff/contracts`, data);
     },
-    onSuccess: (returnedData) => {
-      const updatedData = returnedData?.data;
-      queryClient.setQueryData(["staffContracts"], updatedData);
-    },
+
     onError: (error: any) => {
       throw new Error(error.response?.data.message || error.message || "Error creating staff contract");
     }
@@ -59,10 +49,7 @@ export const useStaffMutation = () => {
     mutationFn: (data: ParamStaffContractType) => {
       return handleApiRequest("put", `alyeqeenschoolapp/api/staff/contracts`, data);
     },
-    onSuccess: (returnedData) => {
-      const updatedData = returnedData?.data;
-      queryClient.setQueryData(["staffContracts"], updatedData);
-    },
+
     onError: (error: any) => {
       throw new Error(error.response?.data.message || error.message || "Error creating updating contract");
     }
@@ -72,10 +59,7 @@ export const useStaffMutation = () => {
     mutationFn: (data: { staffContractIdToDelete: string }) => {
       return handleApiRequest("delete", `alyeqeenschoolapp/api/staff/contracts`, data);
     },
-    onSuccess: (returnedData) => {
-      const updatedData = returnedData?.data;
-      queryClient.setQueryData(["staffContracts"], updatedData);
-    },
+
     onError: (error: any) => {
       throw new Error(error.response?.data.message || error.message || "Error deleting staff contract");
     }
