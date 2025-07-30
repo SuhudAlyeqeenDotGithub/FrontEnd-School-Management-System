@@ -35,6 +35,7 @@ const StaffContracts = () => {
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
+  const [openFilterDiv, setOpenFilterDiv] = useState(false);
   const [paginationData, setPaginationData] = useState<any>({
     totalCount: 0,
     chunkCount: 0,
@@ -62,7 +63,8 @@ const StaffContracts = () => {
     isError: isStaffProfilesError
   } = useQuery({
     queryKey: ["staffProfiles"],
-    queryFn: () => tanFetchStaffProfiles(accountData, accountPermittedActions, "View Staff"),
+    queryFn: () =>
+      tanFetchStaffProfiles(accountData, accountPermittedActions, "View Staff", "alyeqeenschoolapp/api/staff/profiles"),
     enabled: Boolean(accountData?.accountStatus),
     retry: false
   });
@@ -83,7 +85,7 @@ const StaffContracts = () => {
         "View Staff Contracts",
         baseUrl + "?" + searchUrl.toString()
       ),
-    enabled: Boolean(Array.isArray(staffProfiles) && accountData?.accountStatus),
+    enabled: Boolean(staffProfiles && accountData?.accountStatus),
     retry: false
   });
 
@@ -138,18 +140,6 @@ const StaffContracts = () => {
 
     fetchAcademicYearL();
   }, [accountData]);
-
-  useEffect(() => {
-    if (!staffContracts) return;
-    if (searchValue !== "") {
-      const filteredData = staffContracts.filter((obj: any) =>
-        obj.searchText.toLowerCase().includes(searchValue.toLowerCase())
-      );
-      setLocalData(filteredData);
-    } else {
-      setLocalData(staffContracts);
-    }
-  }, [searchValue]);
 
   if (!accountData) {
     return (
@@ -220,7 +210,7 @@ const StaffContracts = () => {
   };
 
   return (
-    <div className="px-8 py-6 w-full">
+    <div className="px-8 py-6 w-full h-screen overflow-auto">
       {error && (
         <ErrorDiv
           onClose={(close) => {
@@ -257,7 +247,7 @@ const StaffContracts = () => {
           <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
             <NewStaffContractComponent
               academicYears={academicYears}
-              staff={staffProfiles}
+              staff={staffProfiles.staffProfiles}
               onClose={(open: boolean) => {
                 document.body.style.overflow = "";
                 setOpenNewStaffContractDialog(!open);
@@ -316,32 +306,36 @@ const StaffContracts = () => {
               </button>
             </div>
           </div>
-          <CustomFilterComponent
-            placeholder="Search Staff Custom ID, Staff Names, Contract Dates, Job Title, Contract Type/Status"
-            filters={[
-              {
-                displayText: "Academic Year",
-                fieldName: "academicYear",
-                options: ["All", ...academicYears.map(({ academicYear }: { academicYear: string }) => academicYear)]
-              },
-              {
-                displayText: "Contract Type",
-                fieldName: "contractType",
-                options: ["All", "Full-time", "Part-time"]
-              },
-              {
-                displayText: "Contract Status",
-                fieldName: "contractStatus",
-                options: ["All", "Active", "Closed"]
-              }
-            ]}
-            onQuery={(query: any) => {
-              for (const key in query) {
-                searchUrl.set(key, query[key]);
-              }
-              refetchStaffContracts();
-            }}
-          />
+
+          <div hidden={!openFilterDiv}>
+            <CustomFilterComponent
+              placeholder="Search Staff Custom ID, Staff Names, Contract Dates, Job Title, Contract Type/Status"
+              filters={[
+                {
+                  displayText: "Academic Year",
+                  fieldName: "academicYear",
+                  options: ["All", ...academicYears.map(({ academicYear }: { academicYear: string }) => academicYear)]
+                },
+                {
+                  displayText: "Contract Type",
+                  fieldName: "contractType",
+                  options: ["All", "Full-time", "Part-time"]
+                },
+                {
+                  displayText: "Contract Status",
+                  fieldName: "contractStatus",
+                  options: ["All", "Active", "Closed"]
+                }
+              ]}
+              onQuery={(query: any) => {
+                for (const key in query) {
+                  searchUrl.set(key, query[key]);
+                }
+                refetchStaffContracts();
+              }}
+            />
+          </div>
+
           {staffContractsIsLoading || isFetchingStaffContracts ? (
             <div className="flex items-center justify-center mt-10">
               <LoaderDiv
@@ -353,194 +347,202 @@ const StaffContracts = () => {
               />
             </div>
           ) : (
-            <div className="border border-foregroundColor-25 bg-backgroundColor text-foregroundColor rounded-lg overflow-hidden mt-5 z-10">
-              <Table className="text-[16px]">
-                <TableHeader>
-                  <TableRow className="bg-foregroundColor-5 h-14">
-                    <TableHead className="text-center text-foregroundColor-70 w-[110px] font-semibold p-2 whitespace-nowrap">
-                      Contract Id
-                    </TableHead>
-                    {(
-                      [
-                        "Academic Year",
-                        "Staff Custom ID",
-                        "Staff Name",
-                        "Job Title",
-                        "Start Date",
-                        "Contact Status"
-                      ] as const
-                    ).map((header) => (
-                      <TableHead
-                        key={header}
-                        onClick={() => {
-                          const key_Name = {
-                            "Academic Year": "academicYear",
-                            "Staff Custom ID": "staffCustomId",
-                            "Staff Name": "staffFullName",
-                            "Job Title": "jobTitle",
-                            "Start Date": "contractStartDate",
-                            "Contact Status": "contractStatus"
-                          };
-                          const sortKey = key_Name[header];
-                          handleSort(sortKey);
-                        }}
-                        className="text-center text-foregroundColor-70 w-[200px] font-semibold hover:cursor-pointer hover:bg-foregroundColor-5 p-2  whitespace-nowrap"
-                      >
-                        {header} <LuArrowUpDown className="inline-block ml-1" />
+            <div className="flex flex-col w-full gap-3 mt-5 z-10">
+              <span
+                onClick={() => setOpenFilterDiv(!openFilterDiv)}
+                className="font-semibold cursor-pointer text-foregroundColor-80 ml-3 bg-foregroundColor-5 w-30 rounded-full text-center p-2 border border-foregroundColor-15"
+              >
+                {openFilterDiv ? "Close Filter" : "Open Filter"}
+              </span>
+              <div className="border border-foregroundColor-25 bg-backgroundColor text-foregroundColor rounded-lg overflow-hidden">
+                <Table className="text-[16px]">
+                  <TableHeader>
+                    <TableRow className="bg-foregroundColor-5 h-14">
+                      <TableHead className="text-center text-foregroundColor-70 w-[110px] font-semibold p-2 whitespace-nowrap">
+                        Contract Id
                       </TableHead>
-                    ))}
-                    <TableHead className="text-center text-foregroundColor-70 font-semibold whitespace-nowrap">
-                      Delete
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody className="mt-3">
-                  {staffContractsIsLoading ? (
-                    <tr>
-                      <td colSpan={8}>
-                        <div className="flex items-center justify-center mt-10">
-                          <LoaderDiv
-                            type="spinnerText"
-                            borderColor="foregroundColor"
-                            text="Loading Staff Contracts..."
-                            textColor="foregroundColor"
-                            dimension="h-10 w-10"
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  ) : localData.length < 1 && searchValue ? (
-                    <tr>
-                      <td colSpan={8} className="text-center py-4">
-                        No search result found
-                      </td>
-                    </tr>
-                  ) : (localData.length < 1 && !staffContractsIsLoading) ||
-                    !staffContracts ||
-                    staffContracts.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} className="text-center py-4">
-                        No data available
-                      </td>
-                    </tr>
-                  ) : (
-                    localData.map((doc: any, index: any) => {
-                      const {
-                        _id: contractId,
-                        academicYear,
-                        staffCustomId,
-                        staffFullName,
-                        jobTitle,
-                        contractStartDate,
-                        contractStatus
-                      } = doc;
-
-                      return (
-                        <TableRow
-                          key={contractId}
+                      {(
+                        [
+                          "Academic Year",
+                          "Staff Custom ID",
+                          "Staff Name",
+                          "Job Title",
+                          "Start Date",
+                          "Contact Status"
+                        ] as const
+                      ).map((header) => (
+                        <TableHead
+                          key={header}
                           onClick={() => {
-                            if (hasActionAccess("Edit Staff")) {
-                              document.body.style.overflow = "hidden";
-                              setOpenEditStaffContractDialog(true);
-                              setOnOpenEditStaffData(doc);
-                            } else {
-                              setError("You do not have Edit User Access - Please contact your admin");
-                            }
+                            const key_Name = {
+                              "Academic Year": "academicYear",
+                              "Staff Custom ID": "staffCustomId",
+                              "Staff Name": "staffFullName",
+                              "Job Title": "jobTitle",
+                              "Start Date": "contractStartDate",
+                              "Contact Status": "contractStatus"
+                            };
+                            const sortKey = key_Name[header];
+                            handleSort(sortKey);
                           }}
-                          className="hover:cursor-pointer"
+                          className="text-center text-foregroundColor-70 w-[200px] font-semibold hover:cursor-pointer hover:bg-foregroundColor-5 p-2  whitespace-nowrap"
                         >
-                          <TableCell className="w-[110px] whitespace-nowrap text-center">
-                            CID
-                            <MdContentCopy
-                              title="copy id"
-                              className="ml-2 inline-block text-[19px] text-foregroundColor-70 hover:text-foregroundColor-50 hover:cursor-pointer"
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                await navigator.clipboard.writeText(contractId);
-                              }}
+                          {header} <LuArrowUpDown className="inline-block ml-1" />
+                        </TableHead>
+                      ))}
+                      <TableHead className="text-center text-foregroundColor-70 font-semibold whitespace-nowrap">
+                        Delete
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+
+                  <TableBody className="mt-3">
+                    {staffContractsIsLoading ? (
+                      <tr>
+                        <td colSpan={8}>
+                          <div className="flex items-center justify-center mt-10">
+                            <LoaderDiv
+                              type="spinnerText"
+                              borderColor="foregroundColor"
+                              text="Loading Staff Contracts..."
+                              textColor="foregroundColor"
+                              dimension="h-10 w-10"
                             />
-                          </TableCell>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : localData.length < 1 && searchValue ? (
+                      <tr>
+                        <td colSpan={8} className="text-center py-4">
+                          No search result found
+                        </td>
+                      </tr>
+                    ) : (localData.length < 1 && !staffContractsIsLoading) ||
+                      !staffContracts ||
+                      staffContracts.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="text-center py-4">
+                          No data available
+                        </td>
+                      </tr>
+                    ) : (
+                      localData.map((doc: any, index: any) => {
+                        const {
+                          _id: contractId,
+                          academicYear,
+                          staffCustomId,
+                          staffFullName,
+                          jobTitle,
+                          contractStartDate,
+                          contractStatus
+                        } = doc;
 
-                          <TableCell className={tableCellStyle}>{academicYear.slice(0, 25)}</TableCell>
+                        return (
+                          <TableRow
+                            key={contractId}
+                            onClick={() => {
+                              if (hasActionAccess("Edit Staff")) {
+                                document.body.style.overflow = "hidden";
+                                setOpenEditStaffContractDialog(true);
+                                setOnOpenEditStaffData(doc);
+                              } else {
+                                setError("You do not have Edit User Access - Please contact your admin");
+                              }
+                            }}
+                            className="hover:cursor-pointer"
+                          >
+                            <TableCell className="w-[110px] whitespace-nowrap text-center">
+                              CID
+                              <MdContentCopy
+                                title="copy id"
+                                className="ml-2 inline-block text-[19px] text-foregroundColor-70 hover:text-foregroundColor-50 hover:cursor-pointer"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  await navigator.clipboard.writeText(contractId);
+                                }}
+                              />
+                            </TableCell>
 
-                          <TableCell className="w-[200px] text-center whitespace-nowrap">
-                            {staffCustomId.slice(0, 10)}
-                            <MdContentCopy
-                              title="copy id"
-                              className="ml-2 inline-block text-[19px] text-foregroundColor-70 hover:text-foregroundColor-50 hover:cursor-pointer"
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                await navigator.clipboard.writeText(staffCustomId);
-                              }}
-                            />
-                          </TableCell>
+                            <TableCell className={tableCellStyle}>{academicYear.slice(0, 25)}</TableCell>
 
-                          <TableCell className={tableCellStyle}>{staffFullName.slice(0, 10)}</TableCell>
-                          <TableCell className={tableCellStyle}>{jobTitle.slice(0, 10)}</TableCell>
-                          <TableCell className={tableCellStyle}>{formatDate(contractStartDate)}</TableCell>
-                          <TableCell className={tableCellStyle}>{contractStatus}</TableCell>
+                            <TableCell className="w-[200px] text-center whitespace-nowrap">
+                              {staffCustomId.slice(0, 10)}
+                              <MdContentCopy
+                                title="copy id"
+                                className="ml-2 inline-block text-[19px] text-foregroundColor-70 hover:text-foregroundColor-50 hover:cursor-pointer"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  await navigator.clipboard.writeText(staffCustomId);
+                                }}
+                              />
+                            </TableCell>
 
-                          <TableCell className="w-[200px] text-center whitespace-nowrap">
-                            <span
-                              className="text-red-500 bg-backgroundColor hover:cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (hasActionAccess("Delete Staff")) {
-                                  document.body.style.overflow = "hidden";
-                                  setConfirmWithText(contractId);
-                                  setConfirmWithReturnObj({ contractId });
-                                  setOpenConfirmDelete(true);
-                                } else {
-                                  setError(
-                                    "Unauthorised Action: You do not have Delete Staff Access - Please contact your admin"
-                                  );
-                                }
-                              }}
-                            >
-                              <CgTrash className="inline-block text-[20px]" />
-                            </span>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
-              <div className="flex items-center justify-between px-6 py-4 border-t border-foregroundColor-25 text-[15px] font-semibold text-foregroundColor-60">
-                <div>
-                  Showing {paginationData.chunkCount} of {paginationData.totalCount} records
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      searchUrl.set("cursorType", "prev");
-                      searchUrl.set("prevCursor", paginationData.prevCursor);
-                      setPage(page > 1 ? page - 1 : page);
-                      refetchStaffContracts();
-                    }}
-                    disabled={page < 2}
-                    className="ghostbutton"
-                  >
-                    <MdNavigateBefore className="text-[20px] inline-block" />
-                    Previous
-                  </button>
-                  <span className=" px-2">
-                    Page {page} of {Math.ceil(paginationData.totalCount / 4)}
-                  </span>
-                  <button
-                    onClick={() => {
-                      searchUrl.set("cursorType", "next");
-                      searchUrl.set("nextCursor", paginationData.nextCursor);
-                      setPage(paginationData.hasNext ? page + 1 : page);
-                      refetchStaffContracts();
-                    }}
-                    disabled={!paginationData.hasNext}
-                    className="ghostbutton"
-                  >
-                    Next
-                    <MdNavigateNext className=" text-[20px] inline-block" />
-                  </button>
+                            <TableCell className={tableCellStyle}>{staffFullName.slice(0, 10)}</TableCell>
+                            <TableCell className={tableCellStyle}>{jobTitle.slice(0, 10)}</TableCell>
+                            <TableCell className={tableCellStyle}>{formatDate(contractStartDate)}</TableCell>
+                            <TableCell className={tableCellStyle}>{contractStatus}</TableCell>
+
+                            <TableCell className="w-[200px] text-center whitespace-nowrap">
+                              <span
+                                className="text-red-500 bg-backgroundColor hover:cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (hasActionAccess("Delete Staff")) {
+                                    document.body.style.overflow = "hidden";
+                                    setConfirmWithText(contractId);
+                                    setConfirmWithReturnObj({ contractId });
+                                    setOpenConfirmDelete(true);
+                                  } else {
+                                    setError(
+                                      "Unauthorised Action: You do not have Delete Staff Access - Please contact your admin"
+                                    );
+                                  }
+                                }}
+                              >
+                                <CgTrash className="inline-block text-[20px]" />
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
+                  </TableBody>
+                </Table>
+                <div className="flex items-center justify-between px-6 py-4 border-t border-foregroundColor-25 text-[15px] font-semibold text-foregroundColor-60">
+                  <div>
+                    Showing {paginationData.chunkCount} of {paginationData.totalCount} records
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        searchUrl.set("cursorType", "prev");
+                        searchUrl.set("prevCursor", paginationData.prevCursor);
+                        setPage(page > 1 ? page - 1 : page);
+                        refetchStaffContracts();
+                      }}
+                      disabled={page < 2}
+                      className="ghostbutton"
+                    >
+                      <MdNavigateBefore className="text-[20px] inline-block" />
+                      Previous
+                    </button>
+                    <span className=" px-2">
+                      Page {page} of {Math.ceil(paginationData.totalCount / 15)}
+                    </span>
+                    <button
+                      onClick={() => {
+                        searchUrl.set("cursorType", "next");
+                        searchUrl.set("nextCursor", paginationData.nextCursor);
+                        setPage(paginationData.hasNext ? page + 1 : page);
+                        refetchStaffContracts();
+                      }}
+                      disabled={!paginationData.hasNext}
+                      className="ghostbutton"
+                    >
+                      Next
+                      <MdNavigateNext className=" text-[20px] inline-block" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
