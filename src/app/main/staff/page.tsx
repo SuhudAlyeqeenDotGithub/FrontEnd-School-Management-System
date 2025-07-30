@@ -280,10 +280,10 @@ const StaffProfile = () => {
                 }
               ]}
               onQuery={(query: any) => {
-                // for (const key in query) {
-                //   searchUrl.set(key, query[key]);
-                // }
-                // refetchStaffProfiles();
+                for (const key in query) {
+                  searchUrl.set(key, query[key]);
+                }
+                refetchStaffProfiles();
               }}
             />
           </div>
