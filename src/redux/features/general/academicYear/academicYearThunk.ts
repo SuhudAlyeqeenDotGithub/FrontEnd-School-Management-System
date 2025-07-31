@@ -16,12 +16,11 @@ export const getAcademicYears = createAsyncThunk<ReturnAcademicYearType[]>(
   }
 );
 
-export const createAcademicYear = createAsyncThunk<ReturnAcademicYearType[], ParamAcademicYearType>(
+export const createAcademicYear = createAsyncThunk<any, ParamAcademicYearType>(
   "orgaccount/createacademicyear",
   async (academicYearData, { rejectWithValue }) => {
     try {
       const response = await handleApiRequest("post", `alyeqeenschoolapp/api/academicyears`, academicYearData);
-
       return response?.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data.message || error.message || "Error creating academic year");
@@ -29,7 +28,7 @@ export const createAcademicYear = createAsyncThunk<ReturnAcademicYearType[], Par
   }
 );
 
-export const updateAcademicYear = createAsyncThunk<ReturnAcademicYearType[], ParamAcademicYearType>(
+export const updateAcademicYear = createAsyncThunk<any, ParamAcademicYearType>(
   "orgaccount/updateacademicyear",
   async (academicYearUpdateData, { rejectWithValue }) => {
     try {

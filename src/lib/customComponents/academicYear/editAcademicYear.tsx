@@ -6,14 +6,16 @@ import { useEffect, useState } from "react";
 import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/clientFunctions";
 import { YesNoDialog } from "../general/compLibrary";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { createAcademicYear } from "@/redux/features/general/academicYear/academicYearThunk";
+import { updateAcademicYear } from "@/redux/features/general/academicYear/academicYearThunk";
 
-const NewAcademicYearComponent = ({
+const EditAcademicYearComponent = ({
+  data,
   onClose,
-  onCreate
+  onSave
 }: {
+  data: any;
   onClose: (close: boolean) => {};
-  onCreate: (create: boolean) => {};
+  onSave: (create: boolean) => {};
 }) => {
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
@@ -23,9 +25,10 @@ const NewAcademicYearComponent = ({
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
 
   const [localData, setLocalData] = useState({
-    academicYear: "",
-    startDate: "",
-    endDate: ""
+    _id: data._id,
+    academicYear: data.academicYear,
+    startDate: data.startDate,
+    endDate: data.endDate
   });
 
   useEffect(() => {
@@ -61,14 +64,14 @@ const NewAcademicYearComponent = ({
     return true;
   };
 
-  const handleCreateAcademicYear = async () => {
+  const handleUpdateAcademicYear = async () => {
     if (validationPassed()) {
       setError("");
 
       try {
-        const response = await dispatch(createAcademicYear(localData)).unwrap();
+        const response = await dispatch(updateAcademicYear(localData)).unwrap();
         if (response) {
-          onCreate(true);
+          onSave(true);
         }
       } catch (err: any) {
         setError(err);
@@ -96,15 +99,15 @@ const NewAcademicYearComponent = ({
       )}
       {/* top div */}
       <div className="flex justify-between items-center">
-        <h2>New Academic Year</h2>
+        <h2>Edit Academic Year</h2>
         <div className="flex justify-between items-center gap-5">
           <LoaderButton
-            buttonText="Create"
-            loadingButtonText="Creating Academic Year..."
+            buttonText="Save"
+            loadingButtonText="Updating Academic Year..."
             disabled={!unsaved}
             buttonStyle="w-full"
             isLoading={isLoading}
-            onClick={handleCreateAcademicYear}
+            onClick={handleUpdateAcademicYear}
           />
           <IoClose
             onClick={() => {
@@ -167,4 +170,4 @@ const NewAcademicYearComponent = ({
   );
 };
 
-export default NewAcademicYearComponent;
+export default EditAcademicYearComponent;

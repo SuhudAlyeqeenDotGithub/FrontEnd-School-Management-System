@@ -54,7 +54,6 @@ export const academicYearSlice = createSlice({
       .addCase(createAcademicYear.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.academicYears = action.payload;
       })
       .addCase(createAcademicYear.rejected, (state, action) => {
         state.isLoading = false;
@@ -70,7 +69,6 @@ export const academicYearSlice = createSlice({
       .addCase(updateAcademicYear.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.academicYears = action.payload;
       })
       .addCase(updateAcademicYear.rejected, (state, action) => {
         state.isLoading = false;
