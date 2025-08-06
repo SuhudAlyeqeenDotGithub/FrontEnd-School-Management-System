@@ -211,98 +211,89 @@ export const CustomFilterComponent = ({
   onQuery: (query: any) => void;
 }) => {
   const [filterQuery, setFilterQuery] = useState<Record<string, string>>({ search: "" });
-  const [latestFilter, setLatestFilter] = useState(true);
-
   const { search } = filterQuery;
 
   return (
-    <div className="rounded-lg flex flex-col border border-foregroundColor-25 px-5 py-8">
-      <div className="flex flex-wrap gap-3 items-center">
-        {filters.map((filter: any, index: number) => {
-          return (
-            <div key={index} className="flex flex-col gap-2">
-              <span className="text-foregroundColor-70 text-[13px] font-semibold mt-2">{filter.displayText}</span>
-              <select
-                className="rounded-lg hover:cursor-pointer border border-foregroundColor-25 p-2 bg-backgroundColor text-foregroundColor"
-                value={filterQuery[filter.fieldName]}
-                onChange={(e) => {
-                  setFilterQuery((prev: any) => ({ ...prev, [filter.fieldName]: e.target.value }));
-                  setLatestFilter(false);
-                }}
-              >
-                {filter.options.map((option: string, index: number) => {
-                  return (
-                    <option
-                      key={index}
-                      className="bg-backgroundColor text-foregroundColor"
-                      value={option === "All" ? option.toLowerCase() : option}
-                    >
-                      {option}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-          );
-        })}
-        <div className="flex gap-2 mt-7">
-          <button disabled={latestFilter} onClick={() => onQuery(filterQuery)}>
-            Apply
-          </button>
-        </div>
+    <div className="rounded-lg flex flex-col border border-foregroundColor-25">
+      <div className="bg-foregroundColor-3 w-full px-5 py-6 font-bold border-b border-foregroundColor-25 flex justify-between items-center">
+        <h2>Filter & Search</h2>
       </div>
+      <div className="px-5 py-6">
+        <div className="flex gap-3 flex-wrap items-center">
+          <div className="flex h-[48px] items-center relative w-[60%]">
+            <input
+              type="text"
+              placeholder={placeholder}
+              name="search"
+              value={search}
+              onChange={(e) => {
+                setFilterQuery((prev: any) => ({ ...prev, search: e.target.value.trim() }));
+              }}
+              className="rounded-lg h-[48px] border border-foregroundColor-25 p-2 pl-15 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
+            />
 
-      <div className="flex gap-3 mt-7">
-        <div className="flex h-[48px] w-full items-center relative">
-          <input
-            type="text"
-            placeholder={placeholder}
-            name="search"
-            value={search}
-            onChange={(e) => {
-              setFilterQuery((prev: any) => ({ ...prev, search: e.target.value.trim() }));
-            }}
-            className="rounded-lg h-[48px] border border-foregroundColor-25 p-2 pl-15 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-          />
+            <span className="absolute left-5 bg-backgroundColor">
+              <FaSearch className="text-foregroundColor-60 text-[19px] " />
+            </span>
+            <span
+              title="Clear"
+              hidden={!search}
+              className="absolute right-5 bg-backgroundColor hover:cursor-pointer"
+              onClick={() => {
+                setFilterQuery((prev: any) => ({ ...prev, search: "" }));
+              }}
+            >
+              <IoClose className="text-foregroundColor-60 text-[20px] " />
+            </span>
+          </div>
+          {filters.map((filter: any, index: number) => {
+            return (
+              <div key={index} className="flex flex-col gap-2">
+                <select
+                  className="rounded-lg hover:cursor-pointer border border-foregroundColor-25 px-4 bg-backgroundColor text-foregroundColor h-[48px]"
+                  value={filterQuery[filter.fieldName]}
+                  onChange={(e) => {
+                    setFilterQuery((prev: any) => ({ ...prev, [filter.fieldName]: e.target.value }));
+                  }}
+                >
+                  <option value=""> {filter.displayText}</option>
+                  {filter.options.map((option: string, index: number) => {
+                    return (
+                      <option
+                        key={index}
+                        className="bg-backgroundColor text-foregroundColor"
+                        value={option === "All" ? option.toLowerCase() : option}
+                      >
+                        {option}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            );
+          })}
+          <div className="flex gap-3">
+            <button
+              className="justify-center flex items-center gap-5 hover:cursor-pointer bg-foregroundColor text-backgroundColor rounded-r-lg p-2 w-30 h-[48px]"
+              onClick={() => onQuery(filterQuery)}
+            >
+              Run
+            </button>
+            <button
+              className="ghostbutton w-40"
+              onClick={() => {
+                const copyQuery = { ...filterQuery };
+                for (const key in copyQuery) {
+                  copyQuery[key] = key !== "search" ? "all" : "";
+                }
+                setFilterQuery(copyQuery);
 
-          <span className="absolute left-5 bg-backgroundColor">
-            <FaSearch className="text-foregroundColor-60 text-[19px] " />
-          </span>
-          <span
-            title="Clear"
-            hidden={!search}
-            className="absolute right-5 bg-backgroundColor hover:cursor-pointer"
-            onClick={() => {
-              setFilterQuery((prev: any) => ({ ...prev, search: "" }));
-            }}
-          >
-            <IoClose className="text-foregroundColor-60 text-[20px] " />
-          </span>
-        </div>
-        <button
-          disabled={!search}
-          className="justify-center flex items-center gap-5 hover:cursor-pointer bg-foregroundColor text-backgroundColor rounded-r-lg p-2 w-50 h-[48px]"
-          onClick={() => onQuery(filterQuery)}
-        >
-          Search
-        </button>
-      </div>
-      <div>
-        <div className="flex gap-3 mt-5">
-          <button
-            className="ghostbutton w-50 text-foregroundColor"
-            onClick={() => {
-              const copyQuery = { ...filterQuery };
-              for (const key in copyQuery) {
-                copyQuery[key] = key !== "search" ? "all" : "";
-              }
-              setFilterQuery(copyQuery);
-
-              onQuery({});
-            }}
-          >
-            Clear Filter and Search
-          </button>
+                onQuery({});
+              }}
+            >
+              Clear Filters
+            </button>
+          </div>
         </div>
       </div>
     </div>

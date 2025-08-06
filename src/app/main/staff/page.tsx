@@ -1,15 +1,10 @@
 "use client";
-import { BASE_API_URL, checkDataType, handledDeleteImage } from "@/lib/shortFunctions/shortFunctions";
+import { checkDataType, handledDeleteImage } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { useEffect, useState } from "react";
 import { ErrorDiv, LoaderDiv } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
-import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
-import { formatDate } from "@/lib/shortFunctions/shortFunctions";
-import NewUserComponent from "@/lib/customComponents/admin/newUserComponent";
-import { deleteUser, getUsers } from "@/redux/features/admin/users/usersThunks";
-import { fetchRolesAccess } from "@/redux/features/admin/roles/roleThunks";
 import {
   DisallowedActionDialog,
   ConfirmActionByInputDialog,
@@ -21,7 +16,7 @@ import NewStaffComponent from "@/lib/customComponents/staff/newStaffComp";
 import { deleteStaffProfile, getStaffProfiles } from "@/redux/features/staff/staffThunks";
 import { MdContentCopy, MdAdd, MdNavigateNext, MdNavigateBefore } from "react-icons/md";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { tableCellStyle, dataRowCellStyle } from "@/lib/generalStyles";
+import { tableCellStyle, tableContainerStyle, tableHeaderStyle, tableTopStyle } from "@/lib/generalStyles";
 import { useQuery } from "@tanstack/react-query";
 import { handleApiRequest } from "@/axios/axiosClient";
 import { tanFetchStaffProfiles } from "@/tanStack/staff/fetch";
@@ -93,7 +88,6 @@ const StaffProfile = () => {
     if (!isError) return;
     if (queryError) {
       setError(queryError.message);
-      console.log("error from use effect", queryError);
     }
   }, [queryError, isError]);
 
@@ -275,9 +269,9 @@ const StaffProfile = () => {
               />
             </div>
           ) : (
-            <div className="border border-foregroundColor-25 bg-foregroundColor-5 text-foregroundColor rounded-lg overflow-hidden">
+            <div className={tableContainerStyle}>
               {/* table header */}
-              <div className="flex justify-between gap-5 items-center px-4 py-4 border-b border-foregroundColor-25">
+              <div className={tableTopStyle}>
                 {/* title */}
                 <div className="flex flex-col gap-2 mb-2">
                   <h2>Staff Profile</h2>
@@ -307,7 +301,7 @@ const StaffProfile = () => {
               </div>
               <Table className="text-[16px]">
                 <TableHeader>
-                  <TableRow className="h-14">
+                  <TableRow className={tableHeaderStyle}>
                     <TableHead className="text-center text-foregroundColor-70 w-[110px] font-semibold p-2 whitespace-nowrap"></TableHead>
 
                     {(["Staff Custom ID", "First Name", "Last Name", "Gender", "Email"] as const).map((header) => (

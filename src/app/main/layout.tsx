@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { useNavigationHandler } from "@/lib/shortFunctions/clientFunctions.ts/clientFunctions";
 import { setTriggerUnsavedDialog } from "@/redux/features/general/generalSlice";
 import useWebSocketHandler from "@/lib/shortFunctions/clientFunctions.ts/websocketHandler";
+import { BASE_API_URL } from "@/lib/shortFunctions/shortFunctions";
 
 const layout = ({ children }: { children: ReactNode }) => {
   const dispatch = useAppDispatch();
@@ -76,7 +77,7 @@ const layout = ({ children }: { children: ReactNode }) => {
 
   const handleSignout = async () => {
     try {
-      const response = await axios.get("BASE_API_URL/alyeqeenschoolapp/api/orgaccount/signout", {
+      const response = await axios.get(`${BASE_API_URL}alyeqeenschoolapp/api/orgaccount/signout`, {
         withCredentials: true
       });
       if (response) {
@@ -109,6 +110,7 @@ const layout = ({ children }: { children: ReactNode }) => {
     "/main/admin": "Admin",
     "/main/admin/users": "Admin",
     "/main/admin/activitylog": "Admin",
+    "/main/admin/billing": "Admin",
     "/main/course": "Course",
     "/main/student": "Student",
     "/main/academicyear": "Academic Year",
@@ -192,7 +194,7 @@ const layout = ({ children }: { children: ReactNode }) => {
         <div className="flex gap-5 w-3/4">
           <span
             className={`${
-              pathToNameValue === "Home" ? "border-b-3" : ""
+              pathToNameValue === "Home" ? "border-b-3 border-foregroundColor" : ""
             } hover:cursor-pointer hover:border-b-3 hover:border-foregroundColor-30`}
             onClick={() => handleNavigation(`${name_PathMap["Home" as keyof typeof name_PathMap]}`)}
           >
@@ -203,7 +205,7 @@ const layout = ({ children }: { children: ReactNode }) => {
             <span
               key={tab}
               className={`${
-                pathToNameValue === tab ? "border-b-3" : ""
+                pathToNameValue === tab ? "border-b-3 border-foregroundColor" : ""
               } hover:cursor-pointer hover:border-b-3 hover:border-foregroundColor-30`}
               onClick={() => {
                 handleNavigation(`${name_PathMap[tab as keyof typeof name_PathMap]}`);

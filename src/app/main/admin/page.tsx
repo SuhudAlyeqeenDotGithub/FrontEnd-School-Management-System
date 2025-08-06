@@ -13,8 +13,9 @@ import { setOnOpenRoleData } from "@/redux/features/general/generalSlice";
 import { NewRoleDialog } from "@/lib/customComponents/admin/newRoleComponent";
 import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/customComponents/general/compLibrary2";
 import { resetRoles } from "@/redux/features/admin/roles/roleSlice";
-import { tableRowStyle, dataRowCellStyle } from "@/lib/generalStyles";
-
+import { tableCellStyle, tableContainerStyle, tableHeaderStyle, tableTopStyle } from "@/lib/generalStyles";
+import { MdAdd } from "react-icons/md";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 const RolesAccess = () => {
   const dispatch = useAppDispatch();
   const { roles, isLoading } = useAppSelector((state) => state.rolesAccess);
@@ -201,150 +202,169 @@ const RolesAccess = () => {
         )}
         {/* data table div */}
         <div className="flex flex-col gap-4">
-          {/* title */}
-          <div className="flex flex-col gap-2 mb-5">
-            <h2>Role and Access</h2>
-            <h3>Use this section to create and manage roles, and specify each access for each</h3>
-          </div>
-          {/* search bar and new action Button */}
-          <div className="flex justify-between items-center">
-            {/* search div */}
-            <div className="flex w-[500px] h-[50px] items-center gap-2">
-              <input
-                className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-                placeholder="Search role (Role Name)"
-                name="searchValue"
-                onChange={(e) => {
-                  setSearchValue(e.target.value);
-                }}
-              />
-              <FaSearch className="text-foregroundColor size-5" />
-            </div>
-            {/* new action button */}
-            <div>
-              <button
-                onClick={() => {
-                  if (hasActionAccess("Create Role")) {
-                    document.body.style.overflow = "hidden";
-                    setOpenNewRoleDialog(true);
-                  } else {
-                    setError("You do not have Create Role Access - Please contact your admin");
-                  }
-                }}
-                disabled={!hasActionAccess("Create Role")}
-              >
-                New Role
-              </button>
-            </div>
-          </div>
+          {/* table header */}
+          <div className={tableContainerStyle}>
+            <div className={tableTopStyle}>
+              <div className="flex flex-col gap-2 mb-2">
+                <h2>Role and Access</h2>
+                <h3>Use this section to create and manage roles, and specify each access for each</h3>
+              </div>
 
-          {/* table body */}
-
-          <div className="flex flex-col gap-2">
-            {/* table header */}
-            <div className="w-full flex px-4 py-3 p-2 h-[50px] overflow-hidden">
-              <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
-                {(["Role Name", "Created By", "Created At", "Tab Access"] as const).map((header) => (
-                  <div
-                    key={header}
-                    onClick={() => {
-                      const key_Name = {
-                        "Role Name": "roleName",
-                        "Created By": "accountName",
-                        "Created At": "createdAt",
-                        "Tab Access": "tabAccess"
-                      };
-                      const sortKey = key_Name[header];
-                      handleSort(sortKey);
-                    }}
-                    className={`${
-                      header === "Created By"
-                        ? "hover:cursor-not-allowed"
-                        : "hover:cursor-pointer hover:bg-foregroundColor-5 hover:border hover:border-foregroundColor-10"
-                    } font-semibold flex gap-1 p-2 rounded-lg whitespace-nowrap items-center justify-center w-[200px]`}
-                  >
-                    {header} {header !== "Created By" && <LuArrowUpDown />}
-                  </div>
-                ))}
+              {/* search div */}
+              <div className="flex w-[500px] h-[50px] items-center gap-2 relative">
+                <input
+                  className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full bg-backgroundColor text-foregroundColor"
+                  placeholder="Search role (Role Name)"
+                  name="searchValue"
+                  onChange={(e) => {
+                    setSearchValue(e.target.value);
+                  }}
+                />
+                <FaSearch className="text-foregroundColor size-5 absolute right-3" />
+              </div>
+              {/* new action button */}
+              <div>
+                <button
+                  onClick={() => {
+                    if (hasActionAccess("Create Role")) {
+                      document.body.style.overflow = "hidden";
+                      setOpenNewRoleDialog(true);
+                    } else {
+                      setError("You do not have Create Role Access - Please contact your admin");
+                    }
+                  }}
+                  disabled={!hasActionAccess("Create Role")}
+                >
+                  <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Role
+                </button>
               </div>
             </div>
 
-            {/* table data */}
-            <div className="flex flex-col gap-2 mt-3">
-              {isLoading ? (
-                <div className="flex items-center justify-center mt-10">
-                  <LoaderDiv
-                    type="spinnerText"
-                    borderColor="foregroundColor"
-                    text="Loading Roles..."
-                    textColor="foregroundColor"
-                    dimension="h-10 w-10"
-                  />
-                </div>
-              ) : localData.length < 1 && searchValue ? (
-                <div className="flex justify-center mt-6">No search result found</div>
-              ) : localData.length < 1 && !isLoading ? (
-                <div className="flex justify-center mt-6">No data available</div>
-              ) : (
-                localData.map((doc: any, index: any) => {
-                  const { _id: roleId, roleName, accountId, createdAt, tabAccess, absoluteAdmin } = doc;
-                  const tabs = tabAccess
-                    .map((tab: any) => tab.tab)
-                    .slice(0, 5)
-                    .join(", ");
-                  return (
-                    <div
-                      key={roleId}
+            <Table className="text-[16px]">
+              <TableHeader>
+                <TableRow className={tableHeaderStyle}>
+                  {(["Role Name", "Created By", "Created At", "Tab Access"] as const).map((header) => (
+                    <TableHead
+                      key={header}
                       onClick={() => {
-                        if (hasActionAccess("Edit Role")) {
-                          document.body.style.overflow = "hidden";
-                          setOpenEditRoleDialog(true);
-                          dispatch(setOnOpenRoleData(doc));
-                        } else {
-                          setError("You do not have Edit Role Access - Please contact your admin");
-                        }
+                        const key_Name = {
+                          "Role Name": "roleName",
+                          "Created By": "accountName",
+                          "Created At": "createdAt",
+                          "Tab Access": "tabAccess"
+                        };
+                        const sortKey = key_Name[header];
+                        handleSort(sortKey);
                       }}
-                      className={tableRowStyle}
+                      className={`${
+                        header === "Created By"
+                          ? "hover:cursor-not-allowed"
+                          : "hover:cursor-pointer hover:bg-foregroundColor-5 hover:border hover:border-foregroundColor-10"
+                      } text-center text-foregroundColor-70 w-[200px] font-semibold hover:cursor-pointer
+                      hover:bg-foregroundColor-5 p-2 whitespace-nowrap`}
                     >
-                      <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
-                        <span className={dataRowCellStyle}>{roleName.slice(0, 15)}</span>
-                        <span className={dataRowCellStyle}>{accountId.accountName}</span>
-                        <span className={dataRowCellStyle}>{formatDate(createdAt)}</span>
-                        <span className="whitespace-nowrap flex items-center justify-center w-full">{tabs}.....</span>
-                      </div>
+                      {header} {header !== "Created By" && <LuArrowUpDown className="inline-block ml-1" />}
+                    </TableHead>
+                  ))}
+                  <TableHead className="text-center text-foregroundColor-70 font-semibold whitespace-nowrap">
+                    Delete
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
 
-                      <CgTrash
-                        className="text-[25px] text-red-500 bg-backgroundColor hover:cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (doc.absoluteAdmin) {
-                            setError("Disallowed Action: Default Absolute Admin Role Cannot be deleted");
-                            setOpenDisallowedDeleteDialog(true);
+              {/* table data */}
+              <TableBody className="mt-3 bg-backgroundColor">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={8}>
+                      <div className="flex items-center justify-center mt-10">
+                        <LoaderDiv
+                          type="spinnerText"
+                          borderColor="foregroundColor"
+                          text="Loading Roles..."
+                          textColor="foregroundColor"
+                          dimension="h-10 w-10"
+                        />
+                      </div>{" "}
+                    </td>
+                  </tr>
+                ) : localData.length < 1 && searchValue ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-4">
+                      <div className="flex justify-center mt-6">No search result found</div>{" "}
+                    </td>
+                  </tr>
+                ) : localData.length < 1 && !isLoading ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-4">
+                      <div className="flex justify-center mt-6">No data available</div>{" "}
+                    </td>
+                  </tr>
+                ) : (
+                  localData.map((doc: any, index: any) => {
+                    const { _id: roleId, roleName, accountId, createdAt, tabAccess, absoluteAdmin } = doc;
+                    const tabs = tabAccess
+                      .map((tab: any) => tab.tab)
+                      .slice(0, 5)
+                      .join(", ");
+                    return (
+                      <TableRow
+                        key={roleId}
+                        onClick={() => {
+                          if (hasActionAccess("Edit Role")) {
+                            document.body.style.overflow = "hidden";
+                            setOpenEditRoleDialog(true);
+                            dispatch(setOnOpenRoleData(doc));
                           } else {
-                            if (hasActionAccess("Delete Role")) {
-                              document.body.style.overflow = "hidden";
-                              setOpenConfirmDelete(true);
-                              setConfirmWithText(doc._id);
-                              setConfirmWithReturnObj({
-                                roleIdToDelete: doc._id,
-                                roleName: doc.roleName,
-                                roleDescription: doc.roleDescription,
-                                absoluteAdmin: doc.absoluteAdmin,
-                                tabAccess: doc.tabAccess
-                              });
-                            } else {
-                              setError(
-                                "Unauthorised Action: You do not have Delete Role Access - Please contact your admin"
-                              );
-                            }
+                            setError("You do not have Edit Role Access - Please contact your admin");
                           }
                         }}
-                      />
-                    </div>
-                  );
-                })
-              )}
-            </div>
+                        className="hover:cursor-pointer"
+                      >
+                        <TableCell className={tableCellStyle}>{roleName.slice(0, 15)}</TableCell>{" "}
+                        <TableCell className={tableCellStyle}>{accountId.accountName}</TableCell>
+                        <TableCell className={tableCellStyle}>{formatDate(createdAt)}</TableCell>
+                        <TableCell className="whitespace-nowrap flex items-center justify-center w-full">
+                          {tabs}.....
+                        </TableCell>
+                        <TableCell className="w-[200px] text-center whitespace-nowrap">
+                          <span
+                            className="text-[25px] text-red-500 bg-backgroundColor hover:cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (doc.absoluteAdmin) {
+                                setError("Disallowed Action: Default Absolute Admin Role Cannot be deleted");
+                                setOpenDisallowedDeleteDialog(true);
+                              } else {
+                                if (hasActionAccess("Delete Role")) {
+                                  document.body.style.overflow = "hidden";
+                                  setOpenConfirmDelete(true);
+                                  setConfirmWithText(doc._id);
+                                  setConfirmWithReturnObj({
+                                    roleIdToDelete: doc._id,
+                                    roleName: doc.roleName,
+                                    roleDescription: doc.roleDescription,
+                                    absoluteAdmin: doc.absoluteAdmin,
+                                    tabAccess: doc.tabAccess
+                                  });
+                                } else {
+                                  setError(
+                                    "Unauthorised Action: You do not have Delete Role Access - Please contact your admin"
+                                  );
+                                }
+                              }
+                            }}
+                          >
+                            {" "}
+                            <CgTrash className="inline-block text-[20px]" />
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>

@@ -43,9 +43,12 @@
 @theme {
   --color-backgroundColor: var(--backgroundColor);
   --color-foregroundColor: var(--foregroundColor);
+  --color-foregroundColor-1: color-mix(in srgb, var(--color-foregroundColor) 1%, transparent);
+  --color-foregroundColor-2: color-mix(in srgb, var(--color-foregroundColor) 2%, transparent);
   --color-foregroundColor-3: color-mix(in srgb, var(--color-foregroundColor) 3%, transparent);
   --color-foregroundColor-4: color-mix(in srgb, var(--color-foregroundColor) 4%, transparent);
   --color-foregroundColor-5: color-mix(in srgb, var(--color-foregroundColor) 5%, transparent);
+  --color-foregroundColor-6: color-mix(in srgb, var(--color-foregroundColor) 6%, transparent);
   --color-foregroundColor-10: color-mix(in srgb, var(--color-foregroundColor) 10%, transparent);
   --color-foregroundColor-15: color-mix(in srgb, var(--color-foregroundColor) 15%, transparent);
   --color-foregroundColor-20: color-mix(in srgb, var(--color-foregroundColor) 20%, transparent);

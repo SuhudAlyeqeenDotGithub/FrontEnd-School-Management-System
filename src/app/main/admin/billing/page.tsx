@@ -9,7 +9,7 @@ import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 import { ConfirmActionByInputDialog, CustomFilterComponent } from "@/lib/customComponents/general/compLibrary2";
 import NewStaffContractComponent from "@/lib/customComponents/staff/newContractComp";
-import { MdContentCopy, MdAdd, MdNavigateNext, MdNavigateBefore } from "react-icons/md";
+import { MdContentCopy, MdAdd, MdNavigateNext, MdNavigateBefore, MdOutlineDateRange } from "react-icons/md";
 import { tableCellStyle, tableContainerStyle, tableHeaderStyle, tableTopStyle } from "@/lib/generalStyles";
 import { getAcademicYears } from "@/redux/features/general/academicYear/academicYearThunk";
 import { tanFetchStaffContracts, tanFetchStaffProfiles } from "@/tanStack/staff/fetch";
@@ -17,8 +17,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import EditStaffContractComponent from "@/lib/customComponents/staff/editContractComp";
 import { useStaffMutation } from "@/tanStack/staff/mutate";
+import { CiMoneyBill } from "react-icons/ci";
 
-const StaffContracts = () => {
+const Billing = () => {
   const dispatch = useAppDispatch();
   const { tanDeleteStaffContract } = useStaffMutation();
   // const { staffContracts, isLoading: staffContractsLoading } = useAppSelector((state) => state.staffContract);
@@ -293,24 +294,31 @@ const StaffContracts = () => {
         )}
         {/* data table div */}
         <div className="flex flex-col gap-2">
+          <div className="mb-5 bg-foregroundColor-2 w-full border border-foregroundColor-25 flex justify-between items-center rounded-lg shadow p-6">
+            <div className="w-[80%] flex flex-col gap-5">
+              <div className="flex gap-4 items-center">
+                <CiMoneyBill className="text-[45px]" />
+                <h1>Billing & Usage</h1>
+              </div>
+              <h3>View and manage all your billing statements and usage</h3>
+            </div>
+            <div className="flex flex-col font-semibold w-[20%] items-end">
+              <h3>Total for {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}</h3>
+              <div className="flex flex-col gap-1 mt-2 items-end">
+                <span className="text-foregroundColor text-[20px] font-bold">₦445,711.00</span>
+                <span className="text-foregroundColor-50 text-[18px]">$266.90</span>
+                <span className="text-foregroundColor-50 text-[18px]">£212.09</span>
+              </div>
+            </div>
+          </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
-              placeholder="Search Staff Custom ID, Staff Names, Contract Dates, Job Title, Contract Type/Status"
+              placeholder="Search"
               filters={[
                 {
-                  displayText: "Academic Year",
-                  fieldName: "academicYear",
-                  options: ["All", ...academicYears.map(({ academicYear }: { academicYear: string }) => academicYear)]
-                },
-                {
-                  displayText: "Contract Type",
-                  fieldName: "contractType",
-                  options: ["All", "Full-time", "Part-time"]
-                },
-                {
-                  displayText: "Contract Status",
-                  fieldName: "contractStatus",
-                  options: ["All", "Active", "Closed"]
+                  displayText: "Payment Status",
+                  fieldName: "paymentStatus",
+                  options: ["All", "Paid", "Unpaid", "Pending"]
                 }
               ]}
               onQuery={(query: any) => {
@@ -336,31 +344,18 @@ const StaffContracts = () => {
             <div className={tableContainerStyle}>
               <div className={tableTopStyle}>
                 {/* title */}
-                <div className="flex flex-col gap-2 mb-2">
-                  <h2>Staff Contract</h2>
-                  <h3>Create and manage staff contracts</h3>
+
+                <div className="flex gap-4 items-center">
+                  <MdOutlineDateRange className="text-[25px]" />
+                  <h2>Billing History</h2>
                 </div>
+
                 <span
                   onClick={() => setOpenFilterDiv(!openFilterDiv)}
                   className="font-semibold cursor-pointer text-foregroundColor-80 ml-3 bg-foregroundColor-10 w-30 rounded-lg text-center p-2 border border-foregroundColor-15"
                 >
                   {openFilterDiv ? "Close Filter" : "Open Filter"}
                 </span>
-                <div>
-                  <button
-                    onClick={() => {
-                      if (hasActionAccess("Create Staff Contract")) {
-                        document.body.style.overflow = "hidden";
-                        setOpenNewStaffContractDialog(true);
-                      } else {
-                        setError("You do not have Create Staff Contract Access - Please contact your admin");
-                      }
-                    }}
-                    disabled={!hasActionAccess("Create Staff Contract")}
-                  >
-                    <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Staff Contract
-                  </button>
-                </div>
               </div>
               <Table className="text-[16px]">
                 <TableHeader>
@@ -554,4 +549,4 @@ const StaffContracts = () => {
   );
 };
 
-export default StaffContracts;
+export default Billing;

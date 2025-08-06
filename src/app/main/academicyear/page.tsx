@@ -12,7 +12,7 @@ import NewAcademicYearComponent from "@/lib/customComponents/academicYear/newAca
 import { deleteAcademicYear, getAcademicYears } from "@/redux/features/general/academicYear/academicYearThunk";
 import { MdContentCopy, MdAdd } from "react-icons/md";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { tableCellStyle, dataRowCellStyle } from "@/lib/generalStyles";
+import { tableCellStyle, tableContainerStyle, tableHeaderStyle, tableTopStyle } from "@/lib/generalStyles";
 import EditAcademicYearComponent from "@/lib/customComponents/academicYear/editAcademicYear";
 
 const AcademicYear = () => {
@@ -112,7 +112,7 @@ const AcademicYear = () => {
   };
 
   return (
-    <div className="px-8 py-6 w-full mt-10">
+    <div className="px-8 py-6 w-full mt-10 gap-5 flex flex-col">
       {error && (
         <ErrorDiv
           onClose={(close) => {
@@ -161,7 +161,7 @@ const AcademicYear = () => {
           </div>
         )}
 
-        {/* {openConfirmDelete && (
+        {openConfirmDelete && (
           <ConfirmActionByInputDialog
             returnObject={confirmWithReturnObj}
             confirmWithText={confirmWithText}
@@ -174,18 +174,12 @@ const AcademicYear = () => {
               setError("");
               if (confirmed) {
                 try {
-                  let imageDeletionDone = false;
-                  if (returnObject.staffImageDestination || returnObject.staffImageDestination !== "") {
-                    imageDeletionDone = await handledDeleteImage(returnObject.staffImageDestination);
-                  } else {
-                    imageDeletionDone = true;
-                  }
-
-                  if (imageDeletionDone) {
-                    console.log("deleting academic year for on backend", returnObject.staffIDToDelete);
-                    await dispatch(deleteAcademicYear({ staffIDToDelete: returnObject.staffIDToDelete })).unwrap();
-                  } else {
-                    return;
+                  const response = await dispatch(
+                    deleteAcademicYear({ academicYearIdToDelete: returnObject.academicYearId })
+                  ).unwrap();
+                  if (response) {
+                    setOpenConfirmDelete(false);
+                    document.body.style.overflow = "";
                   }
                 } catch (err: any) {
                   console.log("error deleting academic year", err.message);
@@ -199,170 +193,168 @@ const AcademicYear = () => {
             }}
             warningText="Please confirm the ID of the academic year you want to delete"
           />
-        )} */}
+        )}
         {/* data table div */}
-        <div className="flex flex-col gap-4">
-          {/* table body */}
+        {/* table body */}
 
-          <div className="border border-foregroundColor-25 bg-foregroundColor-5 text-foregroundColor rounded-lg overflow-hidden">
-            {/* table header */}
-            <div className="flex justify-between gap-5 items-center px-4 py-4 border-b border-foregroundColor-25">
-              <div className="flex flex-col gap-2 mb-2">
-                <h2>Academic Year</h2>
-              </div>
-
-              {/* search div */}
-              <div className="flex w-[700px] h-[50px] items-center gap-2 relative">
-                <input
-                  className="border border-foregroundColor-25 bg-backgroundColor rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-                  placeholder="Search AcademicYear (Name, Start Date, End Date)"
-                  name="searchValue"
-                  onChange={(e) => {
-                    setSearchValue(e.target.value);
-                  }}
-                />
-                <FaSearch className="text-foregroundColor size-5 absolute right-3" />
-              </div>
-              {/* new action button */}
-              <div>
-                <button
-                  onClick={() => {
-                    if (hasActionAccess("Create Academic Year")) {
-                      document.body.style.overflow = "hidden";
-                      setOpenNewAcademicYearDialog(true);
-                    } else {
-                      setError("You do not have Create Academic Year Access - Please contact your admin");
-                    }
-                  }}
-                  disabled={!hasActionAccess("Create Academic Year")}
-                >
-                  <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Academic Year
-                </button>
-              </div>
+        <div className={tableContainerStyle}>
+          {/* table header */}
+          <div className={tableTopStyle}>
+            <div className="flex flex-col gap-2 mb-2">
+              <h2>Academic Year</h2>
             </div>
 
-            <Table className="text-[16px]">
-              <TableHeader>
-                <TableRow className="h-14">
-                  {(["Academic Year Id", "Academic Year", "Start Date", "End Date"] as const).map((header) => (
-                    <TableHead
-                      key={header}
-                      onClick={() => {
-                        const key_Name = {
-                          "Academic Year Id": "_id",
-                          "Academic Year": "academicYear",
-                          "Start Date": "startDate",
-                          "End Date": "endDate"
-                        };
-                        const sortKey = key_Name[header];
-                        handleSort(sortKey);
-                      }}
-                      className="text-center text-foregroundColor-70 w-[200px] font-semibold hover:cursor-pointer
-                      hover:bg-foregroundColor-5 p-2 whitespace-nowrap"
-                    >
-                      {header} <LuArrowUpDown className="inline-block ml-1" />
-                    </TableHead>
-                  ))}
-                  <TableHead className="text-center text-foregroundColor-70 font-semibold whitespace-nowrap">
-                    Delete
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              {/* table data */}
-              <TableBody className="mt-3 bg-backgroundColor">
-                {academicYearsIsLoading ? (
-                  <tr>
-                    <td colSpan={8}>
-                      <div className="flex items-center justify-center mt-10">
-                        <LoaderDiv
-                          type="spinnerText"
-                          borderColor="foregroundColor"
-                          text="Loading Academic Years..."
-                          textColor="foregroundColor"
-                          dimension="h-10 w-10"
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ) : localData.length < 1 && searchValue ? (
-                  <tr>
-                    <td colSpan={8} className="text-center py-4">
-                      <div className="flex justify-center mt-6">No search result found</div>
-                    </td>
-                  </tr>
-                ) : localData.length < 1 && !academicYearsIsLoading ? (
-                  <tr>
-                    <td colSpan={8} className="text-center py-4">
-                      <div className="flex justify-center mt-6">No data available</div>{" "}
-                    </td>
-                  </tr>
-                ) : (
-                  localData.map((doc: any, index: any) => {
-                    const { _id: academicYearId, academicYear, startDate, endDate } = doc;
-
-                    return (
-                      <TableRow
-                        key={academicYearId}
-                        onClick={() => {
-                          if (hasActionAccess("Edit Academic Year")) {
-                            document.body.style.overflow = "hidden";
-                            setOpenEditAcademicYearDialog(true);
-                            setOnOpenEditAcademicYearData(doc);
-                          } else {
-                            setError("You do not have Edit User Access - Please contact your admin");
-                          }
-                        }}
-                        className="hover:cursor-pointer"
-                      >
-                        <TableCell className="w-[110px] whitespace-nowrap text-center">
-                          <span className="whitespace-nowrap flex items-center justify-center w-[200px] gap-3">
-                            Copy Id
-                            <MdContentCopy
-                              title="copy id"
-                              className="text-[20px] text-foregroundColor-80 hover:text-foregroundColor-50 hover:cursor-pointer"
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                await navigator.clipboard.writeText(academicYearId);
-                              }}
-                            />
-                          </span>
-                        </TableCell>
-                        <TableCell className={tableCellStyle}> {academicYear}</TableCell>
-                        <TableCell className={tableCellStyle}>{formatDate(startDate)}</TableCell>
-                        <TableCell className={tableCellStyle}>{formatDate(endDate)}</TableCell>
-
-                        <TableCell className="w-[200px] text-center whitespace-nowrap">
-                          <span
-                            className="text-[25px] text-red-500 bg-backgroundColor hover:cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (hasActionAccess("Delete Academic Year")) {
-                                document.body.style.overflow = "hidden";
-                                setConfirmWithText(academicYearId);
-                                setConfirmWithReturnObj({
-                                  academicYearId,
-                                  academicYear,
-                                  startDate,
-                                  endDate
-                                });
-                                setOpenConfirmDelete(true);
-                              } else {
-                                setError(
-                                  "Unauthorised Action: You do not have Delete AcademicYear Access - Please contact your admin"
-                                );
-                              }
-                            }}
-                          >
-                            <CgTrash className="inline-block text-[20px]" />
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+            {/* search div */}
+            <div className="flex w-[700px] h-[50px] items-center gap-2 relative">
+              <input
+                className="border border-foregroundColor-25 bg-backgroundColor rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
+                placeholder="Search AcademicYear (Name, Start Date, End Date)"
+                name="searchValue"
+                onChange={(e) => {
+                  setSearchValue(e.target.value);
+                }}
+              />
+              <FaSearch className="text-foregroundColor size-5 absolute right-3" />
+            </div>
+            {/* new action button */}
+            <div>
+              <button
+                onClick={() => {
+                  if (hasActionAccess("Create Academic Year")) {
+                    document.body.style.overflow = "hidden";
+                    setOpenNewAcademicYearDialog(true);
+                  } else {
+                    setError("You do not have Create Academic Year Access - Please contact your admin");
+                  }
+                }}
+                disabled={!hasActionAccess("Create Academic Year")}
+              >
+                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Academic Year
+              </button>
+            </div>
           </div>
+
+          <Table className="text-[16px]">
+            <TableHeader>
+              <TableRow className={tableHeaderStyle}>
+                {(["Academic Year Id", "Academic Year", "Start Date", "End Date"] as const).map((header) => (
+                  <TableHead
+                    key={header}
+                    onClick={() => {
+                      const key_Name = {
+                        "Academic Year Id": "_id",
+                        "Academic Year": "academicYear",
+                        "Start Date": "startDate",
+                        "End Date": "endDate"
+                      };
+                      const sortKey = key_Name[header];
+                      handleSort(sortKey);
+                    }}
+                    className="text-center text-foregroundColor-70 w-[200px] font-semibold hover:cursor-pointer
+                      hover:bg-foregroundColor-5 p-2 whitespace-nowrap"
+                  >
+                    {header} <LuArrowUpDown className="inline-block ml-1" />
+                  </TableHead>
+                ))}
+                <TableHead className="text-center text-foregroundColor-70 font-semibold whitespace-nowrap">
+                  Delete
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            {/* table data */}
+            <TableBody className="mt-3 bg-backgroundColor">
+              {academicYearsIsLoading ? (
+                <tr>
+                  <td colSpan={8}>
+                    <div className="flex items-center justify-center mt-10">
+                      <LoaderDiv
+                        type="spinnerText"
+                        borderColor="foregroundColor"
+                        text="Loading Academic Years..."
+                        textColor="foregroundColor"
+                        dimension="h-10 w-10"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ) : localData.length < 1 && searchValue ? (
+                <tr>
+                  <td colSpan={8} className="text-center py-4">
+                    <div className="flex justify-center mt-6">No search result found</div>
+                  </td>
+                </tr>
+              ) : localData.length < 1 && !academicYearsIsLoading ? (
+                <tr>
+                  <td colSpan={8} className="text-center py-4">
+                    <div className="flex justify-center mt-6">No data available</div>{" "}
+                  </td>
+                </tr>
+              ) : (
+                localData.map((doc: any, index: any) => {
+                  const { _id: academicYearId, academicYear, startDate, endDate } = doc;
+
+                  return (
+                    <TableRow
+                      key={academicYearId}
+                      onClick={() => {
+                        if (hasActionAccess("Edit Academic Year")) {
+                          document.body.style.overflow = "hidden";
+                          setOpenEditAcademicYearDialog(true);
+                          setOnOpenEditAcademicYearData(doc);
+                        } else {
+                          setError("You do not have Edit User Access - Please contact your admin");
+                        }
+                      }}
+                      className="hover:cursor-pointer"
+                    >
+                      <TableCell className="w-[110px] whitespace-nowrap text-center">
+                        <span className="whitespace-nowrap flex items-center justify-center w-[200px] gap-3">
+                          Copy Id
+                          <MdContentCopy
+                            title="copy id"
+                            className="text-[20px] text-foregroundColor-80 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              await navigator.clipboard.writeText(academicYearId);
+                            }}
+                          />
+                        </span>
+                      </TableCell>
+                      <TableCell className={tableCellStyle}> {academicYear}</TableCell>
+                      <TableCell className={tableCellStyle}>{formatDate(startDate)}</TableCell>
+                      <TableCell className={tableCellStyle}>{formatDate(endDate)}</TableCell>
+
+                      <TableCell className="w-[200px] text-center whitespace-nowrap">
+                        <span
+                          className="text-[25px] text-red-500 bg-backgroundColor hover:cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (hasActionAccess("Delete Academic Year")) {
+                              document.body.style.overflow = "hidden";
+                              setConfirmWithText(academicYearId);
+                              setConfirmWithReturnObj({
+                                academicYearId,
+                                academicYear,
+                                startDate,
+                                endDate
+                              });
+                              setOpenConfirmDelete(true);
+                            } else {
+                              setError(
+                                "Unauthorised Action: You do not have Delete AcademicYear Access - Please contact your admin"
+                              );
+                            }
+                          }}
+                        >
+                          <CgTrash className="inline-block text-[20px]" />
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
       {/* end of data table */}
