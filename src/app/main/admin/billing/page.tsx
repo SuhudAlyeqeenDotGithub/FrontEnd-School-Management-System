@@ -49,7 +49,7 @@ const Billing = () => {
   const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
     tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
   );
-  const baseUrl = "alyeqeenschoolapp/api/staff/contracts";
+  const baseUrl = "alyeqeenschoolapp/api/staff/contracts.ts";
   const searchUrl = new URLSearchParams({});
 
   const hasActionAccess = (action: string) => {
@@ -65,7 +65,12 @@ const Billing = () => {
   } = useQuery({
     queryKey: ["staffProfiles"],
     queryFn: () =>
-      tanFetchStaffProfiles(accountData, accountPermittedActions, "View Staff", "alyeqeenschoolapp/api/staff/profiles"),
+      tanFetchStaffProfiles(
+        accountData,
+        accountPermittedActions,
+        "View Staff",
+        "alyeqeenschoolapp/api/staff/profile.tss"
+      ),
     enabled: Boolean(accountData?.accountStatus),
     retry: false
   });
@@ -303,7 +308,7 @@ const Billing = () => {
               <h3>View and manage all your billing statements and usage</h3>
             </div>
             <div className="flex flex-col font-semibold w-[20%] items-end">
-              <h3>Total for {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}</h3>
+              <h3>Total for {new Date().toLocaleDateString("default", { month: "long", year: "numeric" })}</h3>
               <div className="flex flex-col gap-1 mt-2 items-end">
                 <span className="text-foregroundColor text-[20px] font-bold">₦445,711.00</span>
                 <span className="text-foregroundColor-50 text-[18px]">$266.90</span>

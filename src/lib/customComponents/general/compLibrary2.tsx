@@ -215,7 +215,7 @@ export const CustomFilterComponent = ({
 
   return (
     <div className="rounded-lg flex flex-col border border-foregroundColor-25">
-      <div className="bg-foregroundColor-3 w-full px-5 py-6 font-bold border-b border-foregroundColor-25 flex justify-between items-center">
+      <div className="bg-backgroundColor-5 w-full px-5 py-6 font-bold border-b border-foregroundColor-25 flex justify-between items-center">
         <h2>Filter & Search</h2>
       </div>
       <div className="px-5 py-6">

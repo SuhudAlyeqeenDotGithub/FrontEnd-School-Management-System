@@ -6,6 +6,7 @@ import { signIn } from "@/redux/features/accounts/accountThunks";
 import { useAppDispatch } from "@/redux/hooks";
 import { useAppSelector } from "@/redux/hooks";
 import { useRouter } from "next/navigation";
+import { validateEmail } from "@/lib/shortFunctions/shortFunctions";
 
 const signInPage = () => {
   const dispatch = useAppDispatch();
@@ -32,8 +33,8 @@ const signInPage = () => {
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+
+    if (!validateEmail(email)) {
       setError("Please enter a valid email address.");
       return;
     }

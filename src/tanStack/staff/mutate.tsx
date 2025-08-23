@@ -8,7 +8,7 @@ export const useStaffMutation = () => {
 
   const useCreateStaffProfile = useMutation({
     mutationFn: (data: ParamStaffType) => {
-      return handleApiRequest("post", `alyeqeenschoolapp/api/staff/profiles`, data);
+      return handleApiRequest("post", `alyeqeenschoolapp/api/staff/profile.ts`, data);
     },
     onError: (error: any) => {
       throw new Error(error.response?.data.message || error.message || "Error creating staff profile");
@@ -17,7 +17,7 @@ export const useStaffMutation = () => {
 
   const useUpdateStaffProfile = useMutation({
     mutationFn: (data: ParamStaffType) => {
-      return handleApiRequest("put", `alyeqeenschoolapp/api/staff/profiles`, data);
+      return handleApiRequest("put", `alyeqeenschoolapp/api/staff/profile.ts`, data);
     },
 
     onError: (error: any) => {
@@ -27,7 +27,7 @@ export const useStaffMutation = () => {
 
   const useDeleteStaffProfile = useMutation({
     mutationFn: (data: { staffIDToDelete: string }) => {
-      return handleApiRequest("delete", `alyeqeenschoolapp/api/staff/profiles`, data);
+      return handleApiRequest("delete", `alyeqeenschoolapp/api/staff/profile.ts`, data);
     },
 
     onError: (error: any) => {
@@ -37,7 +37,7 @@ export const useStaffMutation = () => {
 
   const useCreateStaffContract = useMutation({
     mutationFn: (data: ParamStaffContractType) => {
-      return handleApiRequest("post", `alyeqeenschoolapp/api/staff/contracts`, data);
+      return handleApiRequest("post", `alyeqeenschoolapp/api/staff/contracts.ts`, data);
     },
 
     onError: (error: any) => {
@@ -47,7 +47,7 @@ export const useStaffMutation = () => {
 
   const useUpdateStaffContract = useMutation({
     mutationFn: (data: ParamStaffContractType) => {
-      return handleApiRequest("put", `alyeqeenschoolapp/api/staff/contracts`, data);
+      return handleApiRequest("put", `alyeqeenschoolapp/api/staff/contracts.ts`, data);
     },
 
     onError: (error: any) => {
@@ -57,7 +57,7 @@ export const useStaffMutation = () => {
 
   const useDeleteStaffContract = useMutation({
     mutationFn: (data: { staffContractIDToDelete: string }) => {
-      return handleApiRequest("delete", `alyeqeenschoolapp/api/staff/contracts`, data);
+      return handleApiRequest("delete", `alyeqeenschoolapp/api/staff/contracts.ts`, data);
     },
 
     onError: (error: any) => {

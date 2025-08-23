@@ -7,6 +7,7 @@ import { orgSignUp } from "@/redux/features/accounts/accountThunks";
 import { useAppDispatch } from "@/redux/hooks";
 import { useAppSelector } from "@/redux/hooks";
 import { useRouter } from "next/navigation";
+import { validateEmail, validatePassword, validatePhoneNumber } from "@/lib/shortFunctions/shortFunctions";
 
 const signUpPage = () => {
   const dispatch = useAppDispatch();
@@ -47,22 +48,20 @@ const signUpPage = () => {
       setError("Organisation name must be at least 3 characters long.");
       return;
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(organisationEmail)) {
+
+    if (!validateEmail(organisationEmail)) {
       setError("Please enter a valid email address.");
       return;
     }
 
-    const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&~*+-]).{8,}$/;
-    if (!passwordStrengthRegex.test(organisationPassword)) {
+    if (!validatePassword(organisationPassword)) {
       setError(
         "Password must be at least 8 characters long and include uppercase, lowercase, number, and at least one special character [!@#$%^&~*]."
       );
       return;
     }
-    // Use libphonenumber-js to validate phone number
-    const phoneNumber = parsePhoneNumberFromString(organisationPhone);
-    if (!phoneNumber || !phoneNumber.isValid()) {
+
+    if (!validatePhoneNumber(organisationPhone)) {
       setError("Please enter a valid phone number.");
       return;
     }
@@ -77,11 +76,13 @@ const signUpPage = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    console.log("started function", performance.now().toFixed(3));
     e.preventDefault();
     if (validationPassed()) {
       try {
         const response = await dispatch(orgSignUp(inputData)).unwrap();
         if (response) {
+          console.log("ended function", performance.now().toFixed(3));
           router.push("/main");
         }
       } catch (error: any) {

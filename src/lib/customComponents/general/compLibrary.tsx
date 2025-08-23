@@ -93,7 +93,7 @@ export const LoaderDiv = ({
   return (
     <div className="flex justify-center gap-10 items-center z-10">
       {type !== "spinner" && <span className={`ml-2 text-${textColor} animate-pulse`}>{text}</span>}
-      <div className={`animate-spin rounded-full ${dimension} border-b-2 border-r-2 ${borderColor}`}></div>
+      <div className={`animate-spin rounded-full ${dimension} border-b-2 border-r-2 border-${borderColor}`}></div>
     </div>
   );
 };

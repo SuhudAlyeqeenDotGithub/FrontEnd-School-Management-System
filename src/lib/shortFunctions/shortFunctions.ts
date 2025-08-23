@@ -1,4 +1,6 @@
 import { handleApiRequest } from "@/axios/axiosClient";
+import { nanoid } from "@reduxjs/toolkit";
+import parsePhoneNumberFromString from "libphonenumber-js";
 
 export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -16,10 +18,11 @@ export const checkDataType = (value: any) => {
 
 export const formatDate = (dateStr: any) => {
   const date = new Date(dateStr);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
+  return date.toLocaleString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+};
+
+export const generateCustomId = (prefix?: string) => {
+  return `${prefix ? prefix + "-" : ""}${nanoid()}`;
 };
 
 export const handledDeleteImage = async (imageDestination?: string) => {
@@ -36,4 +39,21 @@ export const handledDeleteImage = async (imageDestination?: string) => {
     throw new Error(error.response?.data.message || error.message || "Error deleting image");
   }
   return false;
+};
+
+export const validatePassword = (password: string) => {
+  const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>~+\-]).{8,}$/;
+  return passwordStrengthRegex.test(password.trim());
+};
+
+export const validateEmail = (email: string) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
+};
+
+export const validatePhoneNumber = (phoneNumber: string) => {
+  const trimmedPhoneNumber = phoneNumber.trim();
+  const startsWithPlus = trimmedPhoneNumber.startsWith("+");
+  const libParsed = parsePhoneNumberFromString(trimmedPhoneNumber);
+  return startsWithPlus && libParsed?.isValid();
 };

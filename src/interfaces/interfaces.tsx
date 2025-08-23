@@ -246,14 +246,21 @@ export interface ReturnStaffContractType extends BaseStaffContractType {
   organisationId: string;
 }
 
-export interface ReturnAcademicYearType {
+export interface BasePeriodType {
+  period: string;
+  startDate: string;
+  endDate: string;
+}
+export interface ParamPeriodType extends BasePeriodType {
   _id: string;
+}
+
+export interface BaseAcademicYearType {
   academicYear: string;
   startDate: string;
   endDate: string;
 }
-export interface ParamAcademicYearType {
-  academicYear: string;
-  startDate: string;
-  endDate: string;
+
+export interface ParamAcademicYearType extends BaseAcademicYearType {
+  _id: string;
 }

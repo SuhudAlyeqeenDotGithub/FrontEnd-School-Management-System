@@ -156,7 +156,7 @@ export const EditRoleDialog = ({
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
   const { roleId, roleName, roleDescription, tabAccess } = localData;
   useEffect(() => {
-    const tabs = ["Admin", "Attendance", "Course", "Staff", "Student", "Enrollment", "Academic Year"];
+    const tabs = ["Admin", "Attendance", "Course", "Staff", "Student", "Enrollment", "Timeline"];
     const assignedTabs = tabAccess.map((tabObj: any) => tabObj.tab);
     const recoTabs = tabs.filter((tab) => !assignedTabs.includes(tab));
     setRecommendedTabs(recoTabs);
@@ -277,7 +277,7 @@ export const EditRoleDialog = ({
       "Delete Staff Contract",
       "View Staff Contracts"
     ],
-    "Academic Year": ["Create Academic Year", "Edit Academic Year", "Delete Academic Year", "View Academic Years"]
+    Timeline: ["Create Academic Year", "Edit Academic Year", "Delete Academic Year", "View Academic Years"]
   };
   return (
     <ContainerComponent id="roleDialogContainer" style="w-[60%] h-[90%] gap-10 overflow-auto flex flex-col">

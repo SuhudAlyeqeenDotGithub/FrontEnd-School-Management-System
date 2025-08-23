@@ -22,6 +22,7 @@ import { handleApiRequest } from "@/axios/axiosClient";
 import { tanFetchStaffProfiles } from "@/tanStack/staff/fetch";
 import { useStaffMutation } from "@/tanStack/staff/mutate";
 import EditStaffComponent from "@/lib/customComponents/staff/editStaffComp";
+import { tanFetchAny } from "@/tanStack/timeline/fetch";
 
 const StaffProfile = () => {
   const dispatch = useAppDispatch();
@@ -54,7 +55,7 @@ const StaffProfile = () => {
   });
   const [page, setPage] = useState(1);
 
-  const baseUrl = "alyeqeenschoolapp/api/staff/profiles";
+  const baseUrl = "alyeqeenschoolapp/api/staff/profile";
   const searchUrl = new URLSearchParams({});
 
   const hasActionAccess = (action: string) => {
@@ -71,7 +72,7 @@ const StaffProfile = () => {
   } = useQuery({
     queryKey: ["staffProfiles"],
     queryFn: () =>
-      tanFetchStaffProfiles(accountData, accountPermittedActions, "View Staff", baseUrl + "?" + searchUrl.toString()),
+      tanFetchAny(accountData, accountPermittedActions, "View Staff", baseUrl + "?" + searchUrl.toString()),
     enabled: Boolean(accountData?.accountStatus),
     retry: false
   });

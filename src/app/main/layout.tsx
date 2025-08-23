@@ -12,7 +12,6 @@ import { ErrorDiv } from "@/lib/customComponents/general/compLibrary";
 import { resetAccount } from "@/redux/features/accounts/accountSlice";
 import { useRouter } from "next/navigation";
 import { useNavigationHandler } from "@/lib/shortFunctions/clientFunctions.ts/clientFunctions";
-import { setTriggerUnsavedDialog } from "@/redux/features/general/generalSlice";
 import useWebSocketHandler from "@/lib/shortFunctions/clientFunctions.ts/websocketHandler";
 import { BASE_API_URL } from "@/lib/shortFunctions/shortFunctions";
 
@@ -30,9 +29,8 @@ const layout = ({ children }: { children: ReactNode }) => {
   try {
     useWebSocketHandler((error) => {
       setError(error);
-    }); // call the hook — no need for useEffect
+    });
   } catch (err: any) {
-    // This won't catch async errors inside the hook — just immediate ones
     setError(err.message || "Something went wrong");
   }
 
@@ -77,7 +75,7 @@ const layout = ({ children }: { children: ReactNode }) => {
 
   const handleSignout = async () => {
     try {
-      const response = await axios.get(`${BASE_API_URL}alyeqeenschoolapp/api/orgaccount/signout`, {
+      const response = await axios.get(`${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/signout`, {
         withCredentials: true
       });
       if (response) {
@@ -113,14 +111,15 @@ const layout = ({ children }: { children: ReactNode }) => {
     "/main/admin/billing": "Admin",
     "/main/course": "Course",
     "/main/student": "Student",
-    "/main/academicyear": "Academic Year",
+    "/main/timeline": "Timeline",
+    "/main/timeline/period": "Timeline",
     "/main/enrollment": "Enrollment",
     "/main/attendance": "Attendance",
     "/main/attendance/persession": "Attendance",
     "/main/attendance/perday": "Attendance",
     "/main/staff": "Staff",
     "/main/staff/contract": "Staff",
-    "/main/staff/profile": "Staff"
+    "/main/staff/profile.ts": "Staff"
   };
   const pathToNameValue = path_NameMap[pathname as keyof typeof path_NameMap];
   const name_PathMap = {
@@ -131,7 +130,7 @@ const layout = ({ children }: { children: ReactNode }) => {
     Enrollment: "/main/enrollment",
     Attendance: "/main/attendance",
     Staff: "/main/staff",
-    "Academic Year": "/main/academicyear"
+    Timeline: "/main/timeline"
   };
 
   const profileDialog = (

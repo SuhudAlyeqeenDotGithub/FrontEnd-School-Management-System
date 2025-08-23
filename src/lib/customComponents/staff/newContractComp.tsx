@@ -24,13 +24,10 @@ const NewStaffContractComponent = ({
   onCreate: (create: boolean) => {};
 }) => {
   const { handleUnload } = useNavigationHandler();
-  const dispatch = useAppDispatch();
   const { tanCreateStaffContract } = useStaffMutation();
-  // const { isLoading: staffContractsLoading } = useAppSelector((state) => state.staffContract);
   const [unsaved, setUnsaved] = useState(false);
   const [error, setError] = useState("");
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [newWorkingScheduleDialog, setNewWorkingScheduleDialog] = useState(false);
   const [newResponsibilityDialog, setNewResponsibilityDialog] = useState(false);
   const [editWorkingScheduleDialog, setEditWorkingScheduleDialog] = useState(false);
@@ -108,7 +105,6 @@ const NewStaffContractComponent = ({
   };
 
   const handleCreateStaffContract = async () => {
-    setIsLoading(true);
     if (validationPassed()) {
       setError("");
 
@@ -118,7 +114,6 @@ const NewStaffContractComponent = ({
           onCreate(true);
         }
       } catch (err: any) {
-        setIsLoading(false);
         setError(err.message || err.response.data.message || "Error Creating Staff Contract");
       }
     }

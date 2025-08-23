@@ -11,18 +11,14 @@ import { ConfirmActionByInputDialog, CustomFilterComponent } from "@/lib/customC
 import NewStaffContractComponent from "@/lib/customComponents/staff/newContractComp";
 import { MdContentCopy, MdAdd, MdNavigateNext, MdNavigateBefore } from "react-icons/md";
 import { tableCellStyle, tableContainerStyle, tableHeaderStyle, tableTopStyle } from "@/lib/generalStyles";
-import { getAcademicYears } from "@/redux/features/general/academicYear/academicYearThunk";
-import { tanFetchStaffContracts, tanFetchStaffProfiles } from "@/tanStack/staff/fetch";
 import { useQuery } from "@tanstack/react-query";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import EditStaffContractComponent from "@/lib/customComponents/staff/editContractComp";
 import { useStaffMutation } from "@/tanStack/staff/mutate";
+import { tanFetchAny } from "@/tanStack/timeline/fetch";
 
 const StaffContracts = () => {
-  const dispatch = useAppDispatch();
   const { tanDeleteStaffContract } = useStaffMutation();
-  // const { staffContracts, isLoading: staffContractsLoading } = useAppSelector((state) => state.staffContract);
-  const { academicYears, isLoading: academicYearsLoading } = useAppSelector((state) => state.academicYear);
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
@@ -48,7 +44,7 @@ const StaffContracts = () => {
   const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
     tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
   );
-  const baseUrl = "alyeqeenschoolapp/api/staff/contracts";
+  const baseUrl = "alyeqeenschoolapp/api/staff/contract";
   const searchUrl = new URLSearchParams({});
 
   const hasActionAccess = (action: string) => {
@@ -64,7 +60,27 @@ const StaffContracts = () => {
   } = useQuery({
     queryKey: ["staffProfiles"],
     queryFn: () =>
-      tanFetchStaffProfiles(accountData, accountPermittedActions, "View Staff", "alyeqeenschoolapp/api/staff/profiles"),
+      tanFetchAny(accountData, accountPermittedActions, "View Staff", "alyeqeenschoolapp/api/staff/profile"),
+    enabled: Boolean(accountData?.accountStatus),
+    retry: false
+  });
+
+  const {
+    data: academicYears,
+    isLoading: academicYearsIsLoading,
+    isFetching: academicYearsIsFetching,
+    error: academicYearsError,
+    isError: isAcademicYearsError,
+    refetch: refetchAcademicYears
+  } = useQuery({
+    queryKey: ["academicYears"],
+    queryFn: () =>
+      tanFetchAny(
+        accountData,
+        accountPermittedActions,
+        "View Academic Years",
+        `alyeqeenschoolapp/api/timeline/academicYear`
+      ),
     enabled: Boolean(accountData?.accountStatus),
     retry: false
   });
@@ -79,13 +95,8 @@ const StaffContracts = () => {
   } = useQuery({
     queryKey: ["staffContracts"],
     queryFn: () =>
-      tanFetchStaffContracts(
-        accountData,
-        accountPermittedActions,
-        "View Staff Contracts",
-        baseUrl + "?" + searchUrl.toString()
-      ),
-    enabled: Boolean(staffProfiles && accountData?.accountStatus),
+      tanFetchAny(accountData, accountPermittedActions, "View Staff Contracts", baseUrl + "?" + searchUrl.toString()),
+    enabled: Boolean(staffProfiles && academicYears && accountData?.accountStatus),
     retry: false
   });
 
@@ -100,6 +111,18 @@ const StaffContracts = () => {
       setError(queryError.message);
     }
   }, [queryError, isStaffProfilesError]);
+
+  useEffect(() => {
+    if (!academicYears) return;
+    setError("");
+  }, [academicYears, academicYearsIsLoading]);
+
+  useEffect(() => {
+    if (!isAcademicYearsError) return;
+    if (academicYearsError) {
+      setError(academicYearsError.message);
+    }
+  }, [academicYearsError, isAcademicYearsError]);
 
   useEffect(() => {
     if (!staffContracts || !staffContracts.staffContracts) return;
@@ -117,31 +140,21 @@ const StaffContracts = () => {
     }
   }, [staffContractsQueryError, isStaffContractsError]);
 
-  useEffect(() => {
-    if (!accountData.accountStatus) {
-      return;
-    }
-    const fetchAcademicYearL = async () => {
-      try {
-        if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
-          setError("Your account is no longer active - Please contact your admin");
-          return;
-        }
-        if (!hasActionAccess("View Academic Years") && !accountData.roleId.absoluteAdmin) {
-          setError("Unauthorized: You do not have access to view academic years - Please contact your admin");
-          return;
-        }
-
-        await dispatch(getAcademicYears()).unwrap();
-      } catch (error: any) {
-        setError(error);
-      }
-    };
-
-    fetchAcademicYearL();
-  }, [accountData]);
-
   if (!accountData) {
+    return (
+      <div className="flex items-center justify-center mt-10">
+        <LoaderDiv
+          type="spinnerText"
+          borderColor="foregroundColor"
+          text="Loading User Data..."
+          textColor="foregroundColor"
+          dimension="h-10 w-10"
+        />
+      </div>
+    );
+  }
+
+  if (!academicYears || !staffContracts || !staffProfiles) {
     return (
       <div className="flex items-center justify-center mt-10">
         <LoaderDiv
@@ -167,7 +180,7 @@ const StaffContracts = () => {
         {error}
       </ErrorDiv>
     );
-  // if (!staffContracts || staffContracts.length === 0) return <p>No staff Contract found.</p>;
+
 
   // function to handle sorting
   const handleSort = (sortKey: any) => {
@@ -184,11 +197,6 @@ const StaffContracts = () => {
     } else {
       nextOrder = "dsc";
     }
-    // console.log("localData", localData);
-    // console.log("sortKey", sortKey);
-    // console.log("first item", [...localData][0][sortKey]);
-    // console.log("keyType", keyType);
-    // console.log("sortOrder", sortOrder);
     const sortedData = [...localData].sort((a, b) => {
       if (keyType === "number") {
         return sortOrder === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
@@ -292,47 +300,47 @@ const StaffContracts = () => {
           />
         )}
         {/* data table div */}
-        <div className="flex flex-col gap-2">
-          <div hidden={!openFilterDiv}>
-            <CustomFilterComponent
-              placeholder="Search Staff Custom ID, Staff Names, Contract Dates, Job Title, Contract Type/Status"
-              filters={[
-                {
-                  displayText: "Academic Year",
-                  fieldName: "academicYear",
-                  options: ["All", ...academicYears.map(({ academicYear }: { academicYear: string }) => academicYear)]
-                },
-                {
-                  displayText: "Contract Type",
-                  fieldName: "contractType",
-                  options: ["All", "Full-time", "Part-time"]
-                },
-                {
-                  displayText: "Contract Status",
-                  fieldName: "contractStatus",
-                  options: ["All", "Active", "Closed"]
-                }
-              ]}
-              onQuery={(query: any) => {
-                for (const key in query) {
-                  searchUrl.set(key, query[key]);
-                }
-                refetchStaffContracts();
-              }}
+        {staffContractsIsLoading || academicYearsIsLoading || staffIsLoading ? (
+          <div className="flex items-center justify-center mt-10">
+            <LoaderDiv
+              type="spinnerText"
+              borderColor="foregroundColor"
+              text="Loading User Data..."
+              textColor="foregroundColor"
+              dimension="h-10 w-10"
             />
           </div>
-
-          {staffContractsIsLoading || isFetchingStaffContracts ? (
-            <div className="flex items-center justify-center mt-10">
-              <LoaderDiv
-                type="spinnerText"
-                borderColor="foregroundColor"
-                text="Loading User Data..."
-                textColor="foregroundColor"
-                dimension="h-10 w-10"
+        ) : (
+          <div className="flex flex-col gap-2">
+            <div hidden={!openFilterDiv}>
+              <CustomFilterComponent
+                placeholder="Search Staff Custom ID, Staff Names, Contract Dates, Job Title, Contract Type/Status"
+                filters={[
+                  {
+                    displayText: "Academic Year",
+                    fieldName: "academicYear",
+                    options: ["All", ...academicYears.map(({ academicYear }: { academicYear: string }) => academicYear)]
+                  },
+                  {
+                    displayText: "Contract Type",
+                    fieldName: "contractType",
+                    options: ["All", "Full-time", "Part-time"]
+                  },
+                  {
+                    displayText: "Contract Status",
+                    fieldName: "contractStatus",
+                    options: ["All", "Active", "Closed"]
+                  }
+                ]}
+                onQuery={(query: any) => {
+                  for (const key in query) {
+                    searchUrl.set(key, query[key]);
+                  }
+                  refetchStaffContracts();
+                }}
               />
             </div>
-          ) : (
+
             <div className={tableContainerStyle}>
               <div className={tableTopStyle}>
                 {/* title */}
@@ -546,8 +554,8 @@ const StaffContracts = () => {
                 </div>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       {/* end of data table */}
     </div>

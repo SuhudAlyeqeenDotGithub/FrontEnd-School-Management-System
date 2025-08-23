@@ -14,7 +14,7 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
   const socketRef = useRef<any>(null);
 
   const dispatch = useAppDispatch();
-  const { accountData } = useAppSelector((state) => state.accountData);
+  const { accountData } = useAppSelector((state: any) => state.accountData);
   const organisationId = accountData?.organisationId._id;
   const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
     tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
@@ -38,9 +38,9 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
       }
       if (
         (hasActionAccess("View Academic Years") || accountData.roleId.absoluteAdmin) &&
-        collectionName === "academicyears"
+        (collectionName === "academicyears" || collectionName === "periods")
       ) {
-        const response = await dispatch(getAcademicYears()).unwrap();
+        queryClient.invalidateQueries({ queryKey: ["academicYears"] });
       }
       if (
         (hasActionAccess("View Staff Contracts") || accountData.roleId.absoluteAdmin) &&
@@ -55,7 +55,10 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
   useEffect(() => {
     if (!organisationId) return;
 
-    socketRef.current = io(BASE_API_URL);
+    socketRef.current = io(BASE_API_URL, {
+      reconnection: true,
+      reconnectionAttempts: Infinity
+    });
 
     socketRef.current.on("connect", () => {
       console.log("Connected to io server");
@@ -75,6 +78,9 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
       console.log("Disconnected from server");
     });
 
+    socketRef.current.on("reconnect_attempt", (attemptNumber: number) => {
+      console.log(`Reconnect attempt #${attemptNumber}`);
+    });
     socketRef.current.on("databaseChange", (collectionName: string) => {
       handleDataFetch(collectionName);
     });
