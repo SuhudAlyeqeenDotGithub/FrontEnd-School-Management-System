@@ -14,7 +14,7 @@ import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/custom
 import EditUserComponent from "@/lib/customComponents/admin/editUserComponent";
 import { resetUsers } from "@/redux/features/admin/users/usersSlice";
 import type { RootState } from "@/redux/store";
-import { tableRowStyle, dataRowCellStyle } from "@/lib/generalStyles";
+import { dataRowCellStyle, tableCellStyle } from "@/lib/generalStyles";
 
 const Users = () => {
   const dispatch = useAppDispatch();
@@ -340,15 +340,18 @@ const Users = () => {
                     accountName,
                     accountEmail,
                     accountType,
-                    roleId,
                     accountStatus,
+                    roleId,
                     accountPassword,
                     createdAt
                   } = doc;
-                  const tabs = roleId.tabAccess
-                    .map((tab: any) => tab.tab)
-                    .slice(0, 5)
-                    .join(", ");
+
+                  const tabs = roleId
+                    ? roleId.tabAccess
+                        ?.map((tab: any) => tab.tab)
+                        .slice(0, 5)
+                        .join(", ")
+                    : "Unknown Role";
                   return (
                     <div
                       key={accountId}
@@ -357,27 +360,29 @@ const Users = () => {
                           document.body.style.overflow = "hidden";
                           setOnOpenEditUserData({
                             userId: accountId,
-                            staffId: roleId.absoluteAdmin ? "" : staffId.staffCustomId,
+                            staffId: roleId ? (roleId.absoluteAdmin ? "" : staffId.staffCustomId) : "",
                             userName: accountName,
                             userEmail: accountEmail,
                             userStatus: accountStatus,
                             userPassword: accountPassword,
-                            onEditUserIsAbsoluteAdmin: roleId.absoluteAdmin,
-                            roleId: roleId._id + "|" + roleId.roleName
+                            onEditUserIsAbsoluteAdmin: roleId ? roleId.absoluteAdmin : false,
+                            roleId: roleId ? roleId._id + "|" + roleId.roleName : "Unknown Role"
                           });
                           setOpenEditUserDialog(true);
                         } else {
                           setError("You do not have Edit User Access - Please contact your admin");
                         }
                       }}
-                      className={tableRowStyle}
+                      className={tableCellStyle}
                     >
                       <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
                         <span className="whitespace-nowrap flex items-center justify-center w-10 h-10 bg-foregroundColor-10 rounded-full font-semibold">
                           {accountName.slice(0, 2)}
                         </span>
                         <span className={dataRowCellStyle}>{accountName}</span>
-                        <span className={dataRowCellStyle}>{roleId.roleName.slice(0, 15)}</span>
+                        <span className={dataRowCellStyle}>
+                          {roleId ? roleId.roleName.slice(0, 15) : "Unknown Role"}
+                        </span>
                         <span className={dataRowCellStyle}>{accountEmail}</span>
                         <span className={dataRowCellStyle}>{accountStatus}</span>
                         <span className={dataRowCellStyle}>{formatDate(createdAt)}</span>

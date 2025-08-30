@@ -1,11 +1,20 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-
+/* Removed invalid JS import from CSS */
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --backgroundColor: #ffffff;
-  --foregroundColor: #000000;
+  --backgroundColor: oklch(98.4% 0.003 247.858);
+  --backgroundColor-2: oklch(96.8% 0.007 247.896);
+  --backgroundColor-3: oklch(95.608% 0.00978 253.019);
+  --backgroundColor-4: oklch(92.9% 0.013 255.508);
+  --foregroundColor: oklch(16.667% 0.06205 268.666);
+  --foregroundColor-2: oklch(37.2% 0.044 257.287);
+
+  --borderColor: oklch(86.9% 0.022 252.894);
+  --borderColor-2: oklch(92.9% 0.013 255.508);
+  --borderColor-3: oklch(70.4% 0.04 256.788);
+
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -40,78 +49,31 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+.dark {
+  /* Dark theme variables */
+  --backgroundColor: oklch(12.9% 0.042 264.695);
+  --backgroundColor-2: oklch(17.197% 0.03482 267.127);
+  --backgroundColor-3: oklch(20.135% 0.04577 267.205);
+
+  --foregroundColor: oklch(98.4% 0.003 247.858);
+  --borderColor: oklch(70.4% 0.04 256.788);
+}
+
 @theme {
   --color-backgroundColor: var(--backgroundColor);
+  --color-backgroundColor-2: var(--backgroundColor-2);
+  --color-backgroundColor-3: var(--backgroundColor-3);
+  --color-backgroundColor-4: var(--backgroundColor-4);
   --color-foregroundColor: var(--foregroundColor);
-  --color-foregroundColor-1: color-mix(in srgb, var(--color-foregroundColor) 1%, transparent);
-  --color-foregroundColor-2: color-mix(in srgb, var(--color-foregroundColor) 2%, transparent);
-  --color-foregroundColor-3: color-mix(in srgb, var(--color-foregroundColor) 3%, transparent);
-  --color-foregroundColor-4: color-mix(in srgb, var(--color-foregroundColor) 4%, transparent);
-  --color-foregroundColor-5: color-mix(in srgb, var(--color-foregroundColor) 5%, transparent);
-  --color-foregroundColor-6: color-mix(in srgb, var(--color-foregroundColor) 6%, transparent);
-  --color-foregroundColor-10: color-mix(in srgb, var(--color-foregroundColor) 10%, transparent);
-  --color-foregroundColor-15: color-mix(in srgb, var(--color-foregroundColor) 15%, transparent);
-  --color-foregroundColor-20: color-mix(in srgb, var(--color-foregroundColor) 20%, transparent);
-  --color-foregroundColor-25: color-mix(in srgb, var(--color-foregroundColor) 25%, transparent);
-  --color-foregroundColor-30: color-mix(in srgb, var(--color-foregroundColor) 30%, transparent);
-  --color-foregroundColor-35: color-mix(in srgb, var(--color-foregroundColor) 35%, transparent);
-  --color-foregroundColor-40: color-mix(in srgb, var(--color-foregroundColor) 40%, transparent);
-  --color-foregroundColor-45: color-mix(in srgb, var(--color-foregroundColor) 45%, transparent);
-  --color-foregroundColor-50: color-mix(in srgb, var(--color-foregroundColor) 50%, transparent);
-  --color-foregroundColor-55: color-mix(in srgb, var(--color-foregroundColor) 55%, transparent);
-  --color-foregroundColor-60: color-mix(in srgb, var(--color-foregroundColor) 60%, transparent);
-  --color-foregroundColor-65: color-mix(in srgb, var(--color-foregroundColor) 65%, transparent);
-  --color-foregroundColor-70: color-mix(in srgb, var(--color-foregroundColor) 70%, transparent);
-  --color-foregroundColor-75: color-mix(in srgb, var(--color-foregroundColor) 75%, transparent);
-  --color-foregroundColor-80: color-mix(in srgb, var(--color-foregroundColor) 80%, transparent);
-  --color-foregroundColor-85: color-mix(in srgb, var(--color-foregroundColor) 85%, transparent);
-  --color-foregroundColor-90: color-mix(in srgb, var(--color-foregroundColor) 90%, transparent);
-  --color-foregroundColor-95: color-mix(in srgb, var(--color-foregroundColor) 95%, transparent);
-  --color-foregroundColor-100: color-mix(in srgb, var(--color-foregroundColor) 100%, transparent);
+  --color-foregroundColor-2: var(--foregroundColor-2);
+  --color-borderColor: var(--borderColor);
+  --color-borderColor-2: var(--borderColor-2);
+  --color-borderColor-3: var(--borderColor-3);
 }
 
 body {
   background: var(--color-backgroundColor);
   color: var(--color-foregroundColor);
-}
-
-button,
-.ghostbutton {
-  border: none;
-  padding: 0.7rem 1.2rem;
-  cursor: pointer;
-  border-radius: 0.5rem;
-}
-
-button {
-  background-color: var(--color-foregroundColor);
-  color: var(--color-backgroundColor);
-  max-height: 3rem;
-}
-
-.ghostbutton {
-  background-color: var(--color-backgroundColor);
-  color: var(--color-foregroundColor-60);
-  border: 1px solid var(--color-foregroundColor-20);
-}
-
-button:hover {
-  background-color: var(--color-foregroundColor);
-  color: var(--color-backgroundColor);
-  opacity: 0.8;
-}
-button.ghostbutton:hover {
-  background-color: var(--color-foregroundColor-10);
-  color: var(--color-foregroundColor-60);
-}
-
-button.ghostbutton:disabled {
-  background-color: var(--color-foregroundColor-10);
-  cursor: not-allowed;
-}
-button:disabled {
-  background-color: var(--color-foregroundColor-50);
-  cursor: not-allowed;
 }
 
 h1 {
@@ -208,6 +170,6 @@ h3 {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-backgroundColor text-foregroundColor;
   }
 }

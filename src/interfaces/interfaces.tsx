@@ -1,17 +1,19 @@
 "use client";
 import { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 
 export interface InputComponentType {
   disabled?: boolean;
   type?: string;
+  title?: string;
   autocomplete?: string;
   placeholder: string;
   required?: boolean;
   name: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 export interface OrgSignUpType {
   organisationName: string;
@@ -54,13 +56,6 @@ export interface AccountType {
     roleDescription: string;
     absoluteAdmin: boolean;
   };
-}
-
-export interface TabObject {
-  icon?: ReactNode;
-  title: string;
-  subTitle?: string;
-  url: string;
 }
 
 export interface DataTableType {
@@ -157,44 +152,11 @@ export interface QualificationType {
   endDate: string;
 }
 
-export interface ReturnStaffType {
+export interface StaffType {
   _id: string;
   organisationId: string;
   staffCustomId?: string;
-  staffFirstName: string;
-  staffMiddleName?: string;
-  staffLastName: string;
-  staffDateOfBirth: string;
-  staffGender: string;
-  staffPhone: string;
-  staffEmail: string;
-  staffAddress: string;
-  staffPostCode?: string;
-  staffImage?: string;
-  staffImageDestination?: string;
-  staffMaritalStatus: string;
-  staffStartDate: string;
-  staffEndDate?: string;
-  staffNationality: string;
-  staffAllergies?: string;
-  staffNextOfKinName: string;
-  staffNextOfKinRelationship: string;
-  staffNextOfKinPhone: string;
-  staffNextOfKinEmail: string;
-  staffQualification?: {
-    _id: string;
-    qualificationName: string;
-    schoolName: string;
-    startDate: string;
-    endDate: string;
-  }[];
-}
-
-export interface ParamStaffType {
-  staffCustomId?: string;
-  staffFirstName: string;
-  staffMiddleName?: string;
-  staffLastName: string;
+  staffFullName: string;
   staffDateOfBirth: string;
   staffGender: string;
   staffPhone: string;

@@ -20,7 +20,7 @@ const signUpPage = () => {
   const [error, setError] = useState("");
   const { organisationEmail, organisationPassword, organisationConfirmPassword } = inputData;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setInputData((prevData) => ({
       ...prevData,

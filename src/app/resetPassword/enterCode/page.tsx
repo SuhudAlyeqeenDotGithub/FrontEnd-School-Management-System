@@ -5,6 +5,7 @@ import axios from "axios";
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { BASE_API_URL } from "@/lib/shortFunctions/shortFunctions";
 
 const signInPage = () => {
   const router = useRouter();
@@ -33,7 +34,7 @@ const signInPage = () => {
       try {
         const email = localStorage.getItem("accountEmail");
         const response = await axios.post(
-          "BASE_API_URL/alyeqeenschoolapp/api/orgaccount/resetpassword/verifycode",
+          `${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/resetpassword/verifycode`,
           { code, email },
           {
             withCredentials: true

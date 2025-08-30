@@ -151,13 +151,16 @@ const PeriodComponent = ({
         {/* text div */}
         <div className="flex flex-col gap-3 w-full">
           <InputComponent
+            title="Period *"
             placeholder="Title (Period 1, Term 1, Semester 1) *"
             required
+            autocomplete="on"
             name="period"
             value={period}
             onChange={handleInputChange}
           />
           <InputComponent
+            title="Start Date *"
             placeholder="Start Date *"
             type="date"
             required
@@ -166,6 +169,7 @@ const PeriodComponent = ({
             onChange={handleInputChange}
           />
           <InputComponent
+            title="End Date *"
             placeholder="End Date *"
             type="date"
             required

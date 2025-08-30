@@ -9,7 +9,7 @@ import { useTimelineMutation } from "@/tanStack/timeline/mutate";
 import PeriodComponent from "./periodComp";
 import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
-import { useQuery } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 const NewAcademicYearComponent = ({
   onClose,
@@ -19,6 +19,7 @@ const NewAcademicYearComponent = ({
   onCreate: (create: boolean) => {};
 }) => {
   const { handleUnload } = useNavigationHandler();
+  const queryClient = useQueryClient();
   const { tanCreateAcademicYear } = useTimelineMutation();
   const [unsaved, setUnsaved] = useState(false);
   const [error, setError] = useState("");
@@ -71,6 +72,17 @@ const NewAcademicYearComponent = ({
     if (academicYear === "") {
       setError("Academic Year is required");
       return false;
+    }
+    // Access academic years from react-query cache and check for duplicates
+    const cachedAcademicYears = queryClient.getQueryData(["academicYears"]);
+    if (cachedAcademicYears && Array.isArray(cachedAcademicYears)) {
+      const exists = cachedAcademicYears.some(
+        (ay: any) => ay.academicYear.trim().toLowerCase() === academicYear.trim().toLowerCase()
+      );
+      if (exists) {
+        setError(`Academic Year ${academicYear} already exists`);
+        return false;
+      }
     }
     if (startDate === "") {
       setError("Start Date is required");
@@ -215,6 +227,8 @@ const NewAcademicYearComponent = ({
         {/* text div */}
         <div className="flex flex-col gap-3 w-full">
           <InputComponent
+            title="Academic Year *"
+            autocomplete="on"
             placeholder=" e.g. (Academic Year 2023-2024)"
             required
             name="academicYear"
@@ -222,8 +236,8 @@ const NewAcademicYearComponent = ({
             onChange={handleInputChange}
           />
           <div className="flex gap-3">
-            {" "}
             <InputComponent
+              title="Start Date *"
               placeholder="Start Date *"
               type="date"
               required
@@ -232,6 +246,7 @@ const NewAcademicYearComponent = ({
               onChange={handleInputChange}
             />
             <InputComponent
+              title="End Date *"
               placeholder="End Date *"
               type="date"
               required

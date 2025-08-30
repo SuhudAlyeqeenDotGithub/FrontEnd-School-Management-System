@@ -4,6 +4,7 @@ import { ContainerComponent, ErrorDiv, InputComponent } from "./compLibrary";
 import { FaSearch } from "react-icons/fa";
 
 import { IoClose } from "react-icons/io5";
+import { defaultButtonStyle, ghostbuttonStyle } from "@/lib/generalStyles";
 
 export const DisallowedActionDialog = ({ onOk, warningText }: { onOk: () => void; warningText: string }) => {
   return (
@@ -214,8 +215,8 @@ export const CustomFilterComponent = ({
   const { search } = filterQuery;
 
   return (
-    <div className="rounded-lg flex flex-col border border-foregroundColor-25">
-      <div className="bg-backgroundColor-5 w-full px-5 py-6 font-bold border-b border-foregroundColor-25 flex justify-between items-center">
+    <div className="rounded-lg flex flex-col border border-borderColor shadow bg-backgroundColor">
+      <div className="bg-backgroundColor-5 w-full px-5 py-6 font-bold border-b border-borderColor flex justify-between items-center">
         <h2>Filter & Search</h2>
       </div>
       <div className="px-5 py-6">
@@ -229,7 +230,7 @@ export const CustomFilterComponent = ({
               onChange={(e) => {
                 setFilterQuery((prev: any) => ({ ...prev, search: e.target.value.trim() }));
               }}
-              className="rounded-lg h-[48px] border border-foregroundColor-25 p-2 pl-15 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
+              className="rounded-lg h-[48px] border border-borderColor p-2 pl-15 outline-none focus:border-b-3 focus:border-borderColor-3 w-full"
             />
 
             <span className="absolute left-5 bg-backgroundColor">
@@ -273,14 +274,11 @@ export const CustomFilterComponent = ({
             );
           })}
           <div className="flex gap-3">
-            <button
-              className="justify-center flex items-center gap-5 hover:cursor-pointer bg-foregroundColor text-backgroundColor rounded-r-lg p-2 w-30 h-[48px]"
-              onClick={() => onQuery(filterQuery)}
-            >
+            <button className={defaultButtonStyle} onClick={() => onQuery(filterQuery)}>
               Run
             </button>
             <button
-              className="ghostbutton w-40"
+              className={ghostbuttonStyle}
               onClick={() => {
                 const copyQuery = { ...filterQuery };
                 for (const key in copyQuery) {

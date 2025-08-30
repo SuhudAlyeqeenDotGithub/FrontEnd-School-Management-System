@@ -8,7 +8,7 @@ export const orgSignUp = createAsyncThunk<AccountType, OrgSignUpType>(
   "orgaccount/signup",
   async (orgData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`http://localhost:5000/alyeqeenschoolapp/api/orgaccount/signup`, orgData, {
+      const response = await axios.post(`${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/signup`, orgData, {
         withCredentials: true
       });
       return response.data;
@@ -22,7 +22,7 @@ export const signIn = createAsyncThunk<AccountType, SignInType>(
   "orgaccount/signin",
   async (signInData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`http://localhost:5000/alyeqeenschoolapp/api/orgaccount/signin`, signInData, {
+      const response = await axios.post(`${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/signin`, signInData, {
         withCredentials: true
       });
       return response.data;
@@ -47,7 +47,7 @@ export const setNewPassword = createAsyncThunk<AccountType, ResetPasswordType>(
   async (newPasswordData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `http://localhost:5000/alyeqeenschoolapp/api/orgaccount/resetpassword/newpassword`,
+        `${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/resetpassword/newpassword`,
         newPasswordData,
         {
           withCredentials: true

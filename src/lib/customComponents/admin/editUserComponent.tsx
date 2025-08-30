@@ -8,7 +8,7 @@ import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/cl
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
-import { checkDataType } from "../../shortFunctions/shortFunctions";
+import { checkDataType, validateEmail, validatePassword } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../general/compLibrary";
 import { DisallowedActionDialog, SearchableDropDownInput } from "../general/compLibrary2";
 import { TabActionDialog } from "./editRoleComponents";
@@ -74,27 +74,20 @@ const EditUserComponent = ({
       return false;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(userEmail)) {
+    if (!validateEmail(userEmail)) {
       setError("Please enter a valid email address.");
       return;
     }
 
-    const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&~*+-]).{8,}$/;
-    if (!passwordStrengthRegex.test(userPassword)) {
+    if (!validatePassword(userPassword)) {
       setError(
         "Password must be at least 8 characters long and include uppercase, lowercase, number, and at least one special character [!@#$%^&~*]."
       );
       return;
     }
 
-    // if (userPassword === "Change01@Password123?") {
-    //   setError("Change01@Password123? cannot be used for password as it is reserved");
-    //   return;
-    // }
-
     if (!roleId) {
-      setError("Data Error: Role name is too short");
+      setError("Data Error: Please select a role");
       return false;
     }
 

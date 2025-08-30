@@ -1,11 +1,18 @@
 "use client";
 
-import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "../general/compLibrary";
+import {
+  InputComponent,
+  LoaderButton,
+  ContainerComponent,
+  ErrorDiv,
+  SelectInputComponent,
+  TextAreaComponent
+} from "../general/compLibrary";
 import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/clientFunctions";
 import { CgTrash } from "react-icons/cg";
-import { BASE_API_URL, formatDate } from "../../shortFunctions/shortFunctions";
+import { BASE_API_URL, formatDate, generateCustomId } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../general/compLibrary";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { QualificationType } from "@/interfaces/interfaces";
@@ -27,7 +34,6 @@ const NewStaffComponent = ({
   const { handleUnload } = useNavigationHandler();
   const dispatch = useAppDispatch();
   const { tanCreateStaffProfile } = useStaffMutation();
-  const { isLoading } = useAppSelector((state) => state.staffData);
   const [unsaved, setUnsaved] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageName, setImageName] = useState("");
@@ -44,10 +50,9 @@ const NewStaffComponent = ({
     endDate: ""
   });
   const [localData, setLocalData] = useState({
-    staffCustomId: "",
-    staffFirstName: "",
-    staffMiddleName: "",
-    staffLastName: "",
+    staffCustomId: generateCustomId("STF", true),
+    staffFullName: "",
+
     staffDateOfBirth: "",
     staffGender: "",
     staffPhone: "",
@@ -79,9 +84,7 @@ const NewStaffComponent = ({
 
   const {
     staffCustomId,
-    staffFirstName,
-    staffMiddleName,
-    staffLastName,
+    staffFullName,
     staffDateOfBirth,
     staffGender,
     staffPhone,
@@ -118,7 +121,6 @@ const NewStaffComponent = ({
       staffCustomId,
       staffImage,
       staffImageDestination,
-      staffMiddleName,
       staffQualification,
       staffPostCode,
       staffEndDate,
@@ -264,7 +266,7 @@ const NewStaffComponent = ({
             loadingButtonText="Creating Staff..."
             disabled={!unsaved}
             buttonStyle="w-full"
-            isLoading={isLoading}
+            isLoading={tanCreateStaffProfile.isPending}
             onClick={handleCreateStaff}
           />
           <IoClose
@@ -300,97 +302,95 @@ const NewStaffComponent = ({
           {/* text div */}
           <div className="grid grid-cols-2 gap-3 w-[70%]">
             <InputComponent
+              title="Staff Custom ID *"
               placeholder="Staff Custom ID"
               required
               name="staffCustomId"
               value={staffCustomId}
               onChange={handleInputChange}
             />
-            <InputComponent
-              placeholder="First Name *"
-              required
-              name="staffFirstName"
-              value={staffFirstName}
-              onChange={handleInputChange}
-            />
-            <InputComponent
-              placeholder="Middle Name"
-              name="staffMiddleName"
-              value={staffMiddleName}
-              onChange={handleInputChange}
-            />
-            <InputComponent
-              placeholder="Last Name *"
-              name="staffLastName"
-              value={staffLastName}
-              onChange={handleInputChange}
-            />
-            <div className="gap-1 flex flex-col">
-              <h3 className="ml-1">Date Of Birth *</h3>
-              <InputComponent
-                type="date"
-                placeholder="Date Of Birth *"
-                name="staffDateOfBirth"
-                value={staffDateOfBirth}
-                onChange={handleInputChange}
-              />
-            </div>
 
-            <select
+            <InputComponent
+              title="Full Name *"
+              placeholder="Full Name *"
+              name="staffFullName"
+              value={staffFullName}
+              onChange={handleInputChange}
+            />
+
+            <InputComponent
+              title="Date Of Birth *"
+              type="date"
+              placeholder="Date Of Birth *"
+              name="staffDateOfBirth"
+              value={staffDateOfBirth}
+              onChange={handleInputChange}
+            />
+
+            <SelectInputComponent
+              title="Gender *"
+              placeholder="Gender *"
               name="staffGender"
               value={staffGender}
               onChange={handleInputChange}
-              className="bg-backgroundColor border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-            >
-              <option disabled value="">
-                Gender *
-              </option>
-              <option value="Male"> Gender - Male</option>
-              <option value="Female"> Gender - Female</option>
-              <option value="Other"> Gender - Other</option>
-            </select>
-            <InputComponent placeholder="Phone *" name="staffPhone" value={staffPhone} onChange={handleInputChange} />
-            <InputComponent placeholder="Email *" name="staffEmail" value={staffEmail} onChange={handleInputChange} />
-            <select
+              options={[
+                { value: "Male", label: "Male" },
+                { value: "Female", label: "Female" },
+                { value: "Other", label: "Other" }
+              ]}
+            />
+
+            <InputComponent
+              title="Phone *"
+              placeholder="Phone *"
+              name="staffPhone"
+              value={staffPhone}
+              onChange={handleInputChange}
+            />
+            <InputComponent
+              title="Email *"
+              placeholder="Email *"
+              name="staffEmail"
+              value={staffEmail}
+              onChange={handleInputChange}
+            />
+            <SelectInputComponent
+              placeholder="Marital Status *"
+              title="Marital Status *"
               name="staffMaritalStatus"
               value={staffMaritalStatus}
               onChange={handleInputChange}
-              className="bg-backgroundColor border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-            >
-              <option disabled value="">
-                Marital Status *
-              </option>
-              <option value="Married"> Marital Status - Married</option>
-              <option value="Single"> Marital Status - Single</option>
-            </select>
+              options={[
+                { value: "Married", label: "Married" },
+                { value: "Single", label: "Single" }
+              ]}
+            />
+
             <InputComponent
+              title="Nationality *"
               placeholder="Nationality *"
               name="staffNationality"
               value={staffNationality}
               onChange={handleInputChange}
             />
 
-            <div className="gap-1 flex flex-col">
-              <h3 className="ml-1">Joined Date *</h3>
-              <InputComponent
-                placeholder="Joined Date *"
-                type="date"
-                name="staffStartDate"
-                value={staffStartDate}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="gap-1 flex flex-col">
-              <h3 className="ml-1">Leave Date</h3>
+            <InputComponent
+              title="Joined Date *"
+              placeholder="Joined Date *"
+              type="date"
+              name="staffStartDate"
+              value={staffStartDate}
+              onChange={handleInputChange}
+            />
 
-              <InputComponent
-                placeholder="Leave Date"
-                type="date"
-                name="staffEndDate"
-                value={staffEndDate}
-                onChange={handleInputChange}
-              />
-            </div>
+            <InputComponent
+              title="Leave Date *"
+              placeholder="Leave Date *"
+              type="date"
+              name="staffEndDate"
+              value={staffEndDate}
+              onChange={handleInputChange}
+            />
           </div>
           {/* staff image div */}
           <ImageUploadDiv
@@ -409,6 +409,7 @@ const NewStaffComponent = ({
         <div className="flex w-full gap-3">
           <div className="w-[70%]">
             <InputComponent
+              title="Address *"
               placeholder="Address *"
               name="staffAddress"
               value={staffAddress}
@@ -417,13 +418,22 @@ const NewStaffComponent = ({
           </div>
           <div className="w-[30%]">
             <InputComponent
-              placeholder="Post Code"
+              title="Post Code *"
+              placeholder="Post Code *"
               name="staffPostCode"
               value={staffPostCode}
               onChange={handleInputChange}
             />
           </div>
         </div>
+        <TextAreaComponent
+          title="Allergies *"
+          required
+          placeholder="Allergies *"
+          name="staffAllergies"
+          value={staffAllergies}
+          onChange={handleInputChange}
+        />
 
         <textarea
           placeholder="Allergies *"

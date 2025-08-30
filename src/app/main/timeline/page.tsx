@@ -16,17 +16,19 @@ import { tableCellStyle, tableContainerStyle, tableHeaderStyle, tableTopStyle } 
 import EditAcademicYearComponent from "@/lib/customComponents/academicYear/editAcademicYear";
 import { useQuery } from "@tanstack/react-query";
 import { tanFetchAny } from "@/tanStack/timeline/fetch";
+import { useTimelineMutation } from "@/tanStack/timeline/mutate";
+import reusableQueries from "@/tanStack/reusableQueries/reusableQueries";
 
 const AcademicYear = () => {
-  const dispatch = useAppDispatch();
   const { accountData } = useAppSelector((state) => state.accountData);
+  const { useReusableQuery } = reusableQueries();
+  const { tanDeleteAcademicYear } = useTimelineMutation();
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
   const [openEditAcademicYearDialog, setOpenEditAcademicYearDialog] = useState(false);
   const [openNewAcademicYearDialog, setOpenNewAcademicYearDialog] = useState(false);
-  const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
   const [onOpenEditAcademicYearData, setOnOpenEditAcademicYearData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
@@ -41,29 +43,18 @@ const AcademicYear = () => {
 
   const {
     data: academicYears,
-    isLoading: academicYearsIsLoading,
+    isPending: academicYearsIsPending,
     isFetching: academicYearsIsFetching,
     error: academicYearsError,
     isError: isAcademicYearsError,
     refetch: refetchAcademicYears
-  } = useQuery({
-    queryKey: ["academicYears"],
-    queryFn: () =>
-      tanFetchAny(
-        accountData,
-        accountPermittedActions,
-        "View Academic Years",
-        `alyeqeenschoolapp/api/timeline/academicYear`
-      ),
-    enabled: Boolean(accountData?.accountStatus),
-    retry: false
-  });
+  } = useReusableQuery("academicYears", "View Academic Years", `alyeqeenschoolapp/api/timeline/academicYear`);
 
   useEffect(() => {
     if (!academicYears) return;
     setError("");
     setLocalData(academicYears);
-  }, [academicYears, academicYearsIsLoading]);
+  }, [academicYears, academicYearsIsPending]);
 
   useEffect(() => {
     if (!isAcademicYearsError) return;
@@ -75,9 +66,10 @@ const AcademicYear = () => {
   useEffect(() => {
     if (!academicYears) return;
     if (searchValue !== "") {
-      const filteredData = academicYears.filter((obj: any) =>
-        obj.searchText.toLowerCase().includes(searchValue.toLowerCase())
+      const filteredData = (academicYears as any[]).filter((obj: any) =>
+        obj.academicYear.toLowerCase().includes(searchValue.toLowerCase())
       );
+
       setLocalData(filteredData);
     } else {
       setLocalData(academicYears);
@@ -223,15 +215,14 @@ const AcademicYear = () => {
               setError("");
               if (confirmed) {
                 try {
-                  const response = await dispatch(
-                    deleteAcademicYear({ academicYearIdToDelete: returnObject.academicYearId })
-                  ).unwrap();
+                  const response = await tanDeleteAcademicYear.mutateAsync({
+                    academicYearIdToDelete: returnObject.academicYearId
+                  });
                   if (response) {
                     setOpenConfirmDelete(false);
                     document.body.style.overflow = "";
                   }
                 } catch (err: any) {
-                  console.log("error deleting academic year", err.message);
                   setError(err.message);
                 }
               } else {
@@ -246,7 +237,7 @@ const AcademicYear = () => {
         {/* data table div */}
         {/* table body */}
 
-        {academicYearsIsLoading || academicYearsIsFetching || !academicYears ? (
+        {academicYearsIsPending || academicYearsIsFetching || !academicYears ? (
           <div className="flex items-center justify-center mt-10">
             <LoaderDiv
               type="spinnerText"
@@ -323,7 +314,7 @@ const AcademicYear = () => {
               </TableHeader>
               {/* table data */}
               <TableBody className="mt-3 bg-backgroundColor">
-                {academicYearsIsLoading ? (
+                {academicYearsIsPending ? (
                   <tr>
                     <td colSpan={8}>
                       <div className="flex items-center justify-center mt-10">
@@ -343,7 +334,7 @@ const AcademicYear = () => {
                       <div className="flex justify-center mt-6">No search result found</div>
                     </td>
                   </tr>
-                ) : localData.length < 1 && !academicYearsIsLoading ? (
+                ) : localData.length < 1 && !academicYearsIsPending ? (
                   <tr>
                     <td colSpan={8} className="text-center py-4">
                       <div className="flex justify-center mt-6">No data available</div>{" "}

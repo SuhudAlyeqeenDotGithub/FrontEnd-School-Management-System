@@ -249,6 +249,8 @@ const EditAcademicYearComponent = ({
         {/* text div */}
         <div className="flex flex-col gap-3 w-full">
           <InputComponent
+            title="Academic Year *"
+            autocomplete="on"
             placeholder=" e.g. (Academic Year 2023-2024)"
             required
             name="academicYear"

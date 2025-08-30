@@ -2,7 +2,7 @@
 import { checkDataType, handledDeleteImage } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { useEffect, useState } from "react";
-import { ErrorDiv, LoaderDiv } from "@/lib/customComponents/general/compLibrary";
+import { ErrorDiv, LoaderDiv, NextButton, PreviousButton } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { CgTrash } from "react-icons/cg";
 import {
@@ -16,7 +16,17 @@ import NewStaffComponent from "@/lib/customComponents/staff/newStaffComp";
 import { deleteStaffProfile, getStaffProfiles } from "@/redux/features/staff/staffThunks";
 import { MdContentCopy, MdAdd, MdNavigateNext, MdNavigateBefore } from "react-icons/md";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { tableCellStyle, tableContainerStyle, tableHeaderStyle, tableTopStyle } from "@/lib/generalStyles";
+import {
+  defaultButtonStyle,
+  ghostbuttonStyle,
+  paginationButtonStyle,
+  paginationContainerStyle,
+  tableCellStyle,
+  tableContainerStyle,
+  tableHeaderStyle,
+  tableRowStyle,
+  tableTopStyle
+} from "@/lib/generalStyles";
 import { useQuery } from "@tanstack/react-query";
 import { handleApiRequest } from "@/axios/axiosClient";
 import { tanFetchStaffProfiles } from "@/tanStack/staff/fetch";
@@ -146,7 +156,7 @@ const StaffProfile = () => {
     );
 
   return (
-    <div className="px-8 py-6 w-full h-screen overflow-auto">
+    <div className="px-8 py-6 w-full">
       {error && (
         <ErrorDiv
           onClose={(close) => {
@@ -278,12 +288,9 @@ const StaffProfile = () => {
                   <h2>Staff Profile</h2>
                   <h3>Register and manage staff</h3>
                 </div>
-                <span
-                  onClick={() => setOpenFilterDiv(!openFilterDiv)}
-                  className="font-semibold cursor-pointer text-foregroundColor-80 ml-3 bg-foregroundColor-10 w-30 rounded-lg text-center p-2 border border-foregroundColor-15"
-                >
+                <button onClick={() => setOpenFilterDiv(!openFilterDiv)} className={ghostbuttonStyle}>
                   {openFilterDiv ? "Close Filter" : "Open Filter"}
-                </span>
+                </button>
                 <div>
                   <button
                     onClick={() => {
@@ -295,6 +302,7 @@ const StaffProfile = () => {
                       }
                     }}
                     disabled={!hasActionAccess("Create Staff")}
+                    className={defaultButtonStyle}
                   >
                     <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Staff
                   </button>
@@ -319,7 +327,7 @@ const StaffProfile = () => {
                           const sortKey = key_Name[header];
                           handleSort(sortKey);
                         }}
-                        className="text-center text-foregroundColor-70 w-[200px] font-semibold hover:cursor-pointer hover:bg-foregroundColor-5 p-2 whitespace-nowrap"
+                        className="text-center w-[200px] font-semibold hover:cursor-pointer hover:bg-backgroundColor-4 p-2 whitespace-nowrap"
                       >
                         {header}
                         <LuArrowUpDown className="inline-block ml-1" />
@@ -376,7 +384,7 @@ const StaffProfile = () => {
                               setError("You do not have Edit User Access - Please contact your admin");
                             }
                           }}
-                          className="hover:cursor-pointer"
+                          className={tableRowStyle}
                         >
                           <TableCell className="w-[110px] whitespace-nowrap text-center">
                             <span className="rounded-full bg-foregroundColor-10 p-2">
@@ -428,12 +436,12 @@ const StaffProfile = () => {
                   )}
                 </TableBody>
               </Table>
-              <div className="flex items-center justify-between px-6 py-4 border-t border-foregroundColor-25 text-[15px] font-semibold text-foregroundColor-60">
+              <div className={paginationContainerStyle}>
                 <div>
                   Showing {paginationData.chunkCount} of {paginationData.totalCount} records
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
+                  <NextButton
                     onClick={() => {
                       searchUrl.set("cursorType", "prev");
                       searchUrl.set("prevCursor", paginationData.prevCursor);
@@ -441,15 +449,12 @@ const StaffProfile = () => {
                       refetchStaffProfiles();
                     }}
                     disabled={page < 2}
-                    className="ghostbutton"
-                  >
-                    <MdNavigateBefore className="text-[20px] inline-block" />
-                    Previous
-                  </button>
+                  />
+
                   <span className=" px-2">
                     Page {page} of {Math.ceil(paginationData.totalCount / 10)}
                   </span>
-                  <button
+                  <PreviousButton
                     onClick={() => {
                       searchUrl.set("cursorType", "next");
                       searchUrl.set("nextCursor", paginationData.nextCursor);
@@ -457,11 +462,7 @@ const StaffProfile = () => {
                       refetchStaffProfiles();
                     }}
                     disabled={!paginationData.hasNext}
-                    className="ghostbutton"
-                  >
-                    Next
-                    <MdNavigateNext className=" text-[20px] inline-block" />
-                  </button>
+                  />
                 </div>
               </div>
             </div>

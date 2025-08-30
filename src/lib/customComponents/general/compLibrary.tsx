@@ -1,20 +1,16 @@
 "use client";
 import { InputComponentType } from "@/interfaces/interfaces";
-import { TabObject, DataTableType } from "@/interfaces/interfaces";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
-import { RiUserStarFill } from "react-icons/ri";
-import { checkDataType } from "../../shortFunctions/shortFunctions";
-import { formatDate } from "../../shortFunctions/shortFunctions";
-import { useRouter } from "next/navigation";
-import { useAppSelector } from "@/redux/hooks";
-import { setTriggerUnsavedDialog } from "@/redux/features/general/generalSlice";
+import { ChevronRight, ChevronLeft, HelpCircle } from "lucide-react";
 import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/clientFunctions";
 import { IoClose } from "react-icons/io5";
+import { paginationButtonStyle } from "@/lib/generalStyles";
+import type { LucideIcon } from "lucide-react";
 export const InputComponent = ({
   type = "text",
-  autocomplete,
+  title = "Title",
+  autocomplete = "off",
   disabled = false,
   placeholder,
   required = false,
@@ -24,21 +20,106 @@ export const InputComponent = ({
   onFocus,
   onBlur
 }: InputComponentType) => {
-  const inputStyle =
-    "border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full";
   return (
-    <input
-      disabled={disabled}
-      type={type}
-      autoComplete={autocomplete}
-      placeholder={placeholder}
-      name={name}
-      value={value}
-      required={required}
-      className={inputStyle}
-      onChange={onChange}
-      onFocus={onFocus}
-    />
+    <div className="flex flex-col gap-1 w-full">
+      <label htmlFor={name} className="block font-medium text-foregroundColor-2 mb-1 ml-1">
+        {title}
+      </label>
+      <input
+        disabled={disabled}
+        type={type}
+        autoComplete={autocomplete}
+        placeholder={placeholder}
+        name={name}
+        value={value}
+        required={required}
+        className="border border-borderColor rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full placeholder:text-sm"
+        onChange={onChange}
+        onFocus={onFocus}
+      />
+    </div>
+  );
+};
+
+export const TextAreaComponent = ({
+  title = "Title",
+  disabled = false,
+  placeholder,
+  required = false,
+  name,
+  value,
+  onChange,
+  onFocus,
+  onBlur
+}: InputComponentType) => {
+  return (
+    <div className="flex flex-col gap-1 w-full">
+      <label htmlFor={name} className="block font-medium text-foregroundColor-2 mb-1 ml-1">
+        {title}
+      </label>
+      <textarea
+        disabled={disabled}
+        placeholder={placeholder}
+        name={name}
+        value={value}
+        required={required}
+        className="border border-borderColor rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full h-[100px] overflow-auto placeholder:text-sm"
+        onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
+      />
+    </div>
+  );
+};
+
+export const SelectInputComponent = ({
+  title = "Title",
+  disabled = false,
+  placeholder,
+  required = false,
+  name,
+  value,
+  onChange,
+  onFocus,
+  onBlur,
+  options
+}: {
+  title?: string;
+  disabled?: boolean;
+  placeholder?: string;
+  required?: boolean;
+  name: string;
+  value: string;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLSelectElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLSelectElement>) => void;
+  options: { value: string; label: string }[];
+}) => {
+  return (
+    <div className="flex flex-col gap-1 w-full">
+      <label htmlFor={name} className="block font-medium text-foregroundColor-2 mb-1 ml-1">
+        {title}
+      </label>
+      <select
+        disabled={disabled}
+        name={name}
+        value={value}
+        required={required}
+        className="border border-borderColor rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full"
+        onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
+      >
+        <option value="" disabled className="text-sm">
+          {placeholder}
+        </option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 };
 
@@ -52,7 +133,7 @@ export const ContainerComponent = ({
   id?: string;
 }) => {
   return (
-    <div id={id} className={`bg-backgroundColor border border-foregroundColor-20 shadow-md rounded-lg p-5 ${style} `}>
+    <div id={id} className={`bg-backgroundColor border border-borderColor shadow-md rounded-lg p-5 ${style} `}>
       {children}
     </div>
   );
@@ -103,7 +184,7 @@ export const LoaderButton = ({
   buttonText,
   loadingButtonText,
   disabled = false,
-  buttonStyle,
+  buttonStyle = "bg-foregroundColor text-backgroundColor shadow-xs hover:bg-foregroundColor-2 hover:cursor-pointer w-full px-4 py-3 rounded-md disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed",
   isLoading,
   spinnerDimension = "w-6 h-6",
   onClick
@@ -157,31 +238,117 @@ export const YesNoDialog = ({
   );
 };
 
-export const SubTabLink = ({ icon, title, subTitle, url }: TabObject) => {
+export const IconFormatter = ({
+  icon: Icon = HelpCircle,
+  size = 20,
+  className = ""
+}: {
+  icon?: LucideIcon;
+  size?: number;
+  className?: string;
+}) => {
+  return <Icon className={`inline-block ${className}`} size={size} />;
+};
+
+export const CustomHeading = ({ children, variation = "head1" }: { children: React.ReactNode; variation?: string }) => {
+  const variations = {
+    head1: "text-[35px] font-bold",
+    head1light: "text-[35px] font-semibold text-text-slate-500",
+    head2: "text-[30px] font-bold",
+    head2light: "text-[30px] font-semibold text-text-slate-500",
+    head3: "text-[25px] font-bold",
+    head3light: "text-[25px] font-semibold text-slate-500",
+    head4: "text-[16px] font-semibold",
+    head4light: "text-[16px] font-semibold text-slate-500",
+    head5: "text-[15px] font-semibold",
+    head5light: "text-[15px] font-semibold text-slate-500"
+  };
+  return <div className={`${variations[variation as keyof typeof variations]}`}>{children}</div>;
+};
+
+export const SubTabLink = ({ icon, title, url }: { icon?: LucideIcon; title: string; url: string }) => {
+  const { handleNavigation } = useNavigationHandler();
+  const pathname = usePathname();
+
+  return (
+    <div
+      title={title}
+      className={`flex gap-2 px-5 py-3 text-foregroundColor-2 font-medium rounded-md hover:bg-backgroundColor-3 hover:cursor-pointer h-12 items-center justify-center whitespace-nowrap ${
+        pathname === url ? "bg-backgroundColor-3 border border-borderColor shadow-xs" : ""
+      }`}
+      onClick={() => handleNavigation(url)}
+    >
+      <IconFormatter icon={icon} className="size-5" />
+      <span>{title}</span>
+    </div>
+  );
+};
+export const SubTabNav = ({
+  tabs
+}: {
+  tabs: {
+    icon?: LucideIcon;
+    title: string;
+    url: string;
+  }[];
+}) => {
+  return (
+    <div className="flex gap-2 border-b border-borderColor bg-backgroundColor py-1 px-3 h-[70px] items-center sticky top-0 z-20">
+      {tabs.map(({ icon, title, url }) => (
+        <SubTabLink key={title} icon={icon} title={title} url={url} />
+      ))}
+    </div>
+  );
+};
+
+export const TabLink = ({ icon, tab, url }: { icon?: LucideIcon; tab: string; url: string }) => {
   const { handleNavigation } = useNavigationHandler();
   const pathname = usePathname();
   return (
     <div
-      title={title}
-      className={`hover:cursor-pointer flex flex-col gap-1 items-center justify-center hover:text-foregroundColor-50 border-foregroundColor-15 rounded-lg p-2 ${
-        pathname === url ? "bg-foregroundColor-5 border" : ""
+      title={tab}
+      className={`flex gap-2 px-5 py-3 font-medium rounded-md hover:bg-backgroundColor-2 hover:cursor-pointer h-12 items-center whitespace-nowrap ${
+        pathname === url
+          ? "text-background bg-foregroundColor hover:bg-foregroundColor-2 border border-borderColor shadow-xs"
+          : "text-foregroundColor-2"
       }`}
       onClick={() => handleNavigation(url)}
     >
-      <span className="text-[30px]">{icon}</span>
-      <div className="flex flex-col items-center justify-center">
-        <span>{title}</span>
-        <span className="text-[13px] text-foregroundColor-50">{subTitle}</span>
-      </div>
+      <IconFormatter icon={icon} className="size-5" />
+      <span>{tab}</span>
     </div>
   );
 };
-export const SubTabNav = ({ tabs }: { tabs: TabObject[] }) => {
+export const SideBarNav = ({
+  tabs
+}: {
+  tabs: {
+    icon?: LucideIcon;
+    tab: string;
+    url: string;
+  }[];
+}) => {
   return (
-    <div className="flex gap-2 border-b border-foregroundColor-15 py-1 px-4 h-[100px] mt-2">
-      {tabs.map(({ icon, title, subTitle, url }) => (
-        <SubTabLink key={title} icon={icon} title={title} subTitle={subTitle} url={url} />
+    <div className="flex flex-col bg-backgroundColor py-1 px-3 mx-1">
+      {tabs.map(({ icon, tab, url }) => (
+        <TabLink key={tab} icon={icon} tab={tab} url={url} />
       ))}
     </div>
+  );
+};
+
+export const NextButton: React.FC<{ onClick: () => void; disabled?: boolean }> = ({ onClick, disabled }) => {
+  return (
+    <button className={paginationButtonStyle} onClick={onClick} disabled={disabled}>
+      Next <ChevronRight className="text-[10px] inline-block" />
+    </button>
+  );
+};
+
+export const PreviousButton: React.FC<{ onClick: () => void; disabled?: boolean }> = ({ onClick, disabled }) => {
+  return (
+    <button className={paginationButtonStyle} onClick={onClick} disabled={disabled}>
+      <ChevronLeft className="inline-block" /> Previous
+    </button>
   );
 };

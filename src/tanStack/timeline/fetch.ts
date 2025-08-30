@@ -1,6 +1,7 @@
 import { handleApiRequest } from "@/axios/axiosClient";
 
 export const tanFetchAny = async (accountData: any, permittedActions: string[], action: string, url: string) => {
+  console.log("Fetching data from:", url);
   if (!accountData) {
     const msg = "Account data not found.";
     throw new Error(msg);

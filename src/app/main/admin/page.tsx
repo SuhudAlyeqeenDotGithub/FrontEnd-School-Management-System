@@ -117,7 +117,7 @@ const RolesAccess = () => {
   };
 
   return (
-    <div className="px-8 py-6 w-full">
+    <div className="px-8 py-6 w-full bg-foregroundColor-3">
       {error && (
         <ErrorDiv
           onClose={(close) => {

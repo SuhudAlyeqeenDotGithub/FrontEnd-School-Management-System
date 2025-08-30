@@ -16,9 +16,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import EditStaffContractComponent from "@/lib/customComponents/staff/editContractComp";
 import { useStaffMutation } from "@/tanStack/staff/mutate";
 import { tanFetchAny } from "@/tanStack/timeline/fetch";
+import reusableQueries from "@/tanStack/reusableQueries/reusableQueries";
 
 const StaffContracts = () => {
   const { tanDeleteStaffContract } = useStaffMutation();
+  const { useReusableQuery } = reusableQueries();
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
@@ -67,23 +69,12 @@ const StaffContracts = () => {
 
   const {
     data: academicYears,
-    isLoading: academicYearsIsLoading,
+    isPending: academicYearsIsPending,
     isFetching: academicYearsIsFetching,
     error: academicYearsError,
     isError: isAcademicYearsError,
     refetch: refetchAcademicYears
-  } = useQuery({
-    queryKey: ["academicYears"],
-    queryFn: () =>
-      tanFetchAny(
-        accountData,
-        accountPermittedActions,
-        "View Academic Years",
-        `alyeqeenschoolapp/api/timeline/academicYear`
-      ),
-    enabled: Boolean(accountData?.accountStatus),
-    retry: false
-  });
+  } = useReusableQuery("academicYears", "View Academic Years", `alyeqeenschoolapp/api/timeline/academicYear`);
 
   const {
     data: staffContracts,
@@ -115,7 +106,7 @@ const StaffContracts = () => {
   useEffect(() => {
     if (!academicYears) return;
     setError("");
-  }, [academicYears, academicYearsIsLoading]);
+  }, [academicYears, academicYearsIsPending]);
 
   useEffect(() => {
     if (!isAcademicYearsError) return;
@@ -180,7 +171,6 @@ const StaffContracts = () => {
         {error}
       </ErrorDiv>
     );
-
 
   // function to handle sorting
   const handleSort = (sortKey: any) => {
@@ -289,7 +279,6 @@ const StaffContracts = () => {
                     staffContractIDToDelete: returnObject.contractId
                   });
                 } catch (err: any) {
-                  console.log("error deleting staff profile", err.message);
                   setError(err.message);
                 }
                 setOpenConfirmDelete(false);
@@ -300,7 +289,7 @@ const StaffContracts = () => {
           />
         )}
         {/* data table div */}
-        {staffContractsIsLoading || academicYearsIsLoading || staffIsLoading ? (
+        {staffContractsIsLoading || academicYearsIsPending || staffIsLoading ? (
           <div className="flex items-center justify-center mt-10">
             <LoaderDiv
               type="spinnerText"
@@ -319,7 +308,7 @@ const StaffContracts = () => {
                   {
                     displayText: "Academic Year",
                     fieldName: "academicYear",
-                    options: ["All", ...academicYears.map(({ academicYear }: { academicYear: string }) => academicYear)]
+                    options: ["All", ...academicYears.map(({ academicYear }: any) => academicYear)]
                   },
                   {
                     displayText: "Contract Type",

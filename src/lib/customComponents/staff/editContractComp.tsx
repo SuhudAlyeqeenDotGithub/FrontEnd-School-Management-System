@@ -20,7 +20,7 @@ const EditStaffContractComponent = ({
   onSave
 }: {
   data: any;
-  academicYears: any[];
+  academicYears: any;
   staff: any[];
   onClose: (close: boolean) => {};
   onSave: (save: boolean) => {};

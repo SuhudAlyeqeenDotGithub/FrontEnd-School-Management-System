@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { InputComponent, ErrorDiv, LoaderButton } from "@/lib/customComponents/general/compLibrary";
+import { InputComponent, ErrorDiv, LoaderButton, CustomHeading } from "@/lib/customComponents/general/compLibrary";
 import Link from "next/link";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { orgSignUp } from "@/redux/features/accounts/accountThunks";
@@ -15,16 +15,25 @@ const signUpPage = () => {
   const { isLoading, isSuccess, isError, errorMessage } = useAppSelector((state) => state.accountData);
   const [inputData, setInputData] = useState({
     organisationName: "",
+    organisationInitial: "",
     organisationEmail: "",
     organisationPhone: "",
     organisationPassword: "",
     organisationConfirmPassword: ""
   });
-  const [error, setError] = useState("");
-  const { organisationName, organisationEmail, organisationPhone, organisationPassword, organisationConfirmPassword } =
-    inputData;
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [error, setError] = useState("");
+  const {
+    organisationName,
+    organisationInitial,
+    organisationEmail,
+    organisationPhone,
+    organisationPassword,
+    organisationConfirmPassword
+  } = inputData;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setInputData((prevData) => ({
       ...prevData,
@@ -35,12 +44,18 @@ const signUpPage = () => {
   const validationPassed = () => {
     if (
       !organisationName.trim() ||
+      !organisationInitial.trim() ||
       !organisationEmail.trim() ||
       !organisationPhone.trim() ||
       !organisationPassword ||
       !organisationConfirmPassword
     ) {
       setError("Please fill in all required fields.");
+      return;
+    }
+
+    if (organisationInitial.length !== 3) {
+      setError("Organisation initial must be 3 characters long.");
       return;
     }
 
@@ -91,12 +106,12 @@ const signUpPage = () => {
     }
   };
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <div className="flex flex-col items-center justify-center w-1/2 gap-5">
-        <h1>Al-Yeqeen School Management App</h1>
-        <div className="flex flex-col gap-5 border border-foregroundColor-20 p-8 rounded-lg shadow justify-center items-center w-3/4">
-          <h2>Sign Up</h2>
-          <h3>Please provide your organisation details</h3>
+    <div className="flex flex-col items-center justify-center h-screen bg-backgroundColor-3">
+      <div className="flex flex-col items-center justify-center w-2/3 gap-5">
+        <CustomHeading>Al-Yeqeen School Management App</CustomHeading>
+        <div className="flex flex-col gap-5 border border-border p-8 bg-backgroundColor rounded-lg shadow justify-center items-center w-3/4">
+          <CustomHeading variation="head2">Sign Up</CustomHeading>
+          <CustomHeading variation="head4light">Please provide your organisation details</CustomHeading>
           {error && (
             <ErrorDiv
               onClose={(close) => {
@@ -109,45 +124,76 @@ const signUpPage = () => {
             </ErrorDiv>
           )}
           <form className="flex flex-col gap-4 mt-5 w-full items-center" onSubmit={handleSubmit}>
-            <InputComponent
-              placeholder="Organisation Name *"
-              name="organisationName"
-              value={organisationName}
-              required={true}
-              onChange={handleInputChange}
-            />
-            <InputComponent
-              type="email"
-              placeholder="Organisation Email - (admin) *"
-              name="organisationEmail"
-              value={organisationEmail}
-              required={true}
-              onChange={handleInputChange}
-            />
-            <InputComponent
-              placeholder="Organisation Phone - (+447840272035) *"
-              name="organisationPhone"
-              value={organisationPhone}
-              required={true}
-              onChange={handleInputChange}
-            />
-            <InputComponent
-              type="password"
-              placeholder="Password *"
-              name="organisationPassword"
-              value={organisationPassword}
-              required={true}
-              onChange={handleInputChange}
-            />
-            <InputComponent
-              type="password"
-              placeholder="Confirm Password *"
-              name="organisationConfirmPassword"
-              value={organisationConfirmPassword}
-              required={true}
-              onChange={handleInputChange}
-            />
+            <div className="flex gap-3 w-full">
+              <div className="w-[65%]">
+                <InputComponent
+                  title="Organisation Name *"
+                  placeholder="Organisation Name *"
+                  name="organisationName"
+                  value={organisationName}
+                  required={true}
+                  onChange={handleInputChange}
+                />
+              </div>
 
+              <div className="w-[35%]">
+                <InputComponent
+                  title="Organisation Initial"
+                  placeholder="e.g. ORG or 3 letter short name"
+                  name="organisationInitial"
+                  value={organisationInitial}
+                  required={true}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 w-full">
+              <InputComponent
+                type="email"
+                title="Organisation Email - (admin) *"
+                placeholder="Organisation Email - (admin) *"
+                name="organisationEmail"
+                value={organisationEmail}
+                required={true}
+                onChange={handleInputChange}
+              />
+              <InputComponent
+                title="Organisation Phone - (+447840272035) *"
+                placeholder="Organisation Phone - (+447840272035) *"
+                name="organisationPhone"
+                value={organisationPhone}
+                required={true}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="flex gap-3 w-full">
+              <InputComponent
+                type={showPassword ? "text" : "password"}
+                title="Password *"
+                placeholder="Password *"
+                name="organisationPassword"
+                value={organisationPassword}
+                required={true}
+                onChange={handleInputChange}
+              />
+              <InputComponent
+                type={showPassword ? "text" : "password"}
+                title="Confirm Password *"
+                placeholder="Confirm Password *"
+                name="organisationConfirmPassword"
+                value={organisationConfirmPassword}
+                required={true}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="flex gap-5 w-full items-center">
+              <input type="checkbox" onChange={() => setShowPassword(!showPassword)} className="w-4 h-4" />
+              <span className="text-foregroundColor-70 text-sm hover:text-foregroundColor-90 hover:underline cursor-pointer">
+                {showPassword ? "Hide Passwords" : "Show Passwords"}
+              </span>
+            </div>
             <LoaderButton
               type="submit"
               buttonText="Sign Up"
@@ -159,7 +205,6 @@ const signUpPage = () => {
                 !organisationPassword ||
                 !organisationConfirmPassword
               }
-              buttonStyle="w-full"
               isLoading={isLoading}
             />
           </form>

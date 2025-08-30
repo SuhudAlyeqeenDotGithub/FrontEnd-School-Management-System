@@ -1,6 +1,7 @@
 import { handleApiRequest } from "@/axios/axiosClient";
 import { nanoid } from "@reduxjs/toolkit";
 import parsePhoneNumberFromString from "libphonenumber-js";
+import { customAlphabet } from "nanoid";
 
 export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -21,7 +22,12 @@ export const formatDate = (dateStr: any) => {
   return date.toLocaleString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 };
 
-export const generateCustomId = (prefix?: string) => {
+export const generateCustomId = (prefix?: string, neat = false) => {
+  if (neat) {
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const nanoid = customAlphabet(alphabet, 7);
+    return `${prefix ? prefix + "-" : ""}${nanoid()}`;
+  }
   return `${prefix ? prefix + "-" : ""}${nanoid()}`;
 };
 
