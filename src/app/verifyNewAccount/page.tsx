@@ -12,6 +12,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { BASE_API_URL, validateEmail } from "@/lib/shortFunctions/shortFunctions";
+import { verify } from "crypto";
 
 const signInPage = () => {
   const router = useRouter();
@@ -19,7 +20,8 @@ const signInPage = () => {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [verifyingCode, setVerifyingCode] = useState(false);
   const [localData, setLocalData] = useState({ organisationName: "", organisationEmail: "" });
   const [openCodeEntryDialog, setOpenCodeEntryDialog] = useState(false);
   const [openEmailEntryDialog, setOpenEmailEntryDialog] = useState(true);
@@ -66,7 +68,7 @@ const signInPage = () => {
     e.preventDefault();
 
     if (validateEmailAndName()) {
-      setIsLoading(true);
+      setSendingEmail(true);
       setSuccess("");
       setError("");
       try {
@@ -85,7 +87,7 @@ const signInPage = () => {
             "Error sending verification code. Please ensure the email exists and you have access to it."
         );
       }
-      setIsLoading(false);
+      setSendingEmail(false);
     }
   };
 
@@ -94,7 +96,7 @@ const signInPage = () => {
     e.preventDefault();
 
     if (validateCode()) {
-      setIsLoading(true);
+      setVerifyingCode(true);
       setSuccess("");
       setError("");
       try {
@@ -109,6 +111,7 @@ const signInPage = () => {
           setSuccess(response.data.message);
           localStorage.setItem("organisationEmail", organisationEmail);
           localStorage.setItem("organisationName", organisationName);
+          localStorage.setItem("organisationVerificationCode", verificationCode);
           router.push("/signup");
         }
       } catch (error: any) {
@@ -118,7 +121,7 @@ const signInPage = () => {
             "Error verify code. Please ensure the code is correct or not expired."
         );
       }
-      setIsLoading(false);
+      setVerifyingCode(false);
     }
   };
   return (
@@ -167,7 +170,7 @@ const signInPage = () => {
                   buttonText="Get Verification Code"
                   loadingButtonText="Sending Email..."
                   disabled={!organisationName || !organisationEmail}
-                  isLoading={isLoading}
+                  isLoading={sendingEmail}
                   onClick={getVerificationCode}
                 />
               </div>
@@ -193,11 +196,21 @@ const signInPage = () => {
                 buttonText="Verify Code"
                 loadingButtonText="Verifying Code..."
                 disabled={!verificationCode}
-                isLoading={isLoading}
+                isLoading={verifyingCode}
                 onClick={verifyCode}
               />
+
+              <p
+                onClick={() => setOpenEmailEntryDialog(true)}
+                className="hover:text-foregroundColor-70 hover:underline hover:cursor-pointer"
+              >
+                Get verification code to verify your email
+              </p>
             </div>
           )}
+          <Link href="/signup" className="hover:text-foregroundColor-70 hover:underline hover:cursor-pointer">
+            Verified Email Already? Sign Up
+          </Link>
         </div>
       </div>
     </div>

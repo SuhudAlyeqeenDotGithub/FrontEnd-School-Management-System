@@ -33,7 +33,7 @@ export const InputComponent = ({
         name={name}
         value={value}
         required={required}
-        className="border border-borderColor rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full placeholder:text-sm"
+        className="border border-borderColor rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full placeholder:text-sm text-foregroundColor-2"
         onChange={onChange}
         onFocus={onFocus}
       />

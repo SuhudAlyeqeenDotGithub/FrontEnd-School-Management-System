@@ -120,7 +120,7 @@ const signInPage = () => {
             />
           </form>
 
-          <Link href="/signup" className="hover:text-foregroundColor-70 hover:underline">
+          <Link href="/signup" className="hover:text-foregroundColor-70 hover:underline hover:cursor-pointer">
             Have no account? Sign Up
           </Link>
         </div>

@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { InputComponent, ErrorDiv, LoaderButton, CustomHeading } from "@/lib/customComponents/general/compLibrary";
 import Link from "next/link";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { orgSignUp } from "@/redux/features/accounts/accountThunks";
 import { useAppDispatch } from "@/redux/hooks";
 import { useAppSelector } from "@/redux/hooks";
@@ -14,9 +13,10 @@ const signUpPage = () => {
   const router = useRouter();
   const { isLoading, isSuccess, isError, errorMessage } = useAppSelector((state) => state.accountData);
   const [inputData, setInputData] = useState({
-    organisationName: "",
+    organisationVerificationCode: localStorage.getItem("organisationVerificationCode") || "",
+    organisationName: localStorage.getItem("organisationName") || "",
     organisationInitial: "",
-    organisationEmail: "",
+    organisationEmail: localStorage.getItem("organisationEmail") || "",
     organisationPhone: "",
     organisationPassword: "",
     organisationConfirmPassword: ""
@@ -25,6 +25,7 @@ const signUpPage = () => {
 
   const [error, setError] = useState("");
   const {
+    organisationVerificationCode,
     organisationName,
     organisationInitial,
     organisationEmail,
@@ -97,7 +98,9 @@ const signUpPage = () => {
       try {
         const response = await dispatch(orgSignUp(inputData)).unwrap();
         if (response) {
-          console.log("ended function", performance.now().toFixed(3));
+          localStorage.removeItem("organisationEmail");
+          localStorage.removeItem("organisationName");
+          localStorage.removeItem("organisationVerificationCode");
           router.push("/main");
         }
       } catch (error: any) {
@@ -107,9 +110,9 @@ const signUpPage = () => {
   };
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-backgroundColor-3">
-      <div className="flex flex-col items-center justify-center w-2/3 gap-5">
+      <div className="flex flex-col items-center justify-center w-2/3 gap-2">
         <CustomHeading>Al-Yeqeen School Management App</CustomHeading>
-        <div className="flex flex-col gap-5 border border-border p-8 bg-backgroundColor rounded-lg shadow justify-center items-center w-3/4">
+        <div className="flex flex-col gap-2 border border-border px-8 py-4 bg-backgroundColor rounded-lg shadow justify-center items-center w-3/4">
           <CustomHeading variation="head2">Sign Up</CustomHeading>
           <CustomHeading variation="head4light">Please provide your organisation details</CustomHeading>
           {error && (
@@ -124,6 +127,14 @@ const signUpPage = () => {
             </ErrorDiv>
           )}
           <form className="flex flex-col gap-4 mt-5 w-full items-center" onSubmit={handleSubmit}>
+            <InputComponent
+              title="Verification Code *"
+              placeholder="Verification Code you received earlier *"
+              name="organisationVerificationCode"
+              value={organisationVerificationCode}
+              required={true}
+              onChange={handleInputChange}
+            />
             <div className="flex gap-3 w-full">
               <div className="w-[65%]">
                 <InputComponent
@@ -147,7 +158,6 @@ const signUpPage = () => {
                 />
               </div>
             </div>
-
             <div className="flex gap-3 w-full">
               <InputComponent
                 type="email"
@@ -187,7 +197,6 @@ const signUpPage = () => {
                 onChange={handleInputChange}
               />
             </div>
-
             <div className="flex gap-5 w-full items-center">
               <input type="checkbox" onChange={() => setShowPassword(!showPassword)} className="w-4 h-4" />
               <span className="text-foregroundColor-70 text-sm hover:text-foregroundColor-90 hover:underline cursor-pointer">
@@ -208,9 +217,11 @@ const signUpPage = () => {
               isLoading={isLoading}
             />
           </form>
-
-          <Link href="/signin" className="hover:text-foregroundColor-70 hover:underline">
+          <Link href="/signin" className="hover:text-foregroundColor-70 hover:underline hover:cursor-pointer">
             Have an account? Sign In
+          </Link>{" "}
+          <Link href="/verifyNewAccount" className="hover:text-foregroundColor-70 hover:underline hover:cursor-pointer">
+            Get verification code to verify your email
           </Link>
         </div>
       </div>
