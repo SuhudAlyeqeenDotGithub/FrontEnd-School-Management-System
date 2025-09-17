@@ -15,9 +15,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { tableCellStyle, tableContainerStyle, tableHeaderStyle, tableTopStyle } from "@/lib/generalStyles";
 import EditAcademicYearComponent from "@/lib/customComponents/academicYear/editAcademicYear";
 import { useQuery } from "@tanstack/react-query";
-import { tanFetchAny } from "@/tanStack/timeline/fetch";
+import { tanFetchAny } from "@/tanStack/reusables/fetch";
 import { useTimelineMutation } from "@/tanStack/timeline/mutate";
-import reusableQueries from "@/tanStack/reusableQueries/reusableQueries";
+import reusableQueries from "@/tanStack/reusables/reusableQueries";
 
 const AcademicYear = () => {
   const { accountData } = useAppSelector((state) => state.accountData);
@@ -33,8 +33,10 @@ const AcademicYear = () => {
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
-  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
-    tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
+  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((group: any) =>
+    group.tabs.map((tab: any) =>
+      tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
+    )
   );
 
   const hasActionAccess = (action: string) => {

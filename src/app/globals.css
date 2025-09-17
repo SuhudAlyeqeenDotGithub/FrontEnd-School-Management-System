@@ -4,16 +4,19 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --backgroundColor: oklch(98.4% 0.003 247.858);
-  --backgroundColor-2: oklch(96.8% 0.007 247.896);
-  --backgroundColor-3: oklch(95.608% 0.00978 253.019);
-  --backgroundColor-4: oklch(92.9% 0.013 255.508);
-  --foregroundColor: oklch(16.667% 0.06205 268.666);
-  --foregroundColor-2: oklch(37.2% 0.044 257.287);
+  --backgroundColor: oklch(98.5% 0.002 250); /* main app bg */
+  --backgroundColor-2: oklch(96.5% 0.006 250); /* surface / cards */
+  --backgroundColor-3: oklch(94% 0.01 252); /* input fields, hover */
+  --backgroundColor-4: oklch(91% 0.014 255); /* nav, subtle sections */
 
-  --borderColor: oklch(86.9% 0.022 252.894);
-  --borderColor-2: oklch(92.9% 0.013 255.508);
-  --borderColor-3: oklch(70.4% 0.04 256.788);
+  --foregroundColor: oklch(18% 0.06 268); /* headings, main text */
+  --foregroundColor-2: oklch(40% 0.045 258); /* secondary text */
+
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(82% 0.025 252); /* default borders */
+  --borderColor-2: oklch(88% 0.018 254); /* softer borders */
+  --borderColor-3: oklch(72% 0.04 256); /* strong dividers */
 
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -50,13 +53,198 @@
 }
 
 .dark {
-  /* Dark theme variables */
-  --backgroundColor: oklch(12.9% 0.042 264.695);
-  --backgroundColor-2: oklch(17.197% 0.03482 267.127);
-  --backgroundColor-3: oklch(20.135% 0.04577 267.205);
+  --backgroundColor: oklch(0% 0 0); /* Pure black - main app bg */
+  --backgroundColor-2: oklch(19.125% 0.00002 271.152); /* Card / surface */
+  --backgroundColor-3: oklch(25.723% 0.00149 16.173); /* Inputs / hovered items */
+  --backgroundColor-4: oklch(28% 0 0); /* Nav / elevated areas */
 
-  --foregroundColor: oklch(98.4% 0.003 247.858);
-  --borderColor: oklch(70.4% 0.04 256.788);
+  --foregroundColor: oklch(98% 0 0); /* Headings, main text (white) */
+  --foregroundColor-2: oklch(75% 0 0); /* Secondary text (grey) */
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(32% 0 0); /* Subtle border */
+  --borderColor-2: oklch(45% 0 0); /* Medium border */
+  --borderColor-3: oklch(60% 0 0); /* Strong divider */
+}
+
+.emerald {
+  --backgroundColor: oklch(98% 0.02 160); /* light emerald tint */
+  --backgroundColor-2: oklch(95% 0.03 160);
+  --backgroundColor-3: oklch(92% 0.04 160);
+  --backgroundColor-4: oklch(88% 0.05 160);
+
+  --foregroundColor: oklch(18% 0.06 160); /* dark emerald text */
+  --foregroundColor-2: oklch(40% 0.045 160);
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(82% 0.025 160);
+  --borderColor-2: oklch(88% 0.02 160);
+  --borderColor-3: oklch(72% 0.035 160);
+}
+
+.teal {
+  --backgroundColor: oklch(98% 0.02 200); /* soft teal tint */
+  --backgroundColor-2: oklch(95% 0.03 200);
+  --backgroundColor-3: oklch(92% 0.04 200);
+  --backgroundColor-4: oklch(88% 0.05 200);
+
+  --foregroundColor: oklch(18% 0.06 200); /* dark teal text */
+  --foregroundColor-2: oklch(40% 0.045 200);
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(82% 0.025 200);
+  --borderColor-2: oklch(88% 0.02 200);
+  --borderColor-3: oklch(72% 0.035 200);
+}
+
+.indigo {
+  --backgroundColor: oklch(98% 0.015 270); /* soft indigo */
+  --backgroundColor-2: oklch(95% 0.025 270);
+  --backgroundColor-3: oklch(92% 0.035 270);
+  --backgroundColor-4: oklch(88% 0.05 270);
+
+  --foregroundColor: oklch(18% 0.065 270); /* strong indigo text */
+  --foregroundColor-2: oklch(40% 0.045 270);
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(82% 0.025 270);
+  --borderColor-2: oklch(88% 0.02 270);
+  --borderColor-3: oklch(72% 0.035 270);
+}
+
+.plum {
+  --backgroundColor: oklch(98% 0.02 320); /* soft plum */
+  --backgroundColor-2: oklch(95% 0.03 320);
+  --backgroundColor-3: oklch(92% 0.04 320);
+  --backgroundColor-4: oklch(88% 0.05 320);
+
+  --foregroundColor: oklch(20% 0.065 320); /* deep plum text */
+  --foregroundColor-2: oklch(42% 0.05 320);
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(82% 0.025 320);
+  --borderColor-2: oklch(88% 0.02 320);
+  --borderColor-3: oklch(72% 0.035 320);
+}
+
+.emerald-dark {
+  --backgroundColor: oklch(14% 0.05 160); /* deep emerald base */
+  --backgroundColor-2: oklch(18% 0.04 160);
+  --backgroundColor-3: oklch(22% 0.05 160);
+  --backgroundColor-4: oklch(28% 0.045 160);
+
+  --foregroundColor: oklch(96% 0.01 160); /* near white emerald */
+  --foregroundColor-2: oklch(80% 0.02 160);
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(32% 0.03 160);
+  --borderColor-2: oklch(42% 0.03 160);
+  --borderColor-3: oklch(55% 0.03 160);
+}
+
+.teal-dark {
+  --backgroundColor: oklch(14% 0.05 200);
+  --backgroundColor-2: oklch(18% 0.04 200);
+  --backgroundColor-3: oklch(22% 0.05 200);
+  --backgroundColor-4: oklch(28% 0.045 200);
+
+  --foregroundColor: oklch(96% 0.01 200);
+  --foregroundColor-2: oklch(80% 0.02 200);
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(32% 0.03 200);
+  --borderColor-2: oklch(42% 0.03 200);
+  --borderColor-3: oklch(55% 0.03 200);
+}
+
+.indigo-dark {
+  --backgroundColor: oklch(14% 0.05 270);
+  --backgroundColor-2: oklch(18% 0.04 270);
+  --backgroundColor-3: oklch(22% 0.05 270);
+  --backgroundColor-4: oklch(28% 0.045 270);
+
+  --foregroundColor: oklch(96% 0.01 270);
+  --foregroundColor-2: oklch(80% 0.02 270);
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(32% 0.03 270);
+  --borderColor-2: oklch(42% 0.03 270);
+  --borderColor-3: oklch(55% 0.03 270);
+}
+
+.plum-dark {
+  --backgroundColor: oklch(14% 0.05 320);
+  --backgroundColor-2: oklch(18% 0.04 320);
+  --backgroundColor-3: oklch(22% 0.05 320);
+  --backgroundColor-4: oklch(28% 0.045 320);
+
+  --foregroundColor: oklch(96% 0.01 320);
+  --foregroundColor-2: oklch(80% 0.02 320);
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(32% 0.03 320);
+  --borderColor-2: oklch(42% 0.03 320);
+  --borderColor-3: oklch(55% 0.03 320);
+}
+
+.yellow {
+  --backgroundColor: oklch(98% 0.02 95); /* pale yellow tint */
+  --backgroundColor-2: oklch(96% 0.035 95);
+  --backgroundColor-3: oklch(93% 0.045 95);
+  --backgroundColor-4: oklch(90% 0.055 95);
+
+  --foregroundColor: oklch(20% 0.065 95); /* deep golden text */
+  --foregroundColor-2: oklch(42% 0.05 95);
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(82% 0.03 95);
+  --borderColor-2: oklch(88% 0.025 95);
+  --borderColor-3: oklch(72% 0.035 95);
+}
+
+.yellow-dark {
+  --backgroundColor: oklch(14% 0.06 95);
+  --backgroundColor-2: oklch(18% 0.055 95);
+  --backgroundColor-3: oklch(22% 0.055 95);
+  --backgroundColor-4: oklch(28% 0.05 95);
+
+  --foregroundColor: oklch(96% 0.015 95);
+  --foregroundColor-2: oklch(80% 0.02 95);
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(32% 0.035 95);
+  --borderColor-2: oklch(42% 0.035 95);
+  --borderColor-3: oklch(55% 0.035 95);
+}
+
+.cyan {
+  --backgroundColor: oklch(98% 0.02 220);
+  --backgroundColor-2: oklch(96% 0.03 220);
+  --backgroundColor-3: oklch(93% 0.04 220);
+  --backgroundColor-4: oklch(90% 0.05 220);
+
+  --foregroundColor: oklch(20% 0.06 220);
+  --foregroundColor-2: oklch(42% 0.05 220);
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(82% 0.03 220);
+  --borderColor-2: oklch(88% 0.025 220);
+  --borderColor-3: oklch(72% 0.035 220);
+}
+
+.cyan-dark {
+  --backgroundColor: oklch(14% 0.06 220);
+  --backgroundColor-2: oklch(18% 0.055 220);
+  --backgroundColor-3: oklch(22% 0.055 220);
+  --backgroundColor-4: oklch(28% 0.05 220);
+
+  --foregroundColor: oklch(96% 0.015 220);
+  --foregroundColor-2: oklch(63.657% 0.02529 221.044);
+  --foregroundColor-transparent: color-mix(in oklch, var(--foregroundColor-2) 50%, transparent);
+
+  --borderColor: oklch(32% 0.035 220);
+  --borderColor-2: oklch(42% 0.035 220);
+  --borderColor-3: oklch(55% 0.035 220);
 }
 
 @theme {
@@ -69,6 +257,7 @@
   --color-borderColor: var(--borderColor);
   --color-borderColor-2: var(--borderColor-2);
   --color-borderColor-3: var(--borderColor-3);
+  --color-foregroundColor-transparent: var(--foregroundColor-transparent);
 }
 
 body {

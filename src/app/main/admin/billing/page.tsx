@@ -46,10 +46,12 @@ const Billing = () => {
     hasPrev: false
   });
   const [page, setPage] = useState(1);
-  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
-    tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
+  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((group: any) =>
+    group.tabs.map((tab: any) =>
+      tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
+    )
   );
-  const baseUrl = "alyeqeenschoolapp/api/staff/contracts.ts";
+  const baseUrl = "alyeqeenschoolapp/api/staff/contracts";
   const searchUrl = new URLSearchParams({});
 
   const hasActionAccess = (action: string) => {
@@ -65,12 +67,7 @@ const Billing = () => {
   } = useQuery({
     queryKey: ["staffProfiles"],
     queryFn: () =>
-      tanFetchStaffProfiles(
-        accountData,
-        accountPermittedActions,
-        "View Staff",
-        "alyeqeenschoolapp/api/staff/profile.tss"
-      ),
+      tanFetchStaffProfiles(accountData, accountPermittedActions, "View Staff", "alyeqeenschoolapp/api/staff/profile"),
     enabled: Boolean(accountData?.accountStatus),
     retry: false
   });

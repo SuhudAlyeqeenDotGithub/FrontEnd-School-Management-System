@@ -43,6 +43,8 @@ export interface AccountType {
   accountEmail: string;
   accountPhone: string;
   organisationId: any;
+  settings: any;
+  uniqueTabAccess: [];
   themes: {
     backgroundColor: string;
     foregroundColor: string;

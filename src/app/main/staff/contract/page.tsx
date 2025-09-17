@@ -15,8 +15,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import EditStaffContractComponent from "@/lib/customComponents/staff/editContractComp";
 import { useStaffMutation } from "@/tanStack/staff/mutate";
-import { tanFetchAny } from "@/tanStack/timeline/fetch";
-import reusableQueries from "@/tanStack/reusableQueries/reusableQueries";
+import { tanFetchAny } from "@/tanStack/reusables/fetch";
+import reusableQueries from "@/tanStack/reusables/reusableQueries";
 
 const StaffContracts = () => {
   const { tanDeleteStaffContract } = useStaffMutation();
@@ -43,8 +43,10 @@ const StaffContracts = () => {
     hasPrev: false
   });
   const [page, setPage] = useState(1);
-  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
-    tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
+  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((group: any) =>
+    group.tabs.map((tab: any) =>
+      tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
+    )
   );
   const baseUrl = "alyeqeenschoolapp/api/staff/contract";
   const searchUrl = new URLSearchParams({});
@@ -339,7 +341,7 @@ const StaffContracts = () => {
                 </div>
                 <span
                   onClick={() => setOpenFilterDiv(!openFilterDiv)}
-                  className="font-semibold cursor-pointer text-foregroundColor-80 ml-3 bg-foregroundColor-10 w-30 rounded-lg text-center p-2 border border-foregroundColor-15"
+                  className="font-semibold cursor-pointer text-foregroundColor ml-3 bg-foregroundColor-10 w-30 rounded-lg text-center p-2 border border-foregroundColor-15"
                 >
                   {openFilterDiv ? "Close Filter" : "Open Filter"}
                 </span>
@@ -362,7 +364,7 @@ const StaffContracts = () => {
               <Table className="text-[16px]">
                 <TableHeader>
                   <TableRow className={tableHeaderStyle}>
-                    <TableHead className="text-center text-foregroundColor-70 w-[110px] font-semibold p-2 whitespace-nowrap">
+                    <TableHead className="text-center text-foregroundColor-2 w-[110px] font-semibold p-2 whitespace-nowrap">
                       Contract Id
                     </TableHead>
                     {(
@@ -389,12 +391,12 @@ const StaffContracts = () => {
                           const sortKey = key_Name[header];
                           handleSort(sortKey);
                         }}
-                        className="text-center text-foregroundColor-70 w-[200px] font-semibold hover:cursor-pointer hover:bg-foregroundColor-5 p-2  whitespace-nowrap"
+                        className="text-center text-foregroundColor-2 w-[200px] font-semibold hover:cursor-pointer hover:bg-foregroundColor-5 p-2  whitespace-nowrap"
                       >
                         {header} <LuArrowUpDown className="inline-block ml-1" />
                       </TableHead>
                     ))}
-                    <TableHead className="text-center text-foregroundColor-70 font-semibold whitespace-nowrap">
+                    <TableHead className="text-center text-foregroundColor-2 font-semibold whitespace-nowrap">
                       Delete
                     </TableHead>
                   </TableRow>
@@ -453,7 +455,7 @@ const StaffContracts = () => {
                             CID
                             <MdContentCopy
                               title="copy id"
-                              className="ml-2 inline-block text-[19px] text-foregroundColor-70 hover:text-foregroundColor-50 hover:cursor-pointer"
+                              className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 await navigator.clipboard.writeText(contractId);
@@ -467,7 +469,7 @@ const StaffContracts = () => {
                             {staffCustomId.slice(0, 10)}
                             <MdContentCopy
                               title="copy id"
-                              className="ml-2 inline-block text-[19px] text-foregroundColor-70 hover:text-foregroundColor-50 hover:cursor-pointer"
+                              className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 await navigator.clipboard.writeText(staffCustomId);

@@ -11,7 +11,7 @@ import { CgTrash } from "react-icons/cg";
 import { checkDataType, validateEmail, validatePassword } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../general/compLibrary";
 import { DisallowedActionDialog, SearchableDropDownInput } from "../general/compLibrary2";
-import { TabActionDialog } from "./editRoleComponents";
+import { TabActionDialog } from "./tabActionDialog";
 import { updateUser } from "@/redux/features/admin/users/usersThunks";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { EditParamUserType } from "@/interfaces/interfaces";

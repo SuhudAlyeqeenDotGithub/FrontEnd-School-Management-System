@@ -2,23 +2,35 @@
 import { checkDataType } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { useEffect, useState } from "react";
-import { deleteRole, fetchRolesAccess } from "@/redux/features/admin/roles/roleThunks";
-import { ErrorDiv, LoaderDiv } from "@/lib/customComponents/general/compLibrary";
+import {
+  ActionButtons,
+  DeleteButton,
+  ErrorDiv,
+  LoaderDiv,
+  SearchComponent
+} from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
-import { FaSearch } from "react-icons/fa";
-import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
-import { EditRoleDialog } from "@/lib/customComponents/admin/editRoleComponents";
-import { setOnOpenRoleData } from "@/redux/features/general/generalSlice";
-import { NewRoleDialog } from "@/lib/customComponents/admin/newRoleComponent";
 import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/customComponents/general/compLibrary2";
-import { resetRoles } from "@/redux/features/admin/roles/roleSlice";
-import { tableCellStyle, tableContainerStyle, tableHeaderStyle, tableTopStyle } from "@/lib/generalStyles";
-import { MdAdd } from "react-icons/md";
+import {
+  defaultButtonStyle,
+  sortableTableHeadCellStyle,
+  tableCellStyle,
+  tableContainerStyle,
+  tableHeadCellStyle,
+  tableHeaderStyle,
+  tableRowStyle,
+  tableTopStyle
+} from "@/lib/generalStyles";
+import { MdAdd, MdContentCopy } from "react-icons/md";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import reusableQueries from "@/tanStack/reusables/reusableQueries";
+import { RoleDialog } from "@/lib/customComponents/admin/roleDialogComponent";
+import { useReusableMutations } from "@/tanStack/reusables/mutations";
 const RolesAccess = () => {
-  const dispatch = useAppDispatch();
-  const { roles, isLoading } = useAppSelector((state) => state.rolesAccess);
+  const { useReusableQuery, hasActionAccess } = reusableQueries();
+  const { tanMutateAny } = useReusableMutations();
+  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/admin/roles");
   const { accountData } = useAppSelector((state) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
@@ -26,56 +38,87 @@ const RolesAccess = () => {
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
   const [openEditRoleDialog, setOpenEditRoleDialog] = useState(false);
   const [openNewRoleDialog, setOpenNewRoleDialog] = useState(false);
+  const [openViewRoleDialog, setOpenViewRoleDialog] = useState(false);
+  const [onOpenRoleData, setOnOpenRoleData] = useState<any>({});
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
-  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
-    tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
-  );
 
-  const hasActionAccess = (action: string) => {
-    return accountPermittedActions.includes(action);
-  };
-  useEffect(() => {
-    if (!accountData.accountEmail || !accountData.accountStatus) {
-      return;
-    }
-    const fetchRoles = async () => {
-      try {
-        if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
-          console.log("accountData", accountData);
-          dispatch(resetRoles());
-          setError("Your account is no longer active - Please contact your admin");
-          return;
-        }
-        if (!hasActionAccess("View Roles") && !accountData.roleId.absoluteAdmin) {
-          dispatch(resetRoles());
-          setError("Unauthorized(Client): You do not have access to view roles - Please contact your admin");
-          return;
-        } else {
-          const response = await dispatch(fetchRolesAccess()).unwrap();
-        }
-      } catch (error: any) {
-        setError(error);
-      }
-    };
-
-    fetchRoles();
-  }, [accountData]);
+  const {
+    data: roles,
+    isPending,
+    isFetching,
+    isError,
+    error: rolesError
+  } = useReusableQuery("roles", "View Roles", "alyeqeenschoolapp/api/admin/roles");
 
   useEffect(() => {
+    if (!roles) return;
+    setError("");
+
     setLocalData(roles);
-  }, [roles]);
+  }, [roles, isPending]);
 
   useEffect(() => {
+    if (!isError) return;
+    if (rolesError) {
+      setError(rolesError.message);
+    }
+  }, [rolesError, isError]);
+
+  useEffect(() => {
+    if (!roles) return;
     if (searchValue !== "") {
-      const filteredData = roles.filter((obj: any) => obj.roleName.toLowerCase().includes(searchValue.toLowerCase()));
+      const filteredData = (roles as any[]).filter((obj: any) =>
+        obj.roleName.toLowerCase().includes(searchValue.toLowerCase())
+      );
       setLocalData(filteredData);
     } else {
       setLocalData(roles);
     }
   }, [searchValue]);
+
+  if (!accountData) {
+    return (
+      <div className="flex items-center justify-center mt-10">
+        <LoaderDiv
+          type="spinnerText"
+          borderColor="foregroundColor"
+          text="Loading User Data..."
+          textColor="foregroundColor"
+          dimension="h-10 w-10"
+        />
+      </div>
+    );
+  }
+
+  if (!roles) {
+    return (
+      <div className="flex items-center justify-center mt-10">
+        <LoaderDiv
+          type="spinnerText"
+          borderColor="foregroundColor"
+          text="Loading Roles..."
+          textColor="foregroundColor"
+          dimension="h-10 w-10"
+        />
+      </div>
+    );
+  }
+
+  if (rolesError)
+    return (
+      <ErrorDiv
+        onClose={(close) => {
+          if (close) {
+            setError("");
+          }
+        }}
+      >
+        {error}
+      </ErrorDiv>
+    );
 
   // function to handle sorting
   const handleSort = (sortKey: any) => {
@@ -133,33 +176,50 @@ const RolesAccess = () => {
       {/* data table section */}
       <div className="">
         {openEditRoleDialog && (
-          <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
-            <EditRoleDialog
+          <div className="fixed flex z-30 items-center justify-center inset-0 bg-foregroundColor-transparent">
+            <RoleDialog
+              type="edit"
+              data={onOpenRoleData}
               onClose={(open: boolean) => {
                 document.body.style.overflow = "";
                 setOpenEditRoleDialog(!open);
                 return {};
               }}
-              onUpdate={(notUpdate) => {
+              onSave={(notSave) => {
                 document.body.style.overflow = "";
-                setOpenEditRoleDialog(!notUpdate);
+                setOpenEditRoleDialog(!notSave);
                 return {};
               }}
             />
           </div>
         )}
         {openNewRoleDialog && (
-          <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
-            <NewRoleDialog
+          <div className="fixed flex z-30 items-center justify-center inset-0 bg-foregroundColor-transparent">
+            <RoleDialog
+              type="new"
               onClose={(open: boolean) => {
                 document.body.style.overflow = "";
                 setOpenNewRoleDialog(!open);
-                return {};
               }}
-              onCreate={(notSave) => {
+              onSave={(notSave) => {
                 document.body.style.overflow = "";
                 setOpenNewRoleDialog(!notSave);
-                return {};
+              }}
+            />
+          </div>
+        )}
+        {openViewRoleDialog && (
+          <div className="fixed flex z-30 items-center justify-center inset-0 bg-foregroundColor-transparent">
+            <RoleDialog
+              type="view"
+              data={onOpenRoleData}
+              onClose={(open: boolean) => {
+                document.body.style.overflow = "";
+                setOpenViewRoleDialog(!open);
+              }}
+              onSave={(notSave) => {
+                document.body.style.overflow = "";
+                setOpenViewRoleDialog(!notSave);
               }}
             />
           </div>
@@ -187,9 +247,9 @@ const RolesAccess = () => {
               setError("");
               if (confirmed) {
                 try {
-                  await dispatch(deleteRole(returnObject)).unwrap();
+                  const response = await deleteMutation.mutateAsync(returnObject);
                 } catch (err: any) {
-                  setError(err);
+                  setError(err.message);
                 }
               } else {
                 setError("An error occured while deleting - Please try again");
@@ -206,25 +266,22 @@ const RolesAccess = () => {
           <div className={tableContainerStyle}>
             <div className={tableTopStyle}>
               <div className="flex flex-col gap-2 mb-2">
-                <h2>Role and Access</h2>
+                <h2>Role & Permission</h2>
                 <h3>Use this section to create and manage roles, and specify each access for each</h3>
               </div>
 
               {/* search div */}
-              <div className="flex w-[500px] h-[50px] items-center gap-2 relative">
-                <input
-                  className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full bg-backgroundColor text-foregroundColor"
-                  placeholder="Search role (Role Name)"
-                  name="searchValue"
-                  onChange={(e) => {
-                    setSearchValue(e.target.value);
-                  }}
-                />
-                <FaSearch className="text-foregroundColor size-5 absolute right-3" />
-              </div>
+              <SearchComponent
+                placeholder="Search role (Role Name)"
+                name="searchValue"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+              />
+
               {/* new action button */}
               <div>
                 <button
+                  className={defaultButtonStyle}
                   onClick={() => {
                     if (hasActionAccess("Create Role")) {
                       document.body.style.overflow = "hidden";
@@ -243,38 +300,32 @@ const RolesAccess = () => {
             <Table className="text-[16px]">
               <TableHeader>
                 <TableRow className={tableHeaderStyle}>
-                  {(["Role Name", "Created By", "Created At", "Tab Access"] as const).map((header) => (
+                  {(["Role ID", "Role Name", "Created At", "Updated At"] as const).map((header) => (
                     <TableHead
                       key={header}
                       onClick={() => {
                         const key_Name = {
+                          "Role ID": "_id",
                           "Role Name": "roleName",
-                          "Created By": "accountName",
                           "Created At": "createdAt",
-                          "Tab Access": "tabAccess"
+                          "Updated At": "updatedAt"
                         };
                         const sortKey = key_Name[header];
                         handleSort(sortKey);
                       }}
-                      className={`${
-                        header === "Created By"
-                          ? "hover:cursor-not-allowed"
-                          : "hover:cursor-pointer hover:bg-foregroundColor-5 hover:border hover:border-foregroundColor-10"
-                      } text-center text-foregroundColor-70 w-[200px] font-semibold hover:cursor-pointer
-                      hover:bg-foregroundColor-5 p-2 whitespace-nowrap`}
+                      className={sortableTableHeadCellStyle}
                     >
-                      {header} {header !== "Created By" && <LuArrowUpDown className="inline-block ml-1" />}
+                      {header} <LuArrowUpDown className="inline-block ml-1" />
                     </TableHead>
                   ))}
-                  <TableHead className="text-center text-foregroundColor-70 font-semibold whitespace-nowrap">
-                    Delete
-                  </TableHead>
+                  <TableHead className={tableHeadCellStyle}>Groups</TableHead>
+                  <TableHead className={tableHeadCellStyle}>Actions</TableHead>
                 </TableRow>
               </TableHeader>
 
               {/* table data */}
               <TableBody className="mt-3 bg-backgroundColor">
-                {isLoading ? (
+                {isPending || isFetching ? (
                   <tr>
                     <td colSpan={8}>
                       <div className="flex items-center justify-center mt-10">
@@ -285,53 +336,69 @@ const RolesAccess = () => {
                           textColor="foregroundColor"
                           dimension="h-10 w-10"
                         />
-                      </div>{" "}
+                      </div>
                     </td>
                   </tr>
                 ) : localData.length < 1 && searchValue ? (
                   <tr>
                     <td colSpan={8} className="text-center py-4">
-                      <div className="flex justify-center mt-6">No search result found</div>{" "}
+                      <div className="flex justify-center mt-6">No search result found</div>
                     </td>
                   </tr>
-                ) : localData.length < 1 && !isLoading ? (
+                ) : localData.length < 1 && !isPending && !isFetching ? (
                   <tr>
                     <td colSpan={8} className="text-center py-4">
-                      <div className="flex justify-center mt-6">No data available</div>{" "}
+                      <div className="flex justify-center mt-6">No data available</div>
                     </td>
                   </tr>
                 ) : (
                   localData.map((doc: any, index: any) => {
-                    const { _id: roleId, roleName, accountId, createdAt, tabAccess, absoluteAdmin } = doc;
-                    const tabs = tabAccess
-                      .map((tab: any) => tab.tab)
-                      .slice(0, 5)
+                    const { _id: roleId, roleName, accountId, createdAt, updatedAt, tabAccess } = doc;
+                    const groups = tabAccess
+                      .map((group: any) => group.group)
+                      .slice(0, 2)
                       .join(", ");
                     return (
                       <TableRow
                         key={roleId}
                         onClick={() => {
-                          if (hasActionAccess("Edit Role")) {
+                          if (hasActionAccess("View Role")) {
                             document.body.style.overflow = "hidden";
-                            setOpenEditRoleDialog(true);
-                            dispatch(setOnOpenRoleData(doc));
+                            setOpenViewRoleDialog(true);
+                            setOnOpenRoleData(doc);
                           } else {
-                            setError("You do not have Edit Role Access - Please contact your admin");
+                            setError("You do not have View Role Access - Please contact your admin");
                           }
                         }}
-                        className="hover:cursor-pointer"
+                        className={tableRowStyle}
                       >
-                        <TableCell className={tableCellStyle}>{roleName.slice(0, 15)}</TableCell>{" "}
-                        <TableCell className={tableCellStyle}>{accountId.accountName}</TableCell>
-                        <TableCell className={tableCellStyle}>{formatDate(createdAt)}</TableCell>
-                        <TableCell className="whitespace-nowrap flex items-center justify-center w-full">
-                          {tabs}.....
-                        </TableCell>
                         <TableCell className="w-[200px] text-center whitespace-nowrap">
-                          <span
-                            className="text-[25px] text-red-500 bg-backgroundColor hover:cursor-pointer"
-                            onClick={(e) => {
+                          {roleId.slice(0, 10)}
+                          <MdContentCopy
+                            title="copy id"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2  hover:text-foregroundColor-50 hover:cursor-pointer"
+                            onClick={async (e) => {
                               e.stopPropagation();
+                              await navigator.clipboard.writeText(roleId);
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell className={tableCellStyle}>{roleName.slice(0, 20)}</TableCell>
+                        <TableCell className={tableCellStyle}>{formatDate(createdAt)}</TableCell>{" "}
+                        <TableCell className={tableCellStyle}>{formatDate(updatedAt)}</TableCell>
+                        <TableCell className="whitespace-nowrap text-center min-w-[400px]">{groups}.....</TableCell>
+                        <TableCell className="text-center whitespace-nowrap flex items-center justify-center pt-4">
+                          <ActionButtons
+                            onEdit={() => {
+                              if (hasActionAccess("Edit Role")) {
+                                document.body.style.overflow = "hidden";
+                                setOpenEditRoleDialog(true);
+                                setOnOpenRoleData(doc);
+                              } else {
+                                setError("You do not have Edit Role Access - Please contact your admin");
+                              }
+                            }}
+                            onDelete={() => {
                               if (doc.absoluteAdmin) {
                                 setError("Disallowed Action: Default Absolute Admin Role Cannot be deleted");
                                 setOpenDisallowedDeleteDialog(true);
@@ -354,10 +421,7 @@ const RolesAccess = () => {
                                 }
                               }
                             }}
-                          >
-                            {" "}
-                            <CgTrash className="inline-block text-[20px]" />
-                          </span>
+                          />
                         </TableCell>
                       </TableRow>
                     );

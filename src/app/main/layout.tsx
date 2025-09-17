@@ -6,6 +6,7 @@ import {
   LoaderButton,
   SideBarNav,
   TabLink,
+  ThemeSelector,
   YesNoDialog
 } from "@/lib/customComponents/general/compLibrary";
 import Link from "next/link";
@@ -31,44 +32,63 @@ import {
   FileText,
   School,
   Layers,
+  Signature,
   Timer,
   Menu,
+  BookUser,
   Home,
+  BookOpenCheck,
   UserRoundPen,
   FileCheck,
   ChevronDown,
   Building,
-  Icon
+  Icon,
+  Waypoints,
+  SquareStack,
+  LibraryBig,
+  UserCog,
+  ShieldPlus,
+  Receipt,
+  Activity,
+  Wrench,
+  CalendarFold,
+  CalendarPlus,
+  CalendarClock
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import reusableQueries from "@/tanStack/reusables/reusableQueries";
 
 const layout = ({ children }: { children: ReactNode }) => {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const router = useRouter();
   const { handleNavigation } = useNavigationHandler();
-  const { accountData } = useAppSelector((state) => state.accountData);
+  const { getMergedTabAccess } = reusableQueries();
+  const { accountData } = useAppSelector((state: any) => state.accountData);
   const [openProfile, setOpenProfile] = useState(false);
-  // const [lightTheme, setLightTheme] = useState(true);
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
   const [error, setError] = useState("");
+  const [mergedTabAccess, setMergedTabAccess] = useState<any>([]);
   const [groupExpandCollapseState, setGroupExpandCollapseState] = useState<any>({
     Curriculum: true,
     Administration: true,
+    Staff: true,
     Finance: true,
     Assessment: true,
     Attendance: true
   });
   const wrapperDivRef = useRef<HTMLDivElement>(null);
 
-  try {
-    useWebSocketHandler((error) => {
-      setError(error);
-    });
-  } catch (err: any) {
-    setError(err.message || "Something went wrong");
-  }
+  // try {
+  //   useWebSocketHandler((error) => {
+  //     setError(error);
+  //   });
+  // } catch (err: any) {
+  //   setError(err.message || "Something went wrong");
+  // }
+
+  const themes = ["light", "dark", "emerald", "teal", "indigo", "plum"];
+  useWebSocketHandler();
 
   useEffect(() => {
     const fetchAccountFunc = async () => {
@@ -83,6 +103,12 @@ const layout = ({ children }: { children: ReactNode }) => {
 
     fetchAccountFunc();
   }, []);
+
+  useEffect(() => {
+    if (!accountData.accountEmail || !accountData.accountName) return;
+    const fetchedMergedTabAccess = getMergedTabAccess();
+    setMergedTabAccess(fetchedMergedTabAccess);
+  }, [accountData]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -106,17 +132,6 @@ const layout = ({ children }: { children: ReactNode }) => {
     return null;
   }
 
-  // useEffect(() => {
-  //   const root = document.documentElement;
-  //   if (!lightTheme) {
-  //     root.style.setProperty("--backgroundColor", "oklch(18.032% 0.07258 267.521)");
-  //     root.style.setProperty("--foregroundColor", "#ffffff");
-  //   } else {
-  //     root.style.setProperty("--backgroundColor", "#ffffff");
-  //     root.style.setProperty("--foregroundColor", "oklch(12.9% 0.042 264.695)");
-  //   }
-  // }, [lightTheme]);
-
   const handleSignout = async () => {
     try {
       const response = await axios.get(`${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/signout`, {
@@ -139,281 +154,99 @@ const layout = ({ children }: { children: ReactNode }) => {
     );
 
   const { accountName, accountEmail, organisationId, roleId } = accountData;
-  const { absoluteAdmin, tabAccess } = roleId;
 
   // tabAccess = [group: "",{tab: "Admin", actions:[{name: "Create Role", permission: false}]}]
 
-  const tabs = tabAccess.map((tabObj: any) => tabObj.tab);
-
-  const mockTabAccess = [
-    {
-      group: "Administration",
-      hasAccess: true,
-      tabs: [
-        {
-          group: "Administration",
-          tab: "Roles & Permissions",
-          hasAccess: false,
-          actions: [
-            { action: "Create Role", permission: false },
-            { action: "View Roles", permission: false },
-            { action: "Edit Role", permission: false },
-            { action: "Delete Role", permission: false }
-          ]
-        },
-        {
-          group: "Administration",
-          tab: "Users",
-          hasAccess: false,
-          actions: [
-            { action: "Create User", permission: false },
-            { action: "View Users", permission: false },
-            { action: "Edit User", permission: false },
-            { action: "Delete User", permission: false }
-          ]
-        },
-        {
-          group: "Administration",
-          tab: "Activity Log",
-          hasAccess: false,
-          actions: [
-            { action: "Create Activity Log", permission: false },
-            { action: "View Activity Logs", permission: false },
-            { action: "Edit Activity Log", permission: false },
-            { action: "Delete Activity Log", permission: false }
-          ]
-        },
-        {
-          group: "Administration",
-          tab: "Billing",
-          hasAccess: false,
-          actions: [
-            { action: "Create Billing", permission: false },
-            { action: "View Billings", permission: false },
-            { action: "Edit Billing", permission: false },
-            { action: "Delete Billing", permission: false },
-            { action: "Update Subscription", permission: false },
-            { action: "View Subscriptions", permission: false },
-            { action: "Update Failed Payments", permission: false },
-            { action: "View Failed Payments", permission: false }
-          ]
-        },
-        {
-          group: "Administration",
-          tab: "Settings",
-          hasAccess: false,
-          actions: [
-            { action: "Update Settings", permission: false },
-            { action: "Edit Organisation Profile", permission: false }
-          ]
-        }
-      ]
-    },
-    {
-      group: "Attendance",
-      hasAccess: true,
-      tabs: [
-        {
-          group: "Attendance",
-          tab: "Per Subject Attendance",
-          hasAccess: false,
-          actions: [
-            { action: "Create Subject Attendance", permission: false },
-            { action: "View Subject Attendances", permission: false },
-            { action: "Edit Subject Attendance", permission: false },
-            { action: "Delete Subject Attendance", permission: false }
-          ]
-        },
-        {
-          group: "Attendance",
-          tab: "Per Day Attendance",
-          hasAccess: false,
-          actions: [
-            { action: "Create Day Attendance", permission: false },
-            { action: "View Day Attendances", permission: false },
-            { action: "Edit Day Attendance", permission: false },
-            { action: "Delete Day Attendance", permission: false }
-          ]
-        },
-        {
-          group: "Attendance",
-          tab: "Event Attendance",
-          hasAccess: false,
-          actions: [
-            { action: "Create Event Attendance", permission: false },
-            { action: "View Event Attendances", permission: false },
-            { action: "Edit Event Attendance", permission: false },
-            { action: "Delete Event Attendance", permission: false }
-          ]
-        }
-      ]
-    },
-    {
-      group: "Curriculum",
-      hasAccess: true,
-      tabs: [
-        {
-          group: "Curriculum",
-          tab: "Programme",
-          hasAccess: false,
-          actions: [
-            { action: "Create Programme", permission: false },
-            { action: "View Programmes", permission: false },
-            { action: "Edit Programme", permission: false },
-            { action: "Delete Programme", permission: false },
-            { action: "Create Programme Manager", permission: false },
-            { action: "View Programme Managers", permission: false },
-            { action: "Edit Programme Manager", permission: false },
-            { action: "Delete Programme Manager", permission: false }
-          ]
-        },
-        {
-          group: "Curriculum",
-          tab: "Course",
-          hasAccess: false,
-          actions: [
-            { action: "Create Course", permission: false },
-            { action: "View Courses", permission: false },
-            { action: "Edit Course", permission: false },
-            { action: "Delete Course", permission: false },
-            { action: "Create Base Course", permission: false },
-            { action: "View Base Courses", permission: false },
-            { action: "Edit Base Course", permission: false },
-            { action: "Delete Base Course", permission: false },
-            { action: "Create Course Manager", permission: false },
-            { action: "View Course Managers", permission: false },
-            { action: "Edit Course Manager", permission: false },
-            { action: "Delete Course Manager", permission: false }
-          ]
-        },
-        {
-          group: "Curriculum",
-          tab: "Level",
-          hasAccess: false,
-          actions: [
-            { action: "Create Level", permission: false },
-            { action: "View Levels", permission: false },
-            { action: "Edit Level", permission: false },
-            { action: "Delete Level", permission: false },
-            { action: "Create Level Manager", permission: false },
-            { action: "View Level Managers", permission: false },
-            { action: "Edit Level Manager", permission: false },
-            { action: "Delete Level Manager", permission: false }
-          ]
-        },
-        {
-          group: "Curriculum",
-          tab: "Subject",
-          hasAccess: false,
-          actions: [
-            { action: "Create Base Subject", permission: false },
-            { action: "View Base Subjects", permission: false },
-            { action: "Edit Base Subject", permission: false },
-            { action: "Delete Base Subject", permission: false },
-            { action: "Create Subject", permission: false },
-            { action: "View Subjects", permission: false },
-            { action: "Edit Subject", permission: false },
-            { action: "Delete Subject", permission: false },
-            { action: "Create Subject Manager", permission: false },
-            { action: "View Subject Managers", permission: false },
-            { action: "Edit Subject Manager", permission: false },
-            { action: "Delete Subject Manager", permission: false }
-          ]
-        },
-        {
-          group: "Curriculum",
-          tab: "Learning Plan",
-          hasAccess: false,
-          actions: [
-            { action: "Create Syllabus", permission: false },
-            { action: "View Syllabus", permission: false },
-            { action: "Edit Syllabus", permission: false },
-            { action: "Delete Syllabus", permission: false },
-            { action: "Create Topic", permission: false },
-            { action: "View Topics", permission: false },
-            { action: "Edit Topic", permission: false },
-            { action: "Delete Topic", permission: false },
-            { action: "Create Timetable", permission: false },
-            { action: "View Timetables", permission: false },
-            { action: "Edit Timetable", permission: false },
-            { action: "Delete Timetable", permission: false }
-          ]
-        },
-        {
-          group: "Curriculum",
-          tab: "Academic Session",
-          hasAccess: false,
-          actions: [
-            { action: "Create Academic Year", permission: false },
-            { action: "View Academic Years", permission: false },
-            { action: "Edit Academic Year", permission: false },
-            { action: "Delete Academic Year", permission: false },
-            { action: "Create Period", permission: false },
-            { action: "View Periods", permission: false },
-            { action: "Edit Period", permission: false },
-            { action: "Delete Period", permission: false }
-          ]
-        },
-        {
-          group: "Curriculum",
-          tab: "Location",
-          hasAccess: false,
-          actions: [
-            { action: "Create Location", permission: false },
-            { action: "View Locations", permission: false },
-            { action: "Edit Location", permission: false },
-            { action: "Delete Location", permission: false }
-          ]
-        }
-      ]
-    }
-  ];
-
-  const path_NameMap = {
+  const path_TabMap = {
     "/main": "Home",
-    "/main/admin": "Admin",
-    "/main/admin/users": "Admin",
-    "/main/admin/activitylog": "Admin",
-    "/main/admin/billing": "Admin",
+    "/main/admin": "Roles & Permission",
+    "/main/admin/users": "User",
+    "/main/admin/activitylog": "Activity Log",
+    "/main/admin/billing": "Billing",
     "/main/course": "Course",
     "/main/student": "Student",
-    "/main/timeline": "Timeline",
-    "/main/timeline/period": "Timeline",
+    "/main/academicsession": "Academic Session",
+    "/main/academicsession/period": "Academic Session",
+    "/main/academicsession/academicYear": "Academic Session",
+    "/main/enrollment": "Enrollment",
+    "/main/attendance": "Per Day Attendance",
+    "/main/attendance/persession": "Per Session Attendance",
+    "/main/attendance/perday": "Per Day Attendance",
+    "/main/attendance/event": "Event Attendance",
+    "/main/staff": "Staff Profile",
+    "/main/staff/contract": "Staff Profile",
+    "/main/staff/profile": "Staff Contract"
+  };
+
+  const path_GroupMap = {
+    "/main": "Home",
+    "/main/admin": "Administration",
+    "/main/admin/users": "Administration",
+    "/main/admin/activitylog": "Administration",
+    "/main/admin/billing": "Administration",
+    "/main/course": "Curriculum",
+    "/main/student": "Student",
+    "/main/academicsession": "Curriculum",
+    "/main/academicsession/period": "Curriculum",
+    "/main/academicsession/academicYear": "Curriculum",
     "/main/enrollment": "Enrollment",
     "/main/attendance": "Attendance",
     "/main/attendance/persession": "Attendance",
     "/main/attendance/perday": "Attendance",
+    "/main/attendance/event": "Attendance",
     "/main/staff": "Staff",
     "/main/staff/contract": "Staff",
-    "/main/staff/profile.ts": "Staff"
-  };
-  const pathToNameValue = path_NameMap[pathname as keyof typeof path_NameMap];
-  const name_PathMap = {
-    Home: "/main",
-    Admin: "/main/admin",
-    Course: "/main/course",
-    Student: "/main/student",
-    Enrollment: "/main/enrollment",
-    Attendance: "/main/attendance",
-    Staff: "/main/staff",
-    Timeline: "/main/timeline"
+    "/main/staff/profile": "Staff"
   };
 
-  const tabToIconMap = {
+  const tab_PathMap = {
+    Home: "/main",
+    "Roles & Permission": "/main/admin",
+    Users: "/main/admin/users",
+    "Activity Log": "/main/admin/activitylog",
+    Billing: "/main/admin/billing",
+    Course: "/main/course",
+    Student: "/main/student",
+    "Academic Session": "/main/academicsession",
+    Enrollment: "/main/enrollment",
+    "Per Day Attendance": "/main/attendance/perday",
+    "Per Session Attendance": "/main/attendance/persession",
+    "Event Attendance": "/main/attendance/event",
+    "Staff Profile": "/main/staff",
+    "Staff Contract": "/main/staff/contract"
+  };
+
+  const tab_IconMap = {
     Home: Home,
     Curriculum: GraduationCap,
     Administration: Settings,
     Course: BookOpen,
-    Subject: FileText,
+    Subject: LibraryBig,
     Attendance: ClipboardCheck,
+    Assessment: FileText,
+    TimeTable: Timer,
     "Staff Profile": UserRoundPen,
-    "Staff Contracts": FileCheck
+    "Staff Contract": Signature,
+    "Academic Session": Clock,
+    Programme: BookOpenCheck,
+    Staff: BookUser,
+    Location: School,
+    "Learning Plan": Waypoints,
+    Level: SquareStack,
+    Users: UserCog,
+    "Roles & Permission": ShieldPlus,
+    Billing: Receipt,
+    "Activity Log": Activity,
+    Setting: Wrench,
+    "Per Day Attendance": CalendarClock,
+    "Per Subject Attendance": CalendarFold,
+    "Event Attendance": CalendarPlus
   };
 
   const profileDialog = (
     <div
       ref={wrapperDivRef}
-      className="flex flex-col border border-foregroundColor-20 w-[400px] max-h-[80vh] p-5 mt-1 gap-5 rounded-lg shadow-md absolute top-[100%] right-5 z-20 bg-backgroundColor"
+      className="flex flex-col border border-borderColor w-[290px] max-h-[80vh] min-h-[40vh] px-4 py-4 gap-5 rounded-lg shadow-md absolute bottom-2 z-20 bg-backgroundColor-2"
     >
       {error && (
         <ErrorDiv
@@ -426,24 +259,25 @@ const layout = ({ children }: { children: ReactNode }) => {
           {error}
         </ErrorDiv>
       )}
-      <div className="w-full flex justify-end">
-        <LoaderButton
-          buttonText="Sign Out"
-          loadingButtonText="Signing Out..."
-          disabled={false}
-          buttonStyle="w-1/2"
-          isLoading={false}
-          onClick={handleSignout}
-        />
-      </div>
-      <div className="flex gap-5 justify-between items-center mx-5">
-        <div className="h-25 w-25 rounded-full bg-foregroundColor-10 flex items-center justify-center text-[40px] text-foregroundColor-50 font-bold">
+      <div className="w-full flex justify-between items-center gap-2">
+        <div className="h-20 w-20 rounded-full bg-foregroundColor flex items-center justify-center text-[40px] text-backgroundColor font-bold">
           {accountName.slice(0, 2)}
         </div>
+        <div className="w-1/2 h-full">
+          <LoaderButton
+            buttonText="Sign Out"
+            loadingButtonText="Signing Out..."
+            disabled={false}
+            isLoading={false}
+            onClick={handleSignout}
+          />
+        </div>
+      </div>
+      <div className="flex flex-col justify-between items-center w-full">
         <div className="flex flex-col gap-1 justify-center items-center">
           <span className="text-[18px] font-bold">{organisationId.accountName}</span>
-          <span className="text-[15px] font-semibold text-foregroundColor-90">{accountName}</span>
-          <span className="text-[15px] text-foregroundColor-60">{accountEmail}</span>
+          <span className="text-[15px] font-semibold">{accountName}</span>
+          <span className="text-[15px] text-foregroundColor-60 text-slate-500">{accountEmail}</span>
           <span className="text-[15px] text-foregroundColor-60">({accountData.roleId.roleName.slice(0, 16)})</span>
         </div>
       </div>
@@ -452,7 +286,7 @@ const layout = ({ children }: { children: ReactNode }) => {
 
   return (
     // main app container
-    <div className="flex">
+    <div className="flex text-[15px]">
       {/* {triggerUnsavedDialog && (
         <YesNoDialog
           warningText="You have unsaved changes. Are you sure you want to proceed?"
@@ -469,102 +303,96 @@ const layout = ({ children }: { children: ReactNode }) => {
       {/* sidebar */}
       <div className="flex flex-col gap-3 pb-4 border-r border-borderColor px-5 w-[400px] bg-backgroundColor not-only:h-screen sticky top-0 overflow-auto">
         {openProfile && profileDialog}
-
         {/* school detail div*/}
         <div className="flex items-center gap-5 p-3 border-b border-borderColor h-[100px] sticky top-0 z-20 bg-backgroundColor">
           <>
             <Building className="h-8 w-8 text-indigo-600" />
             <div>
               <h2 className="font-bold">Al-Yeqeen</h2>
-              <p className="text-xs text-slate-500">School Management System</p>
+              <p className="text-xs text-foregroundColor-2">School Management System</p>
             </div>
           </>
 
           {/* theme toggle */}
-          <div
-            title="Toggle Theme"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="hover:cursor-pointer hover:text-foregroundColor-2 p-1 rounded-full"
-          >
-            <ImBrightnessContrast className="text-[25px]" />
-          </div>
         </div>
-
         {/* nav div */}
-        <div className="flex flex-col gap-3 py-3">
-          <TabLink
-            icon={tabToIconMap["Home" as keyof typeof tabToIconMap]}
-            tab="Home"
-            url={name_PathMap[pathToNameValue as keyof typeof name_PathMap]}
-          />
-
-          {mockTabAccess.length > 0 &&
-            mockTabAccess.map(({ group, hasAccess, tabs }: any, index) => {
+        <div className="flex flex-col gap-3 py-3 h-full">
+          <div
+            className={`flex gap-4 px-5 py-3 rounded-md font-medium hover:bg-backgroundColor-2 hover:cursor-pointer items-center whitespace-nowrap ${
+              pathname === "/main"
+                ? "text-backgroundColor bg-foregroundColor hover:bg-foregroundColor-2 border border-borderColor shadow-xs"
+                : "text-foregroundColor-2 bg-backgroundColor-3 "
+            }`}
+            onClick={() => {
+              handleNavigation(tab_PathMap["Home" as keyof typeof tab_PathMap]);
+            }}
+          >
+            <IconFormatter icon={tab_IconMap["Home" as keyof typeof tab_IconMap]} className="size-5" />
+            Home
+          </div>
+          {mergedTabAccess.length > 0 &&
+            mergedTabAccess.map(({ group, hasAccess, tabs }: any) => {
               const icon_UrlTabs =
                 tabs.length > 0 &&
                 tabs.map((tabObj: any) => ({
                   ...tabObj,
-                  icon: tabToIconMap[tabObj.tab as keyof typeof tabToIconMap],
-                  url: name_PathMap[tabObj.tab as keyof typeof name_PathMap]
+                  icon: tab_IconMap[tabObj.tab as keyof typeof tab_IconMap],
+                  url: tab_PathMap[tabObj.tab as keyof typeof tab_PathMap]
                 }));
+
               return (
-                hasAccess && (
-                  <div className="flex flex-col">
-                    <div
-                      key={group}
-                      className="flex gap-4 px-5 py-3 text-foregroundColor-2 rounded-md font-medium hover:bg-backgroundColor-2 bg-backgroundColor-3 hover:cursor-pointer items-center justify-between shadow-xs"
-                      onClick={() =>
-                        setGroupExpandCollapseState((prev: any) => ({
-                          ...prev,
-                          [group]: !groupExpandCollapseState[group]
-                        }))
-                      }
-                    >
+                <div key={group} className="flex flex-col">
+                  <div
+                    className={`flex gap-4 px-5 py-3 rounded-md font-medium text-foregroundColor-2 bg-backgroundColor-3 hover:bg-backgroundColor-2 hover:cursor-pointer items-center whitespace-nowrap`}
+                    onClick={() =>
+                      setGroupExpandCollapseState((prev: any) => ({
+                        ...prev,
+                        [group]: !groupExpandCollapseState[group]
+                      }))
+                    }
+                  >
+                    <span
+                      hidden={path_GroupMap[pathname as keyof typeof path_GroupMap] !== group}
+                      className={`${
+                        path_GroupMap[pathname as keyof typeof path_GroupMap] === group
+                          ? "bg-green-500 w-2 h-2 rounded-full"
+                          : ""
+                      }`}
+                    ></span>
+                    <div className="flex justify-between w-full">
                       <div className="flex gap-3">
-                        <IconFormatter icon={tabToIconMap[group as keyof typeof tabToIconMap]} className="size-5" />
+                        <IconFormatter icon={tab_IconMap[group as keyof typeof tab_IconMap]} className="size-5" />
                         <span className="">{group}</span>
                       </div>
-
                       <ChevronDown className={`inline-block ${groupExpandCollapseState[group] ? "" : "rotate-180"}`} />
                     </div>
-                    {/* link divs */}
-                    <div hidden={groupExpandCollapseState[group]}>
-                      {tabs.length > 0 && <SideBarNav tabs={icon_UrlTabs} />}
-                    </div>
                   </div>
-                )
+                  {/* link divs */}
+                  <div hidden={groupExpandCollapseState[group]}>
+                    {tabs.length > 0 && <SideBarNav tabs={icon_UrlTabs} />}
+                  </div>
+                </div>
               );
             })}
-
-          {tabs.map((tab) => (
-            <span
-              key={tab}
-              className={`${
-                pathToNameValue === tab ? "border-b-3 border-foregroundColor" : ""
-              } hover:cursor-pointer hover:border-b-3 hover:border-foregroundColor-30`}
-              onClick={() => {
-                handleNavigation(`${name_PathMap[tab as keyof typeof name_PathMap]}`);
-              }}
-            >
-              {tab}
-            </span>
-          ))}
         </div>
         {/* profile and theme div */}
         <div
-          className="flex items-center justify-center gap-5 hover:bg-foregroundColor-10 rounded-lg px-4 py-1 hover:cursor-pointer"
+          className="flex items-center justify-center gap-5 hover:bg-backgroundColor border-t border-borderColor px-4 py-4 hover:cursor-pointer sticky bottom-0 bg-backgroundColor-2"
           onClick={() => setOpenProfile(!openProfile)}
         >
           <div className="flex flex-col">
             <span className="font-semibold">{organisationId.accountName}</span>
             <span className="text-[13px]">{accountName}</span>
           </div>
-          <div className="h-10 w-10 rounded-full bg-foregroundColor-10 flex items-center justify-center text-foregroundColor-50 font-bold">
+          <div className="h-10 w-10 rounded-full bg-backgroundColor-3 flex items-center justify-center text-foregroundColor-2 font-bold">
             {accountName.slice(0, 2)}
           </div>
         </div>
       </div>
       <div className="bg-backgroundColor-2 w-screen h-screen overflow-auto">
+        <div className="flex items-center w-full border-b border-borderColor py-1 px-5 bg-backgroundColor-3">
+          <ThemeSelector />
+        </div>
         {error && (
           <ErrorDiv
             onClose={(close) => {

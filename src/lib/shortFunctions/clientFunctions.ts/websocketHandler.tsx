@@ -7,7 +7,6 @@ import { getUsers } from "@/redux/features/admin/users/usersThunks";
 import { useQueryClient } from "@tanstack/react-query";
 import { BASE_API_URL } from "../shortFunctions";
 import axios from "axios";
-import NewAcademicYearComponent from "@/lib/customComponents/academicYear/newAcademicYearComp";
 
 const useWebSocketHandler = (onError?: (error: string) => void) => {
   const socketRef = useRef<any>(null);
@@ -15,10 +14,80 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
   const dispatch = useAppDispatch();
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const organisationId = accountData?.organisationId._id;
-  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
-    tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
+  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((group: any) =>
+    group.tabs.map((tab: any) =>
+      tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
+    )
   );
+
   const queryClient = useQueryClient();
+  useEffect(() => {
+    if (!organisationId) return;
+
+    socketRef.current = io(BASE_API_URL, {
+      transports: ["websocket"],
+      withCredentials: true,
+      reconnection: false
+    });
+
+    socketRef.current.on("connect", () => {
+      if (!organisationId) {
+        return;
+      }
+
+      // Join the organisation room
+      socketRef.current.emit("joinOrgRoom", {
+        organisationId,
+        accountName: accountData?.accountName
+      });
+    });
+
+    socketRef.current.on("disconnect", () => {});
+
+    socketRef.current.on("reconnect_attempt", (attemptNumber: number) => {});
+
+    socketRef.current.on("connect_error", async (error: any) => {
+      if (error.message == "Invalid token" || error.message == "No Cookies" || error.message == "No Access Token") {
+        try {
+          const refreshResponse = await axios.post(
+            `${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/refreshaccesstoken`,
+            {},
+            {
+              withCredentials: true
+            }
+          );
+          if (refreshResponse.data) {
+            socketRef.current.connect();
+          }
+        } catch (refreshErr: any) {
+          const status = refreshErr.response?.status;
+          const unAuthorisedRefresh = status === 401 || status === 403;
+          try {
+            const response = await axios.get(`${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/signout`, {
+              withCredentials: true
+            });
+            if (response) {
+              if (unAuthorisedRefresh) window.location.href = "/signin";
+              throw refreshErr;
+            }
+          } catch (error: any) {
+            throw refreshErr;
+          }
+        }
+      }
+    });
+
+    socketRef.current.on(
+      "databaseChange",
+      (change: { collection: string; fullDocument: any; changeOperation: string }) => {
+        handleDataFetch(change);
+      }
+    );
+
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, [organisationId]);
 
   const hasActionAccess = (action: string) => {
     return accountPermittedActions.includes(action);
@@ -26,24 +95,41 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
 
   const handleDataFetch = async (change: { collection: string; fullDocument: any; changeOperation: string }) => {
     const { collection, fullDocument, changeOperation } = change;
-    console.log("WebSocket change received:", change);
-    console.log("fullDocument:", fullDocument);
+    const userIsAbsoluteAdmin = accountData?.roleId?.absoluteAdmin;
+
     try {
-      if ((hasActionAccess("View Roles") || accountData.roleId.absoluteAdmin) && collection === "roles") {
+      if ((hasActionAccess("View Roles") || userIsAbsoluteAdmin) && collection === "roles") {
+        const changedRecordId = fullDocument._id;
+        const userRoleId = accountData.roleId._id;
+        if (!userIsAbsoluteAdmin && changedRecordId === userRoleId) return;
+        if (!queryClient.getQueryData(["roles"])) return;
+        if (changeOperation === "insert") {
+          queryClient.setQueryData(["roles"], (oldData: any) => {
+            return [fullDocument, ...oldData];
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queryClient.setQueryData(["roles"], (oldData: any) => {
+            return oldData.map((role: any) => (role._id === fullDocument._id ? fullDocument : role));
+          });
+        }
+        if (changeOperation === "delete") {
+          queryClient.setQueryData(["roles"], (oldData: any) => {
+            return oldData.filter((role: any) => role._id !== fullDocument._id);
+          });
+        }
+
         const response = await dispatch(fetchRolesAccess()).unwrap();
       }
-      if ((hasActionAccess("View Users") || accountData.roleId.absoluteAdmin) && collection === "accounts") {
+      if ((hasActionAccess("View Users") || userIsAbsoluteAdmin) && collection === "accounts") {
         const response = await dispatch(getUsers()).unwrap();
       }
-      if ((hasActionAccess("View Staff") || accountData.roleId.absoluteAdmin) && collection === "staffs") {
+      if ((hasActionAccess("View Staff") || userIsAbsoluteAdmin) && collection === "staffs") {
         queryClient.invalidateQueries({ queryKey: ["staffProfiles"] });
       }
 
       // handle academic year change stream
-      if (
-        (hasActionAccess("View Academic Years") || accountData.roleId.absoluteAdmin) &&
-        collection === "academicyears"
-      ) {
+      if ((hasActionAccess("View Academic Years") || userIsAbsoluteAdmin) && collection === "academicyears") {
         if (!queryClient.getQueryData(["academicYears"])) return;
         if (changeOperation === "insert") {
           queryClient.setQueryData(["academicYears"], (oldData: any) => {
@@ -77,7 +163,7 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
       }
 
       // handle period change stream
-      if ((hasActionAccess("View Academic Years") || accountData.roleId.absoluteAdmin) && collection === "periods") {
+      if ((hasActionAccess("View Academic Years") || userIsAbsoluteAdmin) && collection === "periods") {
         const newPeriod = fullDocument;
         // update periods cache
         if (queryClient.getQueryData(["periods"])) {
@@ -146,83 +232,14 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
         }
       }
 
-      if (
-        (hasActionAccess("View Staff Contracts") || accountData.roleId.absoluteAdmin) &&
-        collection === "staffcontracts"
-      ) {
+      if ((hasActionAccess("View Staff Contracts") || userIsAbsoluteAdmin) && collection === "staffcontracts") {
         queryClient.invalidateQueries({ queryKey: ["staffContracts"] });
       }
     } catch (error: any) {
       if (onError) onError(error || "An error occurred while fetching data");
     }
   };
-  useEffect(() => {
-    if (!organisationId) return;
 
-    socketRef.current = io(BASE_API_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-      reconnection: false
-    });
-
-    socketRef.current.on("connect", () => {
-      if (!organisationId) {
-        return;
-      }
-
-      // Join the organisation room
-      socketRef.current.emit("joinOrgRoom", {
-        organisationId,
-        accountName: accountData?.accountName
-      });
-    });
-
-    socketRef.current.on("disconnect", () => {});
-
-    socketRef.current.on("reconnect_attempt", (attemptNumber: number) => {});
-
-    socketRef.current.on("connect_error", async (error: any) => {
-      if (error.message == "Invalid token" || error.message == "No Cookies" || error.message == "No Access Token") {
-        try {
-          const refreshResponse = await axios.post(
-            `${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/refreshaccesstoken`,
-            {},
-            {
-              withCredentials: true
-            }
-          );
-          if (refreshResponse.data) {
-            socketRef.current.connect();
-          }
-        } catch (refreshErr: any) {
-          const status = refreshErr.response?.status;
-          const unAuthorisedRefresh = status === 401 || status === 403;
-          try {
-            const response = await axios.get(`${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/signout`, {
-              withCredentials: true
-            });
-            if (response) {
-              if (unAuthorisedRefresh) window.location.href = "/signin";
-              throw refreshErr;
-            }
-          } catch (error: any) {
-            throw refreshErr;
-          }
-        }
-      }
-    });
-
-    socketRef.current.on(
-      "databaseChange",
-      (change: { collection: string; fullDocument: any; changeOperation: string }) => {
-        handleDataFetch(change);
-      }
-    );
-
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, [organisationId]);
   return {};
 };
 

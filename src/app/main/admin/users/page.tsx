@@ -32,8 +32,10 @@ const Users = () => {
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
-  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
-    tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
+  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((group: any) =>
+    group.tabs.map((tab: any) =>
+      tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
+    )
   );
 
   const hasActionAccess = (action: string) => {

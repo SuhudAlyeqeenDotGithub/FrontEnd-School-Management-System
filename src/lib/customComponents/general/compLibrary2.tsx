@@ -152,7 +152,7 @@ export const ConfirmActionByInputDialog = ({
   const [error, setError] = useState("");
   const [inputText, setInputText] = useState("");
   return (
-    <div className="w-[100%] h-[100%] bg-foregroundColor-50 items-center justify-center z-30 flex fixed inset-0">
+    <div className="w-[100%] h-[100%] bg-foregroundColor-transparent items-center justify-center z-30 flex fixed inset-0">
       <ContainerComponent style="min-w-[500px] max-h-[300px] z-50 flex flex-col bg-backgroundColor gap-5 items-center justify-center">
         <span>{warningText}</span>
         {error && (
@@ -182,7 +182,9 @@ export const ConfirmActionByInputDialog = ({
           }}
         />
         <div className="w-full flex justify-between px-30 items-center">
-          <button onClick={onCancel}>Cancel</button>
+          <button onClick={onCancel} className={defaultButtonStyle}>
+            Cancel
+          </button>
           <button
             disabled={confirmWithText !== inputText}
             onClick={() => {
@@ -193,6 +195,7 @@ export const ConfirmActionByInputDialog = ({
                 onConfirm(true, returnObject);
               }
             }}
+            className={defaultButtonStyle}
           >
             Confirm
           </button>

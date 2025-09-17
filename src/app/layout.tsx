@@ -25,7 +25,32 @@ export default function RootLayout({
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools initialIsOpen={false} />
           <StoreProvider>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              value={{
+                light: "light",
+                dark: "dark",
+
+                emerald: "emerald",
+                "emerald-dark": "emerald-dark",
+
+                teal: "teal",
+                "teal-dark": "teal-dark",
+
+                indigo: "indigo",
+                "indigo-dark": "indigo-dark",
+
+                plum: "plum",
+                "plum-dark": "plum-dark",
+
+                yellow: "yellow",
+                "yellow-dark": "yellow-dark",
+
+                cyan: "cyan",
+                "cyan-dark": "cyan-dark"
+              }}
+            >
               {children}
             </ThemeProvider>
           </StoreProvider>

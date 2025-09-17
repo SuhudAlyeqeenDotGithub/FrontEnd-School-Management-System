@@ -21,8 +21,10 @@ import {
   ghostbuttonStyle,
   paginationButtonStyle,
   paginationContainerStyle,
+  sortableTableHeadCellStyle,
   tableCellStyle,
   tableContainerStyle,
+  tableHeadCellStyle,
   tableHeaderStyle,
   tableRowStyle,
   tableTopStyle
@@ -32,7 +34,7 @@ import { handleApiRequest } from "@/axios/axiosClient";
 import { tanFetchStaffProfiles } from "@/tanStack/staff/fetch";
 import { useStaffMutation } from "@/tanStack/staff/mutate";
 import EditStaffComponent from "@/lib/customComponents/staff/editStaffComp";
-import { tanFetchAny } from "@/tanStack/timeline/fetch";
+import { tanFetchAny } from "@/tanStack/reusables/fetch";
 
 const StaffProfile = () => {
   const dispatch = useAppDispatch();
@@ -52,8 +54,10 @@ const StaffProfile = () => {
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
-  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((tab: any) =>
-    tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
+  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((group: any) =>
+    group.tabs.map((tab: any) =>
+      tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
+    )
   );
   const [paginationData, setPaginationData] = useState<any>({
     totalCount: 0,
@@ -311,7 +315,7 @@ const StaffProfile = () => {
               <Table className="text-[16px]">
                 <TableHeader>
                   <TableRow className={tableHeaderStyle}>
-                    <TableHead className="text-center text-foregroundColor-70 w-[110px] font-semibold p-2 whitespace-nowrap"></TableHead>
+                    <TableHead className="text-center w-[110px] font-semibold p-2 whitespace-nowrap"></TableHead>
 
                     {(["Staff Custom ID", "First Name", "Last Name", "Gender", "Email"] as const).map((header) => (
                       <TableHead
@@ -327,15 +331,13 @@ const StaffProfile = () => {
                           const sortKey = key_Name[header];
                           handleSort(sortKey);
                         }}
-                        className="text-center w-[200px] font-semibold hover:cursor-pointer hover:bg-backgroundColor-4 p-2 whitespace-nowrap"
+                        className={sortableTableHeadCellStyle}
                       >
                         {header}
                         <LuArrowUpDown className="inline-block ml-1" />
                       </TableHead>
                     ))}
-                    <TableHead className="text-center text-foregroundColor-70 font-semibold whitespace-nowrap">
-                      Delete
-                    </TableHead>
+                    <TableHead className="text-center font-semibold whitespace-nowrap">Delete</TableHead>
                   </TableRow>
                 </TableHeader>
 
@@ -395,7 +397,7 @@ const StaffProfile = () => {
                             {staffCustomId.slice(0, 10)}
                             <MdContentCopy
                               title="copy id"
-                              className="ml-2 inline-block text-[19px] text-foregroundColor-70 hover:text-foregroundColor-50 hover:cursor-pointer"
+                              className="ml-2 inline-block text-[19px] text-foregroundColor-2  hover:text-foregroundColor-50 hover:cursor-pointer"
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 await navigator.clipboard.writeText(staffCustomId);

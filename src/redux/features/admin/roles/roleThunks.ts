@@ -20,7 +20,7 @@ export const createRole = createAsyncThunk<ReturnRoleType[], ParamRoleType>(
   "orgaccount/createrolesaccess",
   async (roleData, { rejectWithValue }) => {
     try {
-      const response = await handleApiRequest("post", `alyeqeenschoolapp/api/admin/createrole`, roleData);
+      const response = await handleApiRequest("post", `alyeqeenschoolapp/api/admin/role`, roleData);
 
       return response?.data;
     } catch (error: any) {
