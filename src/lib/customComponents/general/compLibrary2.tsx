@@ -248,6 +248,7 @@ export const CustomFilterComponent = ({
               className="absolute right-5 bg-backgroundColor hover:cursor-pointer"
               onClick={() => {
                 setFilterQuery((prev: any) => ({ ...prev, search: "" }));
+                onQuery({ ...filterQuery, search: "" });
               }}
             >
               <IoClose className="text-foregroundColor-60 text-[20px] " />
@@ -288,10 +289,8 @@ export const CustomFilterComponent = ({
                 const filtersValues = Object.values(filters);
                 const alls = filtersValues.filter((value) => value === "all");
                 if (alls.length === filtersValues.length && search === "") {
-                  console.log("query", {});
                   onQuery({});
                 } else {
-                  console.log("query", filterQuery);
                   onQuery(filterQuery);
                 }
               }}

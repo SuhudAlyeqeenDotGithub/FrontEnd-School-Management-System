@@ -497,7 +497,7 @@ export const UserDialogComponent = ({
               value={userStatus}
               options={[
                 { value: "Active", label: "Active" },
-                { value: "Inactive", label: "Inactive" }
+                { value: "Locked", label: "Locked" }
               ]}
               onChange={handleInputChange}
             />

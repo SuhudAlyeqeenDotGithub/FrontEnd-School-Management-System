@@ -381,7 +381,9 @@ const Users = () => {
                   options: ["All", "Active", "Locked"]
                 }
               ]}
-              onQuery={(query: any) => {}}
+              onQuery={(query: any) => {
+                setQueryParams(query);
+              }}
             />
           </div>
           {error && (

@@ -138,7 +138,6 @@ export const RoleDialog = ({
 
     return true;
   };
-  console.log("localData", localData);
 
   return (
     <ContainerComponent id="roleDialogContainer" style="w-[60%] h-[90%] gap-5 overflow-auto flex flex-col">

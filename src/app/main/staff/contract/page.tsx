@@ -358,7 +358,7 @@ const StaffContracts = () => {
                 {
                   displayText: "Contract Type",
                   fieldName: "contractType",
-                  options: ["All", "Full-time", "Part-time"]
+                  options: ["All", "Full-time", "Part-time", "Casual", "Internship", "Fixed-term"]
                 },
                 {
                   displayText: "Contract Status",
@@ -366,7 +366,9 @@ const StaffContracts = () => {
                   options: ["All", "Active", "Closed"]
                 }
               ]}
-              onQuery={(query: any) => {}}
+              onQuery={(query: any) => {
+                setQueryParams(query);
+              }}
             />
           </div>
           <div className={paginationContainerStyle}>
