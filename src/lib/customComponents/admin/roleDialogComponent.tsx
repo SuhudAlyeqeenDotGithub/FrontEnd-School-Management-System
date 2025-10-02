@@ -42,13 +42,15 @@ export const RoleDialog = ({
   const updateMutation = tanMutateAny("put", "alyeqeenschoolapp/api/admin/roles");
   const createMutation = tanMutateAny("post", "alyeqeenschoolapp/api/admin/roles");
 
-  const [localData, setLocalData] = useState<any>({
+  const initialLocalData = {
     roleId: type === "edit" && data ? data._id : type === "view" && data ? data._id : "",
     roleName: type === "edit" && data ? data.roleName : type === "view" && data ? data.roleName : "",
     roleDescription:
       type === "edit" && data ? data.roleDescription : type === "view" && data ? data.roleDescription : "",
     groups: type === "edit" && data ? data.tabAccess : type === "view" && data ? data.tabAccess : []
-  });
+  };
+
+  const [localData, setLocalData] = useState<any>(initialLocalData);
   // console.log("localData", localData);
   const [recommendedGroups, setRecommendedGroups] = useState<any>([]);
   const [unsaved, setUnsaved] = useState(false);
@@ -105,47 +107,16 @@ export const RoleDialog = ({
   }, [unsaved]);
 
   // effect to have searching
-  useEffect(() => {
-    if (searchValue !== "") {
-      const filteredData = groups.filter((group: any) => group.group.toLowerCase().includes(searchValue.toLowerCase()));
-      setLocalData((prev: any) => ({ ...prev, tabAccess: filteredData }));
-    } else {
-      setLocalData((prev: any) => ({ ...prev, tabAccess: localData.tabAccess }));
-    }
-  }, [searchValue]);
+  // useEffect(() => {
+  //   if (searchValue !== "") {
+  //     const filteredData = groups.filter((group: any) => group.group.toLowerCase().includes(searchValue.toLowerCase()));
+  //     setLocalData((prev: any) => ({ ...prev, groups: filteredData }));
+  //   } else {
+  //     setLocalData(initialLocalData);
+  //   }
+  // }, [searchValue]);
 
   // function to handle sorting
-  const handleSort = (sortKey: any) => {
-    const keyType = checkDataType([...groups][0][sortKey]);
-
-    const sortOrder = sortOrderTracker[sortKey];
-
-    let nextOrder: string;
-
-    if (sortOrder === "dsc") {
-      nextOrder = "asc";
-    } else {
-      nextOrder = "dsc";
-    }
-    // console.log("localData", localData);
-    // console.log("sortKey", sortKey);
-    // console.log("first item", [...localData][0][keys[sortKey]]);console.log("keyType", keyType);
-    // console.log("sortOrder", sortOrder);
-    const sortedData = [...groups].sort((a, b) => {
-      if (keyType === "number" || keyType === "date") {
-        return sortOrder === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
-      } else if (keyType === "array") {
-        return sortOrder === "asc"
-          ? a[sortKey][0].name.localeCompare(b[sortKey][0].name)
-          : b[sortKey][0].name.localeCompare(a[sortKey][0].name);
-      } else {
-        return sortOrder === "asc" ? a[sortKey].localeCompare(b[sortKey]) : b[sortKey].localeCompare(a[sortKey]);
-      }
-    });
-
-    setLocalData((prev: any) => ({ ...prev, groups: sortedData }));
-    setSortOrderTracker((prev: any) => ({ ...prev, [sortKey]: nextOrder }));
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setUnsaved(true);
@@ -360,7 +331,7 @@ export const RoleDialog = ({
         </div>
       </div>
       {/* input divs */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 border border-borderColor p-4 rounded-md shadow-md bg-backgroundColor-2">
         <InputComponent
           disabled={onViewMode}
           title="Role Name *"
@@ -382,7 +353,7 @@ export const RoleDialog = ({
         />
       </div>
       {/* tab access div */}
-      <div className="bg-backgroundColor rounded-lg p-5 shadow-xs border border-borderColor-2 flex flex-col gap-10 h-full">
+      <div className="border border-borderColor p-4 rounded-md shadow-md bg-backgroundColor-2 flex flex-col gap-10 h-full">
         <div hidden={onViewMode} className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
             <CustomHeading variation="head3">Tab Groups</CustomHeading>
@@ -418,20 +389,20 @@ export const RoleDialog = ({
         {/* data table div */}
         <div className="flex flex-col gap-2">
           {/* title */}
+
           <div className="flex flex-col mb-2">
             <CustomHeading variation="head3">{onViewMode ? "View" : "Edit"} Tab Groups</CustomHeading>
             <CustomHeading variation="head6light">Specify permitted actions for each tab</CustomHeading>
           </div>
           {/* search bar and new action Button */}
-          <div className="flex justify-between items-center">
-            {/* search div */}
+          {/* <div className="flex justify-between items-center">
             <SearchComponent
               placeholder="Search Tab (Name)"
               name="searchValue"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
             />
-          </div>
+          </div> */}
 
           {/* table body */}
           <div className="flex flex-col">

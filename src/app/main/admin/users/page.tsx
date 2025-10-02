@@ -1,109 +1,190 @@
 "use client";
 import { checkDataType } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-import { useEffect, useState } from "react";
-import { ErrorDiv, LoaderDiv } from "@/lib/customComponents/general/compLibrary";
+import { use, useEffect, useState } from "react";
+import {
+  ActionButtons,
+  CustomHeading,
+  ErrorDiv,
+  InputComponent,
+  LoaderDiv,
+  NextButton,
+  PreviousButton
+} from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
-import NewUserComponent from "@/lib/customComponents/admin/newUserComponent";
-import { deleteUser, getUsers } from "@/redux/features/admin/users/usersThunks";
-import { fetchRolesAccess } from "@/redux/features/admin/roles/roleThunks";
-import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/customComponents/general/compLibrary2";
-import EditUserComponent from "@/lib/customComponents/admin/editUserComponent";
-import { resetUsers } from "@/redux/features/admin/users/usersSlice";
-import type { RootState } from "@/redux/store";
-import { dataRowCellStyle, tableCellStyle } from "@/lib/generalStyles";
+
+import {
+  DisallowedActionDialog,
+  ConfirmActionByInputDialog,
+  CustomFilterComponent
+} from "@/lib/customComponents/general/compLibrary2";
+import { UserDialogComponent } from "@/lib/customComponents/admin/userDialogComp";
+
+import {
+  dataRowCellStyle,
+  defaultButtonStyle,
+  ghostbuttonStyle,
+  paginationContainerStyle,
+  sortableTableHeadCellStyle,
+  tableCellStyle,
+  tableContainerStyle,
+  tableHeaderStyle,
+  tableRowStyle,
+  tableTopStyle
+} from "@/lib/generalStyles";
+import { useReusableMutations } from "@/tanStack/reusables/mutations";
+import reusableQueries from "@/tanStack/reusables/reusableQueries";
+import { MdAdd, MdContentCopy } from "react-icons/md";
 
 const Users = () => {
-  const dispatch = useAppDispatch();
-  const { users, isLoading } = useAppSelector((state) => state.usersData);
-  const { roles, isLoading: roleIsLoading } = useAppSelector((state) => state.rolesAccess);
-  const { accountData } = useAppSelector((state: RootState) => state.accountData);
+  const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
+  const { tanMutateAny } = useReusableMutations();
+  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/admin/users");
+  const { accountData } = useAppSelector((state: any) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
   const [openEditUserDialog, setOpenEditUserDialog] = useState(false);
   const [openNewUserDialog, setOpenNewUserDialog] = useState(false);
+  const [openViewUserDialog, setOpenViewUserDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
-  const [onOpenEditUserData, setOnOpenEditUserData] = useState<any>({});
+  const [onOpenUserDialogData, setOnOpenUserDialogData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
-  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((group: any) =>
-    group.tabs.map((tab: any) =>
-      tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
-    )
+  const [openFilterDiv, setOpenFilterDiv] = useState(false);
+  const [paginationData, setPaginationData] = useState<any>({
+    totalCount: 0,
+    chunkCount: 0,
+    hasNext: false
+  });
+  const [pageIndex, setPageIndex] = useState(0);
+  const [limit, setLimit] = useState("3");
+  const [queryParams, setQueryParams] = useState({});
+
+  const {
+    data: staffProfiles,
+    isFetching: isFetchingStaffProfiles,
+    error: staffProfilesError,
+    isError: isStaffProfilesError
+  } = useReusableQuery("staffProfiles", "View Staff Profiles", "alyeqeenschoolapp/api/staff/allprofile");
+
+  const {
+    data: roles,
+    isFetching: isFetchingroles,
+    error: rolesError,
+    isError: isrolesError
+  } = useReusableQuery("roles", "View Roles", "alyeqeenschoolapp/api/admin/roles");
+
+  const {
+    data: users,
+    isFetching: isFetchingusers,
+    error: usersError,
+    isError: isUsersError,
+    fetchNextPage,
+    fetchPreviousPage
+  } = useReusableInfiniteQuery(
+    "users",
+    queryParams,
+    Number(limit) || 10,
+    "View Users",
+    "alyeqeenschoolapp/api/admin/users"
   );
 
-  const hasActionAccess = (action: string) => {
-    return accountPermittedActions.includes(action);
-  };
   useEffect(() => {
-    if (!accountData.accountStatus) {
-      return;
+    if (!staffProfiles) return;
+    setError("");
+  }, [staffProfiles, isFetchingStaffProfiles]);
+
+  useEffect(() => {
+    if (!isStaffProfilesError) return;
+    if (staffProfilesError) {
+      setError(staffProfilesError.message);
     }
-    const fetchUsersL = async () => {
-      try {
-        if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
-          setError("Your account is no longer active - Please contact your admin");
-          return;
-        }
-        if (!hasActionAccess("View Users") && !accountData.roleId.absoluteAdmin) {
-          setError("Unauthorized: You do not have access to view users - Please contact your admin");
-          return;
-        }
-
-        await dispatch(getUsers()).unwrap();
-      } catch (error: any) {
-        setError(error);
-      }
-    };
-
-    fetchUsersL();
-  }, [accountData]);
+  }, [staffProfilesError, isStaffProfilesError]);
 
   useEffect(() => {
-    if (!accountData.accountEmail || !accountData.accountStatus) {
-      return;
+    if (!roles) return;
+    setError("");
+  }, [roles, isFetchingroles]);
+
+  useEffect(() => {
+    if (!isrolesError) return;
+    if (rolesError) {
+      setError(rolesError.message);
     }
-    const fetchRoles = async () => {
-      try {
-        if (accountData.accountStatus === "Locked" || accountData.accountStatus !== "Active") {
-          console.log("accountData", accountData);
-          dispatch(resetUsers());
-          setError("Your account is no longer active - Please contact your admin");
-          return;
-        }
-        if (!hasActionAccess("View Roles") && !accountData.roleId.absoluteAdmin) {
-          dispatch(resetUsers());
-          setError("Unauthorized: You do not have access to view roles - Please contact your admin");
-          return;
-        } else {
-          const response = await dispatch(fetchRolesAccess()).unwrap();
-        }
-      } catch (error: any) {
-        setError(error);
-      }
-    };
-
-    fetchRoles();
-  }, [accountData]);
+  }, [rolesError, isStaffProfilesError]);
 
   useEffect(() => {
-    setLocalData(users);
-  }, [users]);
+    if (!users) return;
+    setError("");
+    const currentPage: any = users.pages[pageIndex];
+    if (currentPage === undefined) return;
+    setLocalData(currentPage.users);
+    const { totalCount, chunkCount, hasNext } = currentPage;
+    setPaginationData({ totalCount, chunkCount, hasNext });
+  }, [users, isFetchingusers]);
 
   useEffect(() => {
-    if (searchValue !== "") {
-      const filteredData = users.filter((obj: any) => obj.searchText.toLowerCase().includes(searchValue.toLowerCase()));
-      setLocalData(filteredData);
-    } else {
+    if (!isUsersError) return;
+    if (usersError) {
+      setError(usersError.message);
+    }
+  }, [usersError, isUsersError]);
+
+  const renderNextPage = (pageIndex: number, pages: any) => {
+    const foundPage = pages[pageIndex];
+    if (foundPage !== undefined) {
+      const { users, ...rest } = foundPage;
       setLocalData(users);
+      setPaginationData(rest);
+    } else {
+      fetchNextPage();
     }
-  }, [searchValue]);
+  };
+
+  const renderPreviousPage = (pageIndex: number, pages: any) => {
+    const foundPage = pages[pageIndex];
+    if (foundPage !== undefined) {
+      const { users, ...rest } = foundPage;
+      setLocalData(users);
+      setPaginationData(rest);
+    } else {
+      fetchPreviousPage();
+    }
+  };
+
+  if (!accountData) {
+    return (
+      <div className="flex items-center justify-center mt-10">
+        <LoaderDiv
+          type="spinnerText"
+          borderColor="foregroundColor"
+          text="Loading User Data..."
+          textColor="foregroundColor"
+          dimension="h-10 w-10"
+        />
+      </div>
+    );
+  }
+
+  if (!roles || !staffProfiles) {
+    return (
+      <div className="flex items-center justify-center mt-10">
+        <LoaderDiv
+          type="spinnerText"
+          borderColor="foregroundColor"
+          text="Loading Required Data..."
+          textColor="foregroundColor"
+          dimension="h-10 w-10"
+        />
+      </div>
+    );
+  }
 
   // function to handle sorting
   const handleSort = (sortKey: any) => {
@@ -146,69 +227,79 @@ const Users = () => {
   };
 
   return (
-    <div className="px-8 py-6 w-full">
-      {error && (
-        <ErrorDiv
-          onClose={(close) => {
-            if (close) {
-              setError("");
-            }
-          }}
-        >
-          {error}
-        </ErrorDiv>
-      )}
-
+    <div className="px-4 py-6 w-full">
       {/* data table section */}
-      <div className="">
+      <>
         {openEditUserDialog && (
-          <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
-            <EditUserComponent
-              onClose={(open: boolean) => {
-                document.body.style.overflow = "";
-                setOpenEditUserDialog(!open);
-                return {};
-              }}
-              onUpdate={(notSave) => {
-                document.body.style.overflow = "";
-                setOpenEditUserDialog(!notSave);
-                return {};
-              }}
-              userData={onOpenEditUserData}
-              rolesData={roles
-                .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-                .map(({ _id, roleName, tabAccess }: any) => ({
-                  _id,
-                  name: roleName,
-                  tabAccess,
-                  searchText: _id + roleName
-                }))}
-            />
-          </div>
+          <UserDialogComponent
+            type="edit"
+            onClose={(open: boolean) => {
+              document.body.style.overflow = "";
+              setOpenEditUserDialog(!open);
+              return {};
+            }}
+            onSave={(notSave) => {
+              document.body.style.overflow = "";
+              setOpenEditUserDialog(!notSave);
+              return {};
+            }}
+            staffProfiles={staffProfiles}
+            data={onOpenUserDialogData}
+            roles={roles
+              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
+              .map(({ _id, roleName, tabAccess }: any) => ({
+                _id,
+                name: roleName,
+                tabAccess,
+                searchText: _id + roleName
+              }))}
+          />
+        )}
+
+        {openViewUserDialog && (
+          <UserDialogComponent
+            type="view"
+            onClose={(open: boolean) => {
+              document.body.style.overflow = "";
+              setOpenViewUserDialog(!open);
+              return {};
+            }}
+            onSave={(notSave) => {
+              document.body.style.overflow = "";
+              setOpenViewUserDialog(!notSave);
+              return {};
+            }}
+            data={onOpenUserDialogData}
+            staffProfiles={staffProfiles}
+            roles={roles
+              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
+              .map((roleDocument: any) => ({
+                ...roleDocument,
+                searchText: roleDocument._id + roleDocument.roleName
+              }))}
+          />
         )}
         {openNewUserDialog && (
-          <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
-            <NewUserComponent
-              onClose={(open: boolean) => {
-                document.body.style.overflow = "";
-                setOpenNewUserDialog(!open);
-                return {};
-              }}
-              onCreate={(notSave) => {
-                document.body.style.overflow = "";
-                setOpenNewUserDialog(!notSave);
-                return {};
-              }}
-              rolesData={roles
-                .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-                .map(({ _id, roleName, tabAccess }: any) => ({
-                  _id,
-                  name: roleName,
-                  tabAccess,
-                  searchText: _id + roleName
-                }))}
-            />
-          </div>
+          <UserDialogComponent
+            type="new"
+            onClose={(open: boolean) => {
+              document.body.style.overflow = "";
+              setOpenNewUserDialog(!open);
+              return {};
+            }}
+            onSave={(notSave) => {
+              document.body.style.overflow = "";
+              setOpenNewUserDialog(!notSave);
+              return {};
+            }}
+            staffProfiles={staffProfiles}
+            roles={roles
+              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
+              .map((roleDocument: any) => ({
+                ...roleDocument,
+                searchText: roleDocument._id + roleDocument.roleName
+              }))}
+          />
         )}
         {openDisallowedDeleteDialog && (
           <DisallowedActionDialog
@@ -233,9 +324,9 @@ const Users = () => {
               setError("");
               if (confirmed) {
                 try {
-                  await dispatch(deleteUser(returnObject)).unwrap();
+                  await deleteMutation.mutateAsync(returnObject);
                 } catch (err: any) {
-                  setError(err);
+                  setError(err.message);
                 }
               } else {
                 setError("An error occured while deleting - Please try again");
@@ -248,26 +339,21 @@ const Users = () => {
         )}
         {/* data table div */}
         <div className="flex flex-col gap-4">
-          {/* title */}
-          <div className="flex flex-col gap-2 mb-5">
-            <h2>Users</h2>
-            <h3>Use this section to create and manage users and their access</h3>
-          </div>
-          {/* search bar and new action Button */}
-          <div className="flex justify-between items-center">
-            {/* search div */}
-            <div className="flex w-[500px] h-[50px] items-center gap-2">
-              <input
-                className="border border-foregroundColor-25 rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-                placeholder="Search role (User Name, Email, Status)"
-                name="searchValue"
-                onChange={(e) => {
-                  setSearchValue(e.target.value);
-                }}
-              />
-              <FaSearch className="text-foregroundColor size-5" />
+          <div className={tableTopStyle}>
+            {/* title */}
+            <div className="flex flex-col">
+              <CustomHeading variation="sectionHeader">
+                Users
+                {/* <UserRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
+              </CustomHeading>
+              <CustomHeading variation="head5light">
+                Use this section to create and manage users and their access
+              </CustomHeading>
             </div>
-            {/* new action button */}
+
+            <span onClick={() => setOpenFilterDiv(!openFilterDiv)} className={ghostbuttonStyle}>
+              {openFilterDiv ? "Close Filter" : "Open Filter"}
+            </span>
             <div>
               <button
                 onClick={() => {
@@ -279,157 +365,264 @@ const Users = () => {
                   }
                 }}
                 disabled={!hasActionAccess("Create User")}
+                className={defaultButtonStyle}
               >
-                New User
+                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New User
               </button>
+            </div>
+          </div>
+          <div hidden={!openFilterDiv}>
+            <CustomFilterComponent
+              placeholder="Search role (User Name, Email, Status)"
+              filters={[
+                {
+                  displayText: "Account Status",
+                  fieldName: "accountStatus",
+                  options: ["All", "Active", "Locked"]
+                }
+              ]}
+              onQuery={(query: any) => {}}
+            />
+          </div>
+          {error && (
+            <ErrorDiv
+              onClose={(close) => {
+                if (close) {
+                  setError("");
+                }
+              }}
+            >
+              {error}
+            </ErrorDiv>
+          )}
+
+          {/* pagination div */}
+          <div className={paginationContainerStyle}>
+            <div>
+              Showing {paginationData.chunkCount} of {paginationData.totalCount} records
+            </div>
+
+            <div className="flex gap-3 items-center">
+              <p>Limit</p>
+              <div className="w-20">
+                <InputComponent
+                  type="text"
+                  name="limit"
+                  placeholder="5"
+                  value={limit}
+                  onChange={(e) => {
+                    setLimit(e.target.value);
+                  }}
+                />
+              </div>
+
+              <button
+                className={defaultButtonStyle}
+                onClick={() => {
+                  setQueryParams((prev) => ({ ...prev, limit: limit }));
+                }}
+              >
+                Apply
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <PreviousButton
+                onClick={() => {
+                  const prevPage = pageIndex - 1;
+                  setPageIndex(prevPage);
+                  renderPreviousPage(prevPage, users.pages);
+                }}
+                disabled={pageIndex === 0}
+              />
+
+              <span className=" px-2">
+                Page {pageIndex + 1} of {Math.ceil(paginationData.totalCount / Number(limit))}
+              </span>
+              <NextButton
+                onClick={() => {
+                  const nextPage = pageIndex + 1;
+                  setPageIndex(nextPage);
+                  renderNextPage(nextPage, users.pages);
+                }}
+                disabled={!paginationData.hasNext}
+              />
             </div>
           </div>
 
           {/* table body */}
-
-          <div className="flex flex-col gap-2">
+          <div className={tableContainerStyle}>
             {/* table header */}
-            <div className="w-full flex px-4 py-3 p-2 h-[50px] overflow-hidden">
-              <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
-                <span className="whitespace-nowrap flex items-center justify-center w-10 h-10 rounded-full font-semibold"></span>
-                {(["User Name", "User Role", "User Email", "Account Status", "Created At"] as const).map((header) => (
-                  <div
-                    key={header}
-                    onClick={() => {
-                      const key_Name = {
-                        "User Name": "accountName",
-                        "User Role": "role",
-                        "User Email": "accountEmail",
-                        "Account Status": "accountStatus",
-                        "Created At": "createdAt"
-                      };
-                      const sortKey = key_Name[header];
-                      handleSort(sortKey);
-                    }}
-                    className={`${
-                      header === "User Role"
-                        ? "hover:cursor-not-allowed"
-                        : "hover:cursor-pointer hover:bg-foregroundColor-5 hover:border hover:border-foregroundColor-10"
-                    } font-semibold flex gap-1 p-2 rounded-lg whitespace-nowrap items-center justify-center w-[200px]`}
-                  >
-                    {header} {header !== "User Role" && <LuArrowUpDown />}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* table data */}
-            <div className="flex flex-col gap-2 mt-3">
-              {isLoading ? (
-                <div className="flex items-center justify-center mt-10">
-                  <LoaderDiv
-                    type="spinnerText"
-                    borderColor="foregroundColor"
-                    text="Loading Users..."
-                    textColor="foregroundColor"
-                    dimension="h-10 w-10"
-                  />
-                </div>
-              ) : localData.length < 1 && searchValue ? (
-                <div className="flex justify-center mt-6">No search result found</div>
-              ) : localData.length < 1 && !isLoading ? (
-                <div className="flex justify-center mt-6">No data available</div>
-              ) : (
-                localData.map((doc: any, index: any) => {
-                  const {
-                    _id: accountId,
-                    staffId,
-                    accountName,
-                    accountEmail,
-                    accountType,
-                    accountStatus,
-                    roleId,
-                    accountPassword,
-                    createdAt
-                  } = doc;
-
-                  const tabs = roleId
-                    ? roleId.tabAccess
-                        ?.map((tab: any) => tab.tab)
-                        .slice(0, 5)
-                        .join(", ")
-                    : "Unknown Role";
-                  return (
-                    <div
-                      key={accountId}
+            <table className="relative w-full">
+              <thead className="sticky top-0 z-10 border-b border-borderColor-2">
+                <tr className={tableHeaderStyle}>
+                  <th className="text-center w-[110px] font-semibold p-2 whitespace-nowrap">User Id</th>
+                  {(["User Name", "User Role", "User Email", "Account Status", "Created At"] as const).map((header) => (
+                    <th
+                      key={header}
                       onClick={() => {
-                        if (hasActionAccess("Edit User")) {
-                          document.body.style.overflow = "hidden";
-                          setOnOpenEditUserData({
-                            userId: accountId,
-                            staffId: roleId ? (roleId.absoluteAdmin ? "" : staffId.staffCustomId) : "",
-                            userName: accountName,
-                            userEmail: accountEmail,
-                            userStatus: accountStatus,
-                            userPassword: accountPassword,
-                            onEditUserIsAbsoluteAdmin: roleId ? roleId.absoluteAdmin : false,
-                            roleId: roleId ? roleId._id + "|" + roleId.roleName : "Unknown Role"
-                          });
-                          setOpenEditUserDialog(true);
-                        } else {
-                          setError("You do not have Edit User Access - Please contact your admin");
-                        }
+                        const key_Name = {
+                          "User Name": "accountName",
+                          "User Role": "role",
+                          "User Email": "accountEmail",
+                          "Account Status": "accountStatus",
+                          "Created At": "createdAt"
+                        };
+                        const sortKey = key_Name[header];
+                        handleSort(sortKey);
                       }}
-                      className={tableCellStyle}
+                      className={sortableTableHeadCellStyle}
                     >
-                      <div className="grid auto-cols-max grid-flow-col w-[95%] gap-5">
-                        <span className="whitespace-nowrap flex items-center justify-center w-10 h-10 bg-foregroundColor-10 rounded-full font-semibold">
-                          {accountName.slice(0, 2)}
-                        </span>
-                        <span className={dataRowCellStyle}>{accountName}</span>
-                        <span className={dataRowCellStyle}>
-                          {roleId ? roleId.roleName.slice(0, 15) : "Unknown Role"}
-                        </span>
-                        <span className={dataRowCellStyle}>{accountEmail}</span>
-                        <span className={dataRowCellStyle}>{accountStatus}</span>
-                        <span className={dataRowCellStyle}>{formatDate(createdAt)}</span>
-                      </div>
+                      {header} <LuArrowUpDown className="inline-block ml-1" />
+                    </th>
+                  ))}
+                  <th className={tableHeaderStyle}>Actions</th>
+                </tr>
+              </thead>
 
-                      <CgTrash
-                        className="text-[25px] text-red-500 bg-backgroundColor hover:cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (roleId.absoluteAdmin) {
-                            setError(
-                              "Disallowed Action: Default Absolute Admin / organisation account Cannot be deleted"
-                            );
-                            setOpenDisallowedDeleteDialog(true);
+              {/* table data */}
+              <tbody className="mt-3 bg-backgroundColor">
+                {isFetchingusers ? (
+                  <tr>
+                    <td colSpan={8}>
+                      <div className="flex items-center justify-center p-10">
+                        <LoaderDiv
+                          type="spinnerText"
+                          text="Loading Users..."
+                          textColor="foregroundColor"
+                          dimension="h-10 w-10"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ) : (localData.length < 1 && !isFetchingusers) || !users ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-4">
+                      No data available
+                    </td>
+                  </tr>
+                ) : (
+                  localData.map((doc: any, index: any) => {
+                    const {
+                      _id: accountId,
+                      staffId,
+                      accountName,
+                      accountEmail,
+                      accountType,
+                      accountStatus,
+                      roleId,
+                      accountPassword,
+                      createdAt
+                    } = doc;
+
+                    const tabs = roleId
+                      ? roleId.tabAccess
+                          ?.map((tab: any) => tab.tab)
+                          .slice(0, 5)
+                          .join(", ")
+                      : "Unknown Role";
+                    return (
+                      <tr
+                        key={accountId}
+                        onClick={() => {
+                          if (hasActionAccess("View User")) {
+                            document.body.style.overflow = "hidden";
+                            setOnOpenUserDialogData(doc);
+                            setOpenViewUserDialog(true);
                           } else {
-                            if (hasActionAccess("Delete User")) {
-                              document.body.style.overflow = "hidden";
-                              setOpenConfirmDelete(true);
-                              setConfirmWithText(accountId);
-                              setConfirmWithReturnObj({
-                                accountIdToDelete: accountId,
-                                accountType,
-                                staffId,
-                                userName: accountName,
-                                userEmail: accountEmail,
-                                userStatus: accountStatus,
-                                roleId
-                              });
-                            } else {
-                              setError(
-                                "Unauthorised Action: You do not have Delete User Access - Please contact your admin"
-                              );
-                            }
+                            setError("You do not have View User Access - Please contact your admin");
                           }
                         }}
-                      />
-                    </div>
-                  );
-                })
-              )}
-            </div>
+                        className={tableRowStyle}
+                      >
+                        <td className="w-[110px] whitespace-nowrap text-center">
+                          CID
+                          <MdContentCopy
+                            title="copy id"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              await navigator.clipboard.writeText(accountId);
+                            }}
+                          />
+                        </td>
+                        <td className={tableCellStyle}>
+                          {accountName}{" "}
+                          <MdContentCopy
+                            title="copy id"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              await navigator.clipboard.writeText(accountName);
+                            }}
+                          />
+                        </td>
+                        <td className={tableCellStyle}>{roleId ? roleId?.roleName.slice(0, 15) : "Unknown Role"}</td>
+                        <td className={tableCellStyle}>
+                          {accountEmail}{" "}
+                          <MdContentCopy
+                            title="copy id"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              await navigator.clipboard.writeText(accountEmail);
+                            }}
+                          />
+                        </td>
+                        <td className={tableCellStyle}>{accountStatus}</td>
+                        <td className={tableCellStyle}>{formatDate(createdAt)}</td>
+
+                        <td className="text-center flex items-center justify-center h-15">
+                          <ActionButtons
+                            onEdit={(e) => {
+                              if (hasActionAccess("Edit User")) {
+                                document.body.style.overflow = "hidden";
+
+                                setOnOpenUserDialogData(doc);
+                                setOpenEditUserDialog(true);
+                              } else {
+                                setError("You do not have Edit User Access - Please contact your admin");
+                              }
+                            }}
+                            disableDelete={roleId.absoluteAdmin}
+                            hideDelete={roleId.absoluteAdmin}
+                            onDelete={(e) => {
+                              if (roleId.absoluteAdmin) {
+                                setError(
+                                  "Disallowed Action: Default Absolute Admin / organisation account Cannot be deleted"
+                                );
+                                setOpenDisallowedDeleteDialog(true);
+                              } else {
+                                if (hasActionAccess("Delete User")) {
+                                  document.body.style.overflow = "hidden";
+                                  setOpenConfirmDelete(true);
+                                  setConfirmWithText(accountId);
+                                  setConfirmWithReturnObj({
+                                    accountIdToDelete: accountId,
+                                    accountType,
+                                    staffId,
+                                    userName: accountName,
+                                    userEmail: accountEmail,
+                                    userStatus: accountStatus,
+                                    roleId
+                                  });
+                                } else {
+                                  setError(
+                                    "Unauthorised Action: You do not have Delete User Access - Please contact your admin"
+                                  );
+                                }
+                              }
+                            }}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
-      </div>
-      {/* end of data table */}
+      </>
     </div>
   );
 };

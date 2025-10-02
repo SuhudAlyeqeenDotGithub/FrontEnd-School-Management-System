@@ -8,7 +8,7 @@ import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 import { ConfirmActionByInputDialog, CustomFilterComponent } from "@/lib/customComponents/general/compLibrary2";
-import NewStaffContractComponent from "@/lib/customComponents/staff/newContractComp";
+import NewStaffContractComponent from "@/lib/customComponents/staff/staffContractDialogComp";
 import { MdContentCopy, MdAdd, MdNavigateNext, MdNavigateBefore, MdOutlineDateRange } from "react-icons/md";
 import { tableCellStyle, tableContainerStyle, tableHeaderStyle, tableTopStyle } from "@/lib/generalStyles";
 import { getAcademicYears } from "@/redux/features/general/academicYear/academicYearThunk";
@@ -359,7 +359,7 @@ const Billing = () => {
                   {openFilterDiv ? "Close Filter" : "Open Filter"}
                 </span>
               </div>
-              <Table className="text-[16px]">
+              <Table className="">
                 <TableHeader>
                   <TableRow className={tableHeaderStyle}>
                     <TableHead className="text-center text-foregroundColor-70 w-[110px] font-semibold p-2 whitespace-nowrap">

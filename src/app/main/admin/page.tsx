@@ -4,6 +4,7 @@ import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { useEffect, useState } from "react";
 import {
   ActionButtons,
+  CustomHeading,
   DeleteButton,
   ErrorDiv,
   LoaderDiv,
@@ -260,176 +261,179 @@ const RolesAccess = () => {
             warningText="Please confirm the ID of the role you want to delete"
           />
         )}
-        {/* data table div */}
-        <div className="flex flex-col gap-4">
-          {/* table header */}
-          <div className={tableContainerStyle}>
-            <div className={tableTopStyle}>
-              <div className="flex flex-col gap-2 mb-2">
-                <h2>Role & Permission</h2>
-                <h3>Use this section to create and manage roles, and specify each access for each</h3>
-              </div>
-
-              {/* search div */}
-              <SearchComponent
-                placeholder="Search role (Role Name)"
-                name="searchValue"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-              />
-
-              {/* new action button */}
-              <div>
-                <button
-                  className={defaultButtonStyle}
-                  onClick={() => {
-                    if (hasActionAccess("Create Role")) {
-                      document.body.style.overflow = "hidden";
-                      setOpenNewRoleDialog(true);
-                    } else {
-                      setError("You do not have Create Role Access - Please contact your admin");
-                    }
-                  }}
-                  disabled={!hasActionAccess("Create Role")}
-                >
-                  <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Role
-                </button>
-              </div>
-            </div>
-
-            <Table className="text-[16px]">
-              <TableHeader>
-                <TableRow className={tableHeaderStyle}>
-                  {(["Role ID", "Role Name", "Created At", "Updated At"] as const).map((header) => (
-                    <TableHead
-                      key={header}
-                      onClick={() => {
-                        const key_Name = {
-                          "Role ID": "_id",
-                          "Role Name": "roleName",
-                          "Created At": "createdAt",
-                          "Updated At": "updatedAt"
-                        };
-                        const sortKey = key_Name[header];
-                        handleSort(sortKey);
-                      }}
-                      className={sortableTableHeadCellStyle}
-                    >
-                      {header} <LuArrowUpDown className="inline-block ml-1" />
-                    </TableHead>
-                  ))}
-                  <TableHead className={tableHeadCellStyle}>Groups</TableHead>
-                  <TableHead className={tableHeadCellStyle}>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-
-              {/* table data */}
-              <TableBody className="mt-3 bg-backgroundColor">
-                {isPending || isFetching ? (
-                  <tr>
-                    <td colSpan={8}>
-                      <div className="flex items-center justify-center mt-10">
-                        <LoaderDiv
-                          type="spinnerText"
-                          borderColor="foregroundColor"
-                          text="Loading Roles..."
-                          textColor="foregroundColor"
-                          dimension="h-10 w-10"
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ) : localData.length < 1 && searchValue ? (
-                  <tr>
-                    <td colSpan={8} className="text-center py-4">
-                      <div className="flex justify-center mt-6">No search result found</div>
-                    </td>
-                  </tr>
-                ) : localData.length < 1 && !isPending && !isFetching ? (
-                  <tr>
-                    <td colSpan={8} className="text-center py-4">
-                      <div className="flex justify-center mt-6">No data available</div>
-                    </td>
-                  </tr>
-                ) : (
-                  localData.map((doc: any, index: any) => {
-                    const { _id: roleId, roleName, accountId, createdAt, updatedAt, tabAccess } = doc;
-                    const groups = tabAccess
-                      .map((group: any) => group.group)
-                      .slice(0, 2)
-                      .join(", ");
-                    return (
-                      <TableRow
-                        key={roleId}
-                        onClick={() => {
-                          if (hasActionAccess("View Role")) {
-                            document.body.style.overflow = "hidden";
-                            setOpenViewRoleDialog(true);
-                            setOnOpenRoleData(doc);
-                          } else {
-                            setError("You do not have View Role Access - Please contact your admin");
-                          }
-                        }}
-                        className={tableRowStyle}
-                      >
-                        <TableCell className="w-[200px] text-center whitespace-nowrap">
-                          {roleId.slice(0, 10)}
-                          <MdContentCopy
-                            title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2  hover:text-foregroundColor-50 hover:cursor-pointer"
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              await navigator.clipboard.writeText(roleId);
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell className={tableCellStyle}>{roleName.slice(0, 20)}</TableCell>
-                        <TableCell className={tableCellStyle}>{formatDate(createdAt)}</TableCell>{" "}
-                        <TableCell className={tableCellStyle}>{formatDate(updatedAt)}</TableCell>
-                        <TableCell className="whitespace-nowrap text-center min-w-[400px]">{groups}.....</TableCell>
-                        <TableCell className="text-center whitespace-nowrap flex items-center justify-center pt-4">
-                          <ActionButtons
-                            onEdit={() => {
-                              if (hasActionAccess("Edit Role")) {
-                                document.body.style.overflow = "hidden";
-                                setOpenEditRoleDialog(true);
-                                setOnOpenRoleData(doc);
-                              } else {
-                                setError("You do not have Edit Role Access - Please contact your admin");
-                              }
-                            }}
-                            onDelete={() => {
-                              if (doc.absoluteAdmin) {
-                                setError("Disallowed Action: Default Absolute Admin Role Cannot be deleted");
-                                setOpenDisallowedDeleteDialog(true);
-                              } else {
-                                if (hasActionAccess("Delete Role")) {
-                                  document.body.style.overflow = "hidden";
-                                  setOpenConfirmDelete(true);
-                                  setConfirmWithText(doc._id);
-                                  setConfirmWithReturnObj({
-                                    roleIdToDelete: doc._id,
-                                    roleName: doc.roleName,
-                                    roleDescription: doc.roleDescription,
-                                    absoluteAdmin: doc.absoluteAdmin,
-                                    tabAccess: doc.tabAccess
-                                  });
-                                } else {
-                                  setError(
-                                    "Unauthorised Action: You do not have Delete Role Access - Please contact your admin"
-                                  );
-                                }
-                              }
-                            }}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+        {/* table header */}
+        <div className={tableTopStyle}>
+          <div className="flex flex-col">
+            <CustomHeading variation="sectionHeader">
+              Role & Permission
+              {/* <UserRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
+            </CustomHeading>
+            <CustomHeading variation="head5light">
+              Use this section to create and manage roles, and specify each access for each
+            </CustomHeading>
           </div>
+
+          {/* search div */}
+          <SearchComponent
+            placeholder="Search role (Role Name)"
+            name="searchValue"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+
+          {/* new action button */}
+          <div>
+            <button
+              className={defaultButtonStyle}
+              onClick={() => {
+                if (hasActionAccess("Create Role")) {
+                  document.body.style.overflow = "hidden";
+                  setOpenNewRoleDialog(true);
+                } else {
+                  setError("You do not have Create Role Access - Please contact your admin");
+                }
+              }}
+              disabled={!hasActionAccess("Create Role")}
+            >
+              <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Role
+            </button>
+          </div>
+        </div>
+        <div className={`${tableContainerStyle} mt-8`}>
+          {/* data table div */}
+
+          <table className="relative w-full">
+            <thead className="sticky top-0 z-10 border-b border-borderColor-2">
+              <tr className={tableHeaderStyle}>
+                {(["Role ID", "Role Name", "Created At", "Updated At"] as const).map((header) => (
+                  <th
+                    key={header}
+                    onClick={() => {
+                      const key_Name = {
+                        "Role ID": "_id",
+                        "Role Name": "roleName",
+                        "Created At": "createdAt",
+                        "Updated At": "updatedAt"
+                      };
+                      const sortKey = key_Name[header];
+                      handleSort(sortKey);
+                    }}
+                    className={sortableTableHeadCellStyle}
+                  >
+                    {header} <LuArrowUpDown className="inline-block ml-1" />
+                  </th>
+                ))}
+                <th className={tableHeadCellStyle}>Groups</th>
+                <th className={tableHeadCellStyle}>Actions</th>
+              </tr>
+            </thead>
+
+            {/* table data */}
+            <tbody className="mt-3 bg-backgroundColor">
+              {isPending || isFetching ? (
+                <tr>
+                  <td colSpan={8}>
+                    <div className="flex items-center justify-center mt-10">
+                      <LoaderDiv
+                        type="spinnerText"
+                        borderColor="foregroundColor"
+                        text="Loading Roles..."
+                        textColor="foregroundColor"
+                        dimension="h-10 w-10"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ) : localData.length < 1 && searchValue ? (
+                <tr>
+                  <td colSpan={8} className="text-center py-4">
+                    <div className="flex justify-center mt-6">No search result found</div>
+                  </td>
+                </tr>
+              ) : localData.length < 1 && !isPending && !isFetching ? (
+                <tr>
+                  <td colSpan={8} className="text-center py-4">
+                    <div className="flex justify-center mt-6">No data available</div>
+                  </td>
+                </tr>
+              ) : (
+                localData.map((doc: any, index: any) => {
+                  const { _id: roleId, roleName, accountId, createdAt, updatedAt, tabAccess } = doc;
+                  const groups = tabAccess
+                    .map((group: any) => group.group)
+                    .slice(0, 2)
+                    .join(", ");
+                  return (
+                    <tr
+                      key={roleId}
+                      onClick={() => {
+                        if (hasActionAccess("View Role")) {
+                          document.body.style.overflow = "hidden";
+                          setOpenViewRoleDialog(true);
+                          setOnOpenRoleData(doc);
+                        } else {
+                          setError("You do not have View Role Access - Please contact your admin");
+                        }
+                      }}
+                      className={tableRowStyle}
+                    >
+                      <td className="w-[200px] text-center whitespace-nowrap">
+                        {roleId.slice(0, 10)}
+                        <MdContentCopy
+                          title="copy id"
+                          className="ml-2 inline-block text-[19px] text-foregroundColor-2  hover:text-foregroundColor-50 hover:cursor-pointer"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            await navigator.clipboard.writeText(roleId);
+                          }}
+                        />
+                      </td>
+                      <td className={tableCellStyle}>{roleName.slice(0, 20)}</td>
+                      <td className={tableCellStyle}>{formatDate(createdAt)}</td>{" "}
+                      <td className={tableCellStyle}>{formatDate(updatedAt)}</td>
+                      <td className="whitespace-nowrap text-center min-w-[400px]">{groups}.....</td>
+                      <td className="text-center whitespace-nowrap flex items-center justify-center pt-4">
+                        <ActionButtons
+                          onEdit={() => {
+                            if (hasActionAccess("Edit Role")) {
+                              document.body.style.overflow = "hidden";
+                              setOpenEditRoleDialog(true);
+                              setOnOpenRoleData(doc);
+                            } else {
+                              setError("You do not have Edit Role Access - Please contact your admin");
+                            }
+                          }}
+                          onDelete={() => {
+                            if (doc.absoluteAdmin) {
+                              setError("Disallowed Action: Default Absolute Admin Role Cannot be deleted");
+                              setOpenDisallowedDeleteDialog(true);
+                            } else {
+                              if (hasActionAccess("Delete Role")) {
+                                document.body.style.overflow = "hidden";
+                                setOpenConfirmDelete(true);
+                                setConfirmWithText(doc._id);
+                                setConfirmWithReturnObj({
+                                  roleIdToDelete: doc._id,
+                                  roleName: doc.roleName,
+                                  roleDescription: doc.roleDescription,
+                                  absoluteAdmin: doc.absoluteAdmin,
+                                  tabAccess: doc.tabAccess
+                                });
+                              } else {
+                                setError(
+                                  "Unauthorised Action: You do not have Delete Role Access - Please contact your admin"
+                                );
+                              }
+                            }
+                          }}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
       {/* end of data table */}

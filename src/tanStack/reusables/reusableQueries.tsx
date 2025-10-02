@@ -1,5 +1,5 @@
 import { useAppSelector } from "@/redux/hooks";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { tanFetchAny } from "./fetch";
 
@@ -51,16 +51,16 @@ const reusableQueries = () => {
 
   const useReusableQuery = (
     prefixKey: string,
-    permission: string,
+    action: string,
     url: string,
     options: any = {},
     enable1: boolean = true,
     enable2: boolean = true,
     enable3: boolean = true
   ) => {
-    return useQuery({
+    return useQuery<any[]>({
       queryKey: [prefixKey],
-      queryFn: () => tanFetchAny(accountData, accountPermittedActions, permission, url),
+      queryFn: () => tanFetchAny(accountData, accountPermittedActions, action, url),
       enabled: Boolean(
         accountData?.accountStatus && !queryClient.getQueryData([prefixKey]) && enable1 && enable2 && enable3
       ),
@@ -71,7 +71,43 @@ const reusableQueries = () => {
     });
   };
 
-  return { useReusableQuery, hasActionAccess, getMergedTabAccess, isAbsoluteAdmin };
+  const useReusableInfiniteQuery = (
+    prefixKey: string,
+    otherKey: any,
+    limit: number,
+    action: string,
+    baseUrl: string,
+    options: any = {}
+  ) => {
+    return useInfiniteQuery({
+      queryKey: [prefixKey, otherKey],
+      queryFn: ({ pageParam }) => {
+        const queryParam = { ...(pageParam as Record<string, any>), ...otherKey };
+        const searchUrl = new URLSearchParams({});
+        Object.keys(queryParam).forEach((key) => searchUrl.set(key, queryParam[key]));
+        const url = `${baseUrl}?${searchUrl.toString()}`;
+        return tanFetchAny(accountData, accountPermittedActions, action, url);
+      },
+      initialPageParam: { search: "", limit, cursorType: "initial", nextCursor: "", prevCursor: "" },
+      getNextPageParam: (lastPage: any, allPages: any) => {
+        const newParam = {
+          search: "",
+          limit,
+          cursorType: "next",
+          nextCursor: lastPage.nextCursor,
+          prevCursor: lastPage.prevCursor
+        };
+        return lastPage.hasNext ? newParam : null;
+      },
+      enabled: Boolean(accountData?.accountStatus && !queryClient.getQueryData([prefixKey, otherKey])),
+      retry: false,
+      staleTime: Infinity,
+      cacheTime: Infinity,
+      ...options
+    });
+  };
+
+  return { useReusableQuery, useReusableInfiniteQuery, hasActionAccess, getMergedTabAccess, isAbsoluteAdmin };
 };
 
 export default reusableQueries;

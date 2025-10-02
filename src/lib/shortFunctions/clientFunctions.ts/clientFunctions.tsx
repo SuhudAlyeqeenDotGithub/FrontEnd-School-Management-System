@@ -5,6 +5,7 @@ import { setHasBeforeUnloadListener, setTriggerUnsavedDialog } from "@/redux/fea
 import { useRouter } from "next/navigation";
 import { setProceedUrl } from "@/redux/features/general/generalSlice";
 import { useEffect } from "react";
+import { handleApiRequest } from "@/axios/axiosClient";
 
 export const useNavigationHandler = () => {
   const dispatch = useAppDispatch();
@@ -48,4 +49,39 @@ export const useNavigationHandler = () => {
   };
 
   return { handleNavigation, handleUnload };
+};
+
+export const useGeneralClientFunctions = () => {
+  const getStaffImageViewSignedUrl = async (staffId: string, imageLocalDestination: string) => {
+    let signedUrl = "";
+
+    const existingUrlStr = sessionStorage.getItem(`staffImageSignedUrl_${staffId}`);
+    let existingUrl: { url: string; expiresAt: number } | null = null;
+    if (existingUrlStr) {
+      try {
+        existingUrl = JSON.parse(existingUrlStr);
+      } catch (e) {
+        existingUrl = null;
+      }
+    }
+
+    if (existingUrl && existingUrl.expiresAt > Date.now()) {
+      signedUrl = existingUrl.url;
+    } else {
+      const gotSignedUrl = await handleApiRequest("post", "alyeqeenschoolapp/api/staffimageviewsignedurl", {
+        imageLocalDestination
+      });
+
+      if (gotSignedUrl) {
+        signedUrl = gotSignedUrl.data.url;
+        sessionStorage.setItem(
+          `staffImageSignedUrl_${staffId}`,
+          JSON.stringify({ url: signedUrl, expiresAt: Date.now() + 1000 * 60 * 60 })
+        );
+      }
+    }
+    return signedUrl;
+  };
+
+  return { getStaffImageViewSignedUrl };
 };

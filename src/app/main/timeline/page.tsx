@@ -287,7 +287,7 @@ const AcademicYear = () => {
               </div>
             </div>
 
-            <Table className="text-[16px]">
+            <Table className="">
               <TableHeader>
                 <TableRow className={tableHeaderStyle}>
                   {(["Academic Year Id", "Academic Year", "Start Date", "End Date"] as const).map((header) => (

@@ -4,9 +4,13 @@ import { IoClose, IoCloudUploadOutline } from "react-icons/io5";
 import { ErrorDiv } from "./compLibrary";
 
 const ImageUploadDiv = ({
+  hidden,
+  disabled,
   publicUrl,
   onUpload
 }: {
+  hidden?: boolean;
+  disabled?: boolean;
   publicUrl: string;
   onUpload: (
     uploaded: boolean,
@@ -34,7 +38,7 @@ const ImageUploadDiv = ({
   };
   return (
     <div className="flex flex-col gap-5 justify-center items-center w-[30%]">
-      <div className="bg-foregroundColor-50 h-[200px] w-[200px] rounded-full flex text-backgroundColor text-[60px] font-bold items-center justify-center">
+      <div className="bg-backgroundColor-4 h-[200px] w-[200px] rounded-full flex text-foregroundColor-2 text-[60px] font-bold items-center justify-center">
         {!localPublicUrl ? (
           <div>IM</div>
         ) : (
@@ -48,7 +52,9 @@ const ImageUploadDiv = ({
       </div>
       <input type="file" accept="image/png, image/jpeg" className="hidden" ref={inputRef} onChange={handleFileChange} />
       <div className="flex flex-col items-center justify-center gap-3">
-        <div
+        <button
+          disabled={disabled}
+          hidden={hidden}
           className="flex items-center justify-between gap-3 text-foregroundColor hover:text-foregroundColor-70 cursor-pointer"
           onClick={() => {
             inputRef.current?.click();
@@ -56,7 +62,7 @@ const ImageUploadDiv = ({
         >
           <IoCloudUploadOutline className=" text-[20px]" />
           <span>{!localPublicUrl ? "Upload" : "Update"} Image</span>
-        </div>
+        </button>
         {imageName && (
           <div className="flex items-center justify-between gap-3">
             {imageName.slice(0, 25)}

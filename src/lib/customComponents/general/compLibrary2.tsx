@@ -8,11 +8,13 @@ import { defaultButtonStyle, ghostbuttonStyle } from "@/lib/generalStyles";
 
 export const DisallowedActionDialog = ({ onOk, warningText }: { onOk: () => void; warningText: string }) => {
   return (
-    <div className="w-[100%] h-[100%] bg-foregroundColor-50 items-center justify-center flex fixed inset-0">
-      <ContainerComponent style="min-w-[500px] h-[150px] z-50 flex flex-col bg-backgroundColor gap-10 items-center justify-center">
+    <div className="w-[100%] h-[100%] bg-foregroundColor-transparent items-center justify-center z-30 flex fixed inset-0">
+      <ContainerComponent style="min-w-[500px] max-h-[300px] z-50 flex flex-col bg-backgroundColor gap-5 items-center justify-center">
         <span>{warningText}</span>
         <div className="w-full flex justify-center px-30 items-center">
-          <button onClick={onOk}>Ok</button>
+          <button onClick={onOk} className={defaultButtonStyle}>
+            Ok
+          </button>
         </div>
       </ContainerComponent>
     </div>
@@ -20,14 +22,18 @@ export const DisallowedActionDialog = ({ onOk, warningText }: { onOk: () => void
 };
 
 export const SearchableDropDownInput = ({
+  title,
   disabled = false,
   placeholder,
   data,
   displayKeys,
+  searchFieldKey = "searchText",
   onSelected,
   onClearSearch,
   defaultText = ""
 }: {
+  title?: string;
+  searchFieldKey?: string;
   disabled?: boolean;
   placeholder: string;
   defaultText?: string;
@@ -41,10 +47,6 @@ export const SearchableDropDownInput = ({
   const [openOptions, setOpenOptions] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // console.log("searchValue", searchValue);
-  // console.log("defaultText", defaultText);
-  // // console.log("defaultText.split()[1]", defaultText.split("|")[0]);
-
   useEffect(() => {
     if (defaultText) {
       onSelected([defaultText.split("|")[0], defaultText.split("|")[1]], false);
@@ -56,7 +58,7 @@ export const SearchableDropDownInput = ({
       const target = event.target as Node;
 
       if (wrapperRef.current && !wrapperRef.current.contains(target)) {
-        setOpenOptions(false); // clicked outside
+        setOpenOptions(false);
       }
     };
 
@@ -69,7 +71,7 @@ export const SearchableDropDownInput = ({
   useEffect(() => {
     if (searchValue !== "") {
       const filteredOptions = data.filter((option) =>
-        option.searchText.toLowerCase().includes(searchValue.toLowerCase())
+        option[searchFieldKey].toLowerCase().includes(searchValue.toLowerCase())
       );
       setLocalData(filteredOptions);
     } else {
@@ -84,8 +86,9 @@ export const SearchableDropDownInput = ({
   }, [data]);
 
   return (
-    <div ref={wrapperRef} className="w-full items-center justify-center relative">
+    <div ref={wrapperRef} className="w-full flex flex-col gap-1 relative">
       <InputComponent
+        title={title || placeholder}
         placeholder={placeholder}
         required
         autocomplete="off"
@@ -103,7 +106,7 @@ export const SearchableDropDownInput = ({
       />
       {openOptions && (
         <div
-          className={`border border-foregroundColor-25 shadow-md w-full h-[150px] overflow-auto flex flex-col items-center bg-backgroundColor absolute gap-1        }`}
+          className={`z-30 border border-borderColor rounded-sm py-2 shadow-md w-full h-[150px] overflow-auto flex flex-col items-center bg-backgroundColor absolute top-[100%] gap-1}`}
         >
           {localData.length < 1 ? (
             <div>No match value</div>
@@ -111,7 +114,7 @@ export const SearchableDropDownInput = ({
             localData.map((option: any, index: number) => {
               return (
                 <div
-                  className="w-full flex items-center hover:bg-foregroundColor-5 hover:cursor-pointer px-5 py-1"
+                  className="w-full flex items-center hover:bg-backgroundColor-2 hover:cursor-pointer px-5 py-1"
                   key={index}
                   onClick={() => {
                     setSearchValue(option[displayKeys[1]]);
@@ -123,7 +126,7 @@ export const SearchableDropDownInput = ({
                   }}
                 >
                   {displayKeys
-                    .filter((key: string) => key !== "searchText" && key !== "_id")
+                    .filter((key: string) => key !== "searchText" && key !== "_id" && key !== "tabAccess")
                     .map((key: string) => option[key])
                     .join(" | ")}
                 </div>
@@ -218,7 +221,7 @@ export const CustomFilterComponent = ({
   const { search } = filterQuery;
 
   return (
-    <div className="rounded-lg flex flex-col border border-borderColor shadow bg-backgroundColor">
+    <div className="flex flex-col rounded-lg border border-borderColor shadow bg-backgroundColor my-4">
       <div className="bg-backgroundColor-5 w-full px-5 py-6 font-bold border-b border-borderColor flex justify-between items-center">
         <h2>Filter & Search</h2>
       </div>
@@ -254,7 +257,7 @@ export const CustomFilterComponent = ({
             return (
               <div key={index} className="flex flex-col gap-2">
                 <select
-                  className="rounded-lg hover:cursor-pointer border border-foregroundColor-25 px-4 bg-backgroundColor text-foregroundColor h-[48px]"
+                  className="bg-backgroundColor border border-borderColor shadow-xs rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full"
                   value={filterQuery[filter.fieldName]}
                   onChange={(e) => {
                     setFilterQuery((prev: any) => ({ ...prev, [filter.fieldName]: e.target.value }));
@@ -277,7 +280,22 @@ export const CustomFilterComponent = ({
             );
           })}
           <div className="flex gap-3">
-            <button className={defaultButtonStyle} onClick={() => onQuery(filterQuery)}>
+            <button
+              className={defaultButtonStyle}
+              onClick={() => {
+                const copyQuery = { ...filterQuery };
+                const { search, ...filters } = copyQuery;
+                const filtersValues = Object.values(filters);
+                const alls = filtersValues.filter((value) => value === "all");
+                if (alls.length === filtersValues.length && search === "") {
+                  console.log("query", {});
+                  onQuery({});
+                } else {
+                  console.log("query", filterQuery);
+                  onQuery(filterQuery);
+                }
+              }}
+            >
               Run
             </button>
             <button

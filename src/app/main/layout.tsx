@@ -53,7 +53,10 @@ import {
   Wrench,
   CalendarFold,
   CalendarPlus,
-  CalendarClock
+  CalendarClock,
+  PanelRightOpen,
+  PanelRightClose,
+  Sun
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
@@ -69,6 +72,7 @@ const layout = ({ children }: { children: ReactNode }) => {
   const [mounted, setMounted] = useState(false);
   const [error, setError] = useState("");
   const [mergedTabAccess, setMergedTabAccess] = useState<any>([]);
+  const [openSideBar, setOpenSideBar] = useState(true);
   const [groupExpandCollapseState, setGroupExpandCollapseState] = useState<any>({
     Curriculum: true,
     Administration: true,
@@ -246,7 +250,7 @@ const layout = ({ children }: { children: ReactNode }) => {
   const profileDialog = (
     <div
       ref={wrapperDivRef}
-      className="flex flex-col border border-borderColor w-[290px] max-h-[80vh] min-h-[40vh] px-4 py-4 gap-5 rounded-lg shadow-md absolute bottom-2 z-20 bg-backgroundColor-2"
+      className="flex flex-col border border-borderColor w-[290px] max-h-[80vh] min-h-[40vh] px-4 py-4 gap-5 rounded-lg shadow-md absolute bottom-2 z-30 bg-backgroundColor-2"
     >
       {error && (
         <ErrorDiv
@@ -285,48 +289,69 @@ const layout = ({ children }: { children: ReactNode }) => {
   );
 
   return (
-    // main app container
     <div className="flex text-[15px]">
-      {/* {triggerUnsavedDialog && (
-        <YesNoDialog
-          warningText="You have unsaved changes. Are you sure you want to proceed?"
-          onYes={() => {
-            handleNavigation(proceedUrl, true);
-          }}
-          onNo={() => {
-            document.body.style.overflow = "";
-            handleNavigation(proceedUrl, false);
-          }}
-        />
-      )} */}
-
       {/* sidebar */}
-      <div className="flex flex-col gap-3 pb-4 border-r border-borderColor px-5 w-[400px] bg-backgroundColor not-only:h-screen sticky top-0 overflow-auto">
-        {openProfile && profileDialog}
-        {/* school detail div*/}
-        <div className="flex items-center gap-5 p-3 border-b border-borderColor h-[100px] sticky top-0 z-20 bg-backgroundColor">
-          <>
-            <Building className="h-8 w-8 text-indigo-600" />
-            <div>
-              <h2 className="font-bold">Al-Yeqeen</h2>
-              <p className="text-xs text-foregroundColor-2">School Management System</p>
-            </div>
-          </>
+      <div
+        hidden={!openSideBar}
+        className="flex flex-col pb-4 border-r border-borderColor w-[370px] bg-backgroundColor h-screen relative"
+      >
+        {/* top side bar */}
 
+        <div className="flex flex-col items-center gap-5 p-3 bg-backgroundColor sticky top-0 z-20">
+          <div className="flex w-full justify-between">
+            <div className="w-full flex gap-5 items-center">
+              <Building className="h-8 w-8 text-indigo-600" />
+              <div>
+                <h2 className="font-bold">Al-Yeqeen</h2>
+                <p className="text-xs text-foregroundColor-2">School Management System</p>
+              </div>
+            </div>
+
+            {/* side bar toggle */}
+            <div>
+              {openSideBar ? (
+                <PanelRightOpen
+                  className="size-6 text-foregroundColor-2 hover:text-borderColor-3 cursor-pointer"
+                  onClick={() => {
+                    const groupExpandCollapseStateCopy = { ...groupExpandCollapseState };
+                    Object.keys(groupExpandCollapseStateCopy).forEach((key) => {
+                      groupExpandCollapseStateCopy[key] = true;
+                    });
+
+                    setGroupExpandCollapseState(groupExpandCollapseStateCopy);
+                    setOpenSideBar(!openSideBar);
+                  }}
+                />
+              ) : (
+                <PanelRightClose
+                  className="size-6 text-foregroundColor-2 hover:text-borderColor-3 cursor-pointer"
+                  onClick={() => {
+                    setOpenSideBar(!openSideBar);
+                  }}
+                />
+              )}
+            </div>
+          </div>
           {/* theme toggle */}
+          <div className="flex items-center w-full border-y border-borderColor py-1 px-5">
+            <ThemeSelector />
+          </div>
         </div>
+
         {/* nav div */}
-        <div className="flex flex-col gap-3 py-3 h-full">
+        <div className="flex flex-col gap-3 py-3 h-full px-3 overflow-auto">
           <div
-            className={`flex gap-4 px-5 py-3 rounded-md font-medium hover:bg-backgroundColor-2 hover:cursor-pointer items-center whitespace-nowrap ${
-              pathname === "/main"
-                ? "text-backgroundColor bg-foregroundColor hover:bg-foregroundColor-2 border border-borderColor shadow-xs"
-                : "text-foregroundColor-2 bg-backgroundColor-3 "
+            className={`flex gap-4 px-3 py-3 rounded-md hover:cursor-pointer text-foregroundColor-2 hover:bg-backgroundColor-3 items-center whitespace-nowrap ${
+              pathname === "/main" ? "font-bold rounded text-foregroundColor" : ""
             }`}
             onClick={() => {
               handleNavigation(tab_PathMap["Home" as keyof typeof tab_PathMap]);
             }}
           >
+            <span
+              hidden={pathname !== "/main"}
+              className={`${pathname === "/main" ? "bg-green-500 w-2 h-2 rounded-full" : ""}`}
+            ></span>
             <IconFormatter icon={tab_IconMap["Home" as keyof typeof tab_IconMap]} className="size-5" />
             Home
           </div>
@@ -343,7 +368,11 @@ const layout = ({ children }: { children: ReactNode }) => {
               return (
                 <div key={group} className="flex flex-col">
                   <div
-                    className={`flex gap-4 px-5 py-3 rounded-md font-medium text-foregroundColor-2 bg-backgroundColor-3 hover:bg-backgroundColor-2 hover:cursor-pointer items-center whitespace-nowrap`}
+                    className={`flex gap-4 px-3 py-3 rounded-md text-foregroundColor-2 hover:bg-backgroundColor-3 hover:cursor-pointer items-center whitespace-nowrap ${
+                      path_GroupMap[pathname as keyof typeof path_GroupMap] === group
+                        ? "font-bold rounded text-foregroundColor"
+                        : ""
+                    }`}
                     onClick={() =>
                       setGroupExpandCollapseState((prev: any) => ({
                         ...prev,
@@ -364,7 +393,9 @@ const layout = ({ children }: { children: ReactNode }) => {
                         <IconFormatter icon={tab_IconMap[group as keyof typeof tab_IconMap]} className="size-5" />
                         <span className="">{group}</span>
                       </div>
-                      <ChevronDown className={`inline-block ${groupExpandCollapseState[group] ? "" : "rotate-180"}`} />
+                      <ChevronDown
+                        className={`inline-block ${groupExpandCollapseState[group] ? "rotate-270" : "rotate-180"}`}
+                      />
                     </div>
                   </div>
                   {/* link divs */}
@@ -375,24 +406,141 @@ const layout = ({ children }: { children: ReactNode }) => {
               );
             })}
         </div>
-        {/* profile and theme div */}
-        <div
-          className="flex items-center justify-center gap-5 hover:bg-backgroundColor border-t border-borderColor px-4 py-4 hover:cursor-pointer sticky bottom-0 bg-backgroundColor-2"
-          onClick={() => setOpenProfile(!openProfile)}
-        >
-          <div className="flex flex-col">
-            <span className="font-semibold">{organisationId.accountName}</span>
-            <span className="text-[13px]">{accountName}</span>
-          </div>
-          <div className="h-10 w-10 rounded-full bg-backgroundColor-3 flex items-center justify-center text-foregroundColor-2 font-bold">
-            {accountName.slice(0, 2)}
+
+        <div className="sticky bottom-0 z-20">
+          {openProfile && profileDialog}
+          {/* profile and theme div */}
+          <div
+            className="flex items-center justify-center gap-5 hover:bg-backgroundColor border-t border-borderColor px-4 py-4 hover:cursor-pointer bg-backgroundColor-2"
+            onClick={() => setOpenProfile(!openProfile)}
+          >
+            <div className="flex flex-col">
+              <span className="font-semibold">{organisationId.accountName}</span>
+              <span className="text-[13px]">{accountName}</span>
+            </div>
+            <div className="h-10 w-10 rounded-full bg-backgroundColor-3 flex items-center justify-center text-foregroundColor-2 font-bold">
+              {accountName.slice(0, 2)}
+            </div>
           </div>
         </div>
       </div>
-      <div className="bg-backgroundColor-2 w-screen h-screen overflow-auto">
-        <div className="flex items-center w-full border-b border-borderColor py-1 px-5 bg-backgroundColor-3">
-          <ThemeSelector />
+
+      {/* collapsed side bar */}
+      <div
+        hidden={openSideBar}
+        className="flex flex-col pb-4 border-r border-borderColor min-w-[150px] bg-backgroundColor h-screen relative"
+      >
+        {/* top side bar */}
+        <div className="sticky top-0 z-20">
+          <div className="flex flex-col items-center gap-5 p-3 bg-backgroundColor">
+            <div className="flex w-full justify-between">
+              <div className="w-full flex gap-5 items-center">
+                <Building className="h-8 w-8 text-indigo-600" />
+              </div>
+              <div>
+                {openSideBar ? (
+                  <PanelRightOpen
+                    className="size-6 text-foregroundColor-2 hover:text-borderColor-3 cursor-pointer"
+                    onClick={() => {
+                      const groupExpandCollapseStateCopy = { ...groupExpandCollapseState };
+                      Object.keys(groupExpandCollapseStateCopy).forEach((key) => {
+                        groupExpandCollapseStateCopy[key] = true;
+                      });
+
+                      setGroupExpandCollapseState(groupExpandCollapseStateCopy);
+                      setOpenSideBar(!openSideBar);
+                    }}
+                  />
+                ) : (
+                  <PanelRightClose
+                    className="size-6 text-foregroundColor-2 hover:text-borderColor-3 cursor-pointer"
+                    onClick={() => setOpenSideBar(!openSideBar)}
+                  />
+                )}
+              </div>
+            </div>
+            {/* theme toggle */}
+            <div className="flex items-center justify-center w-full border-y border-borderColor py-2 px-5">
+              <Sun
+                className="size-6 text-foregroundColor-2 hover:text-borderColor-3 cursor-pointer"
+                onClick={() => setOpenSideBar(!openSideBar)}
+              />
+            </div>
+          </div>
         </div>
+
+        {/* school detail div*/}
+
+        {/* nav div */}
+        <div className="flex flex-col gap-3 py-3 h-full px-3 overflow-auto">
+          <div
+            className={`flex flex-col gap-1 px-4 py-2 cursor-pointer items-center justify-center whitespace-nowrap  rounded ${
+              pathname === "/main"
+                ? "font-bold bg-backgroundColor-2 text-foregroundColor"
+                : "text-foregroundColor-2 hover:bg-backgroundColor-2 "
+            }`}
+            onClick={() => {
+              handleNavigation(tab_PathMap["Home" as keyof typeof tab_PathMap]);
+            }}
+          >
+            <IconFormatter icon={tab_IconMap["Home" as keyof typeof tab_IconMap]} className="size-5" />
+
+            <span className="text-foregroundColor-2 w-full flex gap-2 items-center justify-center">
+              <span
+                hidden={pathname !== "/main"}
+                className={`${pathname === "/main" ? "bg-green-500 w-2 h-2 rounded-full" : ""}`}
+              ></span>
+              <p>Home</p>
+            </span>
+          </div>
+          {mergedTabAccess.length > 0 &&
+            mergedTabAccess.map(({ group, hasAccess, tabs }: any) => {
+              const icon_UrlTabs =
+                tabs.length > 0 &&
+                tabs.map((tabObj: any) => ({
+                  ...tabObj,
+                  icon: tab_IconMap[tabObj.tab as keyof typeof tab_IconMap],
+                  url: tab_PathMap[tabObj.tab as keyof typeof tab_PathMap]
+                }));
+
+              return (
+                <div key={group} className="flex flex-col">
+                  <div
+                    className={`flex flex-col py-2 gap-1 px-4 cursor-pointer items-center justify-center whitespace-nowrap hover:bg-backgroundColor-2 rounded ${
+                      path_GroupMap[pathname as keyof typeof path_GroupMap] === group
+                        ? "font-bold bg-backgroundColor-2 text-foregroundColor"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      if (tabs.length > 0) {
+                        setOpenSideBar(true);
+                      }
+                    }}
+                  >
+                    <IconFormatter icon={tab_IconMap[group as keyof typeof tab_IconMap]} className="size-5" />
+                    <div className="text-foregroundColor-2 w-full flex gap-2 items-center justify-center">
+                      <span
+                        hidden={path_GroupMap[pathname as keyof typeof path_GroupMap] !== group}
+                        className={`${
+                          path_GroupMap[pathname as keyof typeof path_GroupMap] === group
+                            ? "bg-green-500 w-2 h-2 rounded-full"
+                            : ""
+                        }`}
+                      ></span>
+                      <p>{group}</p>
+                    </div>
+                  </div>
+                  {/* link divs */}
+                  <div hidden={groupExpandCollapseState[group]}>
+                    {tabs.length > 0 && <SideBarNav tabs={icon_UrlTabs} />}
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      </div>
+
+      <div className="bg-backgroundColor-2 w-screen h-screen overflow-auto">
         {error && (
           <ErrorDiv
             onClose={(close) => {

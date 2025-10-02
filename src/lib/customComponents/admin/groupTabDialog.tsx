@@ -14,16 +14,10 @@ import {
 import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/clientFunctions";
-import { LuArrowUpDown } from "react-icons/lu";
-import { FaSearch } from "react-icons/fa";
-import { CgTrash } from "react-icons/cg";
 import { checkDataType } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../general/compLibrary";
 import { DisallowedActionDialog } from "../general/compLibrary2";
 import { TabActionDialog } from "./tabActionDialog";
-import { createRole } from "@/redux/features/admin/roles/roleThunks";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { allTabs } from "@/lib/defaultVariables";
 import { defaultButtonStyle, nestedMapperStyle, tabGroupButtonStyle } from "@/lib/generalStyles";
 
@@ -41,7 +35,6 @@ export const GroupTabDialog = ({
   const { handleUnload } = useNavigationHandler();
 
   const onViewMode = data.mode === "view";
-  const { isLoading } = useAppSelector((state) => state.rolesAccess);
   const [localData, setLocalData] = useState<any>({ group: data.group, tabs: data.tabs });
 
   // console.log("localData", localData);
@@ -55,7 +48,7 @@ export const GroupTabDialog = ({
   const [tabActionDialogData, setTabActionDialogData] = useState<any>({});
   const [searchValue, setSearchValue] = useState("");
   const [error, setError] = useState("");
-  const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
+
   const { tabs, group } = localData;
 
   useEffect(() => {
@@ -74,48 +67,15 @@ export const GroupTabDialog = ({
     };
   }, [unsaved]);
 
-  // // effect to have searching
-  // useEffect(() => {
-  //   if (searchValue !== "") {
-  //     const filteredData = tabs.filter((tab: any) => tab.tab.toLowerCase().includes(searchValue.toLowerCase()));
-  //     setLocalData((prev: any) => ({ ...prev, tabAccess: filteredData }));
-  //   } else {
-  //     setLocalData((prev: any) => ({ ...prev, tabAccess: localData.tabAccess }));
-  //   }
-  // }, [searchValue]);
-
-  // function to handle sorting
-  const handleSort = (sortKey: any) => {
-    const keyType = checkDataType([...tabs][0][sortKey]);
-
-    const sortOrder = sortOrderTracker[sortKey];
-
-    let nextOrder: string;
-
-    if (sortOrder === "dsc") {
-      nextOrder = "asc";
+  // effect to have searching
+  useEffect(() => {
+    if (searchValue !== "") {
+      const filteredData = tabs.filter((tab: any) => tab.tab.toLowerCase().includes(searchValue.toLowerCase()));
+      setLocalData((prev: any) => ({ ...prev, tabs: filteredData }));
     } else {
-      nextOrder = "dsc";
+      setLocalData({ group: data.group, tabs: data.tabs });
     }
-    // console.log("localData", localData);
-    // console.log("sortKey", sortKey);
-    // console.log("first item", [...localData][0][keys[sortKey]]);console.log("keyType", keyType);
-    // console.log("sortOrder", sortOrder);
-    const sortedData = [...tabs].sort((a, b) => {
-      if (keyType === "number" || keyType === "date") {
-        return sortOrder === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
-      } else if (keyType === "array") {
-        return sortOrder === "asc"
-          ? a[sortKey][0].name.localeCompare(b[sortKey][0].name)
-          : b[sortKey][0].name.localeCompare(a[sortKey][0].name);
-      } else {
-        return sortOrder === "asc" ? a[sortKey].localeCompare(b[sortKey]) : b[sortKey].localeCompare(a[sortKey]);
-      }
-    });
-
-    setLocalData((prev: any) => ({ ...prev, tabAccess: sortedData }));
-    setSortOrderTracker((prev: any) => ({ ...prev, [sortKey]: nextOrder }));
-  };
+  }, [searchValue]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setUnsaved(true);
@@ -240,7 +200,6 @@ export const GroupTabDialog = ({
               loadingButtonText="Saving..."
               disabled={!unsaved}
               buttonStyle={defaultButtonStyle}
-              isLoading={isLoading}
               onClick={() => {
                 onUpdate(type, tabs, group);
               }}
@@ -263,8 +222,11 @@ export const GroupTabDialog = ({
       </div>
 
       {/* tab access div */}
-      <div className="rounded-lg gap-10 flex flex-col h-full mt-5">
-        <div hidden={onViewMode} className="flex flex-col gap-5">
+      <div className="gap-5 flex flex-col h-full">
+        <div
+          hidden={onViewMode}
+          className="flex flex-col gap-5 border border-borderColor p-4 rounded-md shadow-md bg-backgroundColor-2"
+        >
           <div className="flex flex-col">
             <CustomHeading variation="head3">Tab Access</CustomHeading>
             {!onViewMode && (
@@ -296,9 +258,7 @@ export const GroupTabDialog = ({
             )}
           </div>
         </div>
-        {/* tab actions div */}
-        {/* data table div */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 border border-borderColor p-4 rounded-md shadow-md bg-backgroundColor-2">
           {/* title */}
           <div className="flex flex-col mb-2">
             <CustomHeading variation="head3">Permitted Actions</CustomHeading>
@@ -306,7 +266,6 @@ export const GroupTabDialog = ({
           </div>
           {/* search bar and new action Button */}
           <div className="flex justify-between items-center">
-            {/* search div */}
             <SearchComponent
               placeholder="Search Tab (Name)"
               name="searchValue"
@@ -385,15 +344,6 @@ export const GroupTabDialog = ({
   );
 };
 
-
-
 //   { group, tabs: data } --- CORRECT
 
 //  { group, tabs: [...tabs, data] } --- WRONG
-
-
-
-
-
-
-

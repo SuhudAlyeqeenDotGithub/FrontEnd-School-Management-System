@@ -129,7 +129,7 @@ const PeriodComponent = ({
                 }
               }
             }}
-            className="text-[50px] hover:text-foregroundColor-50 hover:cursor-pointer"
+            className="text-[30px] hover:text-foregroundColor-2 hover:cursor-pointer w-full"
           />
         </div>
       </div>

@@ -154,6 +154,23 @@ export interface QualificationType {
   endDate: string;
 }
 
+export interface IdentificationType {
+  _id: string;
+  identificationType: string;
+  identificationValue: string;
+  issueDate: string;
+  expiryDate: string;
+}
+
+export interface WorkExperienceType {
+  _id: string;
+  organisation: string;
+  position: string;
+  experience: string;
+  startDate: string;
+  endDate: string;
+}
+
 export interface StaffType {
   _id: string;
   organisationId: string;

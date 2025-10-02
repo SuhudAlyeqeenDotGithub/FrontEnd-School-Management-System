@@ -38,10 +38,92 @@ export const InputComponent = ({
         name={name}
         value={value}
         required={required}
-        className="border border-borderColor shadow-xs rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full placeholder:text-sm text-foregroundColor-2"
+        className="h-[42px] bg-backgroundColor border border-borderColor shadow-xs rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full placeholder:text-sm text-foregroundColor-2"
         onChange={onChange}
         onFocus={onFocus}
       />
+    </div>
+  );
+};
+
+export const TextAreaComponent = ({
+  title = "Title",
+  disabled = false,
+  placeholder,
+  required = false,
+  name,
+  value,
+  onChange,
+  onFocus,
+  onBlur
+}: InputComponentType) => {
+  return (
+    <div className="flex flex-col gap-1 w-full">
+      <label htmlFor={name} className="block font-medium text-foregroundColor-2 mb-1 ml-1">
+        {title}
+      </label>
+      <textarea
+        disabled={disabled}
+        placeholder={placeholder}
+        name={name}
+        value={value}
+        required={required}
+        className="bg-backgroundColor border border-borderColor shadow-xs rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full h-[100px] overflow-auto placeholder:text-sm"
+        onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
+      />
+    </div>
+  );
+};
+
+export const SelectInputComponent = ({
+  title = "Title",
+  disabled = false,
+  placeholder,
+  required = false,
+  name,
+  value,
+  onChange,
+  onFocus,
+  onBlur,
+  options
+}: {
+  title?: string;
+  disabled?: boolean;
+  placeholder?: string;
+  required?: boolean;
+  name: string;
+  value: string;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLSelectElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLSelectElement>) => void;
+  options: { value: string; label: string }[];
+}) => {
+  return (
+    <div className="flex flex-col gap-1 w-full">
+      <label htmlFor={name} className="block font-medium text-foregroundColor-2 mb-1 ml-1">
+        {title}
+      </label>
+      <select
+        disabled={disabled}
+        name={name}
+        value={value}
+        required={required}
+        className="h-[42px] bg-backgroundColor border border-borderColor shadow-xs rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full"
+        onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
+      >
+        <option value="" disabled className="text-sm">
+          {placeholder}
+        </option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
     </div>
   );
 };
@@ -177,88 +259,6 @@ export const ActionButtons = ({
   );
 };
 
-export const TextAreaComponent = ({
-  title = "Title",
-  disabled = false,
-  placeholder,
-  required = false,
-  name,
-  value,
-  onChange,
-  onFocus,
-  onBlur
-}: InputComponentType) => {
-  return (
-    <div className="flex flex-col gap-1 w-full">
-      <label htmlFor={name} className="block font-medium text-foregroundColor-2 mb-1 ml-1">
-        {title}
-      </label>
-      <textarea
-        disabled={disabled}
-        placeholder={placeholder}
-        name={name}
-        value={value}
-        required={required}
-        className="border border-borderColor shadow-xs rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full h-[100px] overflow-auto placeholder:text-sm"
-        onChange={onChange}
-        onFocus={onFocus}
-        onBlur={onBlur}
-      />
-    </div>
-  );
-};
-
-export const SelectInputComponent = ({
-  title = "Title",
-  disabled = false,
-  placeholder,
-  required = false,
-  name,
-  value,
-  onChange,
-  onFocus,
-  onBlur,
-  options
-}: {
-  title?: string;
-  disabled?: boolean;
-  placeholder?: string;
-  required?: boolean;
-  name: string;
-  value: string;
-  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLSelectElement>) => void;
-  onBlur?: (e: React.FocusEvent<HTMLSelectElement>) => void;
-  options: { value: string; label: string }[];
-}) => {
-  return (
-    <div className="flex flex-col gap-1 w-full">
-      <label htmlFor={name} className="block font-medium text-foregroundColor-2 mb-1 ml-1">
-        {title}
-      </label>
-      <select
-        disabled={disabled}
-        name={name}
-        value={value}
-        required={required}
-        className="border border-borderColor shadow-xs rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full"
-        onChange={onChange}
-        onFocus={onFocus}
-        onBlur={onBlur}
-      >
-        <option value="" disabled className="text-sm">
-          {placeholder}
-        </option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-};
-
 export const ContainerComponent = ({
   style = "",
   children,
@@ -321,15 +321,17 @@ export const LoaderDiv = ({
   dimension
 }: {
   type?: string;
-  borderColor: string;
+  borderColor?: string;
   text?: string;
   textColor?: string;
   dimension: string;
 }) => {
   return (
     <div className="flex justify-center gap-10 items-center z-10">
-      {type !== "spinner" && <span className={`ml-2 text-${textColor} animate-pulse`}>{text}</span>}
-      <div className={`animate-spin rounded-full ${dimension} border-b-2 border-r-2 border-${borderColor}`}></div>
+      {type !== "spinner" && <span className={`ml-2 animate-pulse whitespace-nowrap`}>{text}</span>}
+      <div
+        className={`inline-flex animate-spin rounded-full ${dimension} border-b-2 border-r-2 border-foregroundColor-2`}
+      ></div>
     </div>
   );
 };
@@ -339,7 +341,6 @@ export const LoaderButton = ({
   buttonText,
   loadingButtonText,
   disabled = false,
-  buttonStyle = "bg-foregroundColor text-backgroundColor shadow-xs hover:bg-foregroundColor-2 hover:cursor-pointer w-full px-4 py-3 rounded-md disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed",
   isLoading,
   spinnerDimension = "w-6 h-6",
   onClick
@@ -354,7 +355,7 @@ export const LoaderButton = ({
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }) => {
   return (
-    <button type={type} disabled={disabled} className={buttonStyle} onClick={onClick}>
+    <button type={type} disabled={disabled} className={defaultButtonStyle} onClick={onClick}>
       <span className="flex justify-center gap-5 items-center">
         {isLoading ? (
           <LoaderDiv
@@ -420,6 +421,7 @@ export const CustomHeading = ({
   hidden?: boolean;
 }) => {
   const variations = {
+    sectionHeader: "text-[31px] font-bold",
     head1: "text-[35px] font-bold",
     head1light: "text-[35px] font-semibold text-text-slate-500",
     head2: "text-[25px] font-bold",
@@ -481,7 +483,7 @@ export const TabLink = ({ icon, tab, url }: { icon?: LucideIcon; tab: string; ur
   return (
     <div
       title={tab}
-      className={`flex gap-2 px-5 py-3 font-medium rounded-md hover:bg-backgroundColor-2 hover:cursor-pointer h-12 items-center whitespace-nowrap ${
+      className={`flex gap-2 px-5 py-1 rounded-md hover:bg-backgroundColor-2 hover:cursor-pointer h-10 items-center whitespace-nowrap ${
         pathname === url
           ? "text-backgroundColor bg-foregroundColor hover:bg-foregroundColor-2 border border-borderColor shadow-xs"
           : "text-foregroundColor-2"
@@ -503,7 +505,7 @@ export const SideBarNav = ({
   }[];
 }) => {
   return (
-    <div className="flex flex-col bg-backgroundColor py-1 px-3 mx-1 mt-2">
+    <div className="flex flex-col bg-backgroundColor py-1 pl-2 ml-8 mt-1 gap-2 border-l border-borderColor-2">
       {tabs.map(({ icon, tab, url }) => {
         return <TabLink key={tab} icon={icon} tab={tab} url={url} />;
       })}
@@ -549,7 +551,7 @@ export const ThemeSelector: any = () => {
 
   return (
     <div className="p-2">
-      <label htmlFor="theme-select" className="mr-2 text-foregroundColor">
+      <label htmlFor="theme-select" className="mr-2 text-foregroundColor font-semibold">
         Theme:
       </label>
       <select

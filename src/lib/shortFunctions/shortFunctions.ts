@@ -22,10 +22,12 @@ export const formatDate = (dateStr: any) => {
   return date.toLocaleString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 };
 
-export const generateCustomId = (prefix?: string, neat = false) => {
+export const generateCustomId = (prefix?: string, neat = false, type: string = "alphanumeric") => {
   if (neat) {
-    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    const nanoid = customAlphabet(alphabet, 7);
+    const alphanumeric = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const numeric = "0123456789";
+    const nanoid = customAlphabet(type === "alphanumeric" ? alphanumeric : type === "alphabet" ? alphabet : numeric, 7);
     return `${prefix ? prefix + "-" : ""}${nanoid()}`;
   }
   return `${prefix ? prefix + "-" : ""}${nanoid()}`;
@@ -42,6 +44,7 @@ export const handledDeleteImage = async (imageDestination?: string) => {
       return true;
     }
   } catch (error: any) {
+    console.log(error);
     throw new Error(error.response?.data.message || error.message || "Error deleting image");
   }
   return false;

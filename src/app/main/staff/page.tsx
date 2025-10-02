@@ -2,7 +2,15 @@
 import { checkDataType, handledDeleteImage } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { useEffect, useState } from "react";
-import { ErrorDiv, LoaderDiv, NextButton, PreviousButton } from "@/lib/customComponents/general/compLibrary";
+import {
+  ActionButtons,
+  CustomHeading,
+  ErrorDiv,
+  InputComponent,
+  LoaderDiv,
+  NextButton,
+  PreviousButton
+} from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { CgTrash } from "react-icons/cg";
 import {
@@ -10,10 +18,6 @@ import {
   ConfirmActionByInputDialog,
   CustomFilterComponent
 } from "@/lib/customComponents/general/compLibrary2";
-import EditUserComponent from "@/lib/customComponents/admin/editUserComponent";
-import { resetUsers } from "@/redux/features/admin/users/usersSlice";
-import NewStaffComponent from "@/lib/customComponents/staff/newStaffComp";
-import { deleteStaffProfile, getStaffProfiles } from "@/redux/features/staff/staffThunks";
 import { MdContentCopy, MdAdd, MdNavigateNext, MdNavigateBefore } from "react-icons/md";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
@@ -29,75 +33,67 @@ import {
   tableRowStyle,
   tableTopStyle
 } from "@/lib/generalStyles";
-import { useQuery } from "@tanstack/react-query";
-import { handleApiRequest } from "@/axios/axiosClient";
-import { tanFetchStaffProfiles } from "@/tanStack/staff/fetch";
-import { useStaffMutation } from "@/tanStack/staff/mutate";
-import EditStaffComponent from "@/lib/customComponents/staff/editStaffComp";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { tanFetchAny } from "@/tanStack/reusables/fetch";
+import reusableQueries from "@/tanStack/reusables/reusableQueries";
+import StaffProfileDialogComponent from "../../../lib/customComponents/staff/staffProfileDIalogComp";
+import { useReusableMutations } from "@/tanStack/reusables/mutations";
+import { UserRoundPen } from "lucide-react";
 
 const StaffProfile = () => {
-  const dispatch = useAppDispatch();
-  const { tanDeleteStaffProfile } = useStaffMutation();
+  const { hasActionAccess, useReusableInfiniteQuery } = reusableQueries();
+  const { tanMutateAny } = useReusableMutations();
+  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/staff/profile");
 
-  // const { staff, isLoading: staffIsLoading } = useAppSelector((state) => state.staffData);
+  // const { staff, isLoading: isFetching } = useAppSelector((state) => state.staffData);
   const { accountData } = useAppSelector((state) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openEditUserDialog, setOpenEditStaffDialog] = useState(false);
+  const [openStaffDialog, setOpenEditStaffDialog] = useState(false);
   const [openNewStaffDialog, setOpenNewStaffDialog] = useState(false);
+  const [openViewStaffDialog, setOpenViewStaffDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
   const [openFilterDiv, setOpenFilterDiv] = useState(false);
-  const [onOpenEditUserData, setOnOpenEditStaffData] = useState<any>({});
+  const [onOpenStaffProfileDialogData, setOnOpenStaffProfileDialogData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
-  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((group: any) =>
-    group.tabs.map((tab: any) =>
-      tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
-    )
-  );
+
   const [paginationData, setPaginationData] = useState<any>({
     totalCount: 0,
     chunkCount: 0,
-    nextCursor: "",
-    prevCursor: "",
-    hasNext: false,
-    hasPrev: false
+    hasNext: false
   });
-  const [page, setPage] = useState(1);
-
-  const baseUrl = "alyeqeenschoolapp/api/staff/profile";
-  const searchUrl = new URLSearchParams({});
-
-  const hasActionAccess = (action: string) => {
-    return accountPermittedActions.includes(action);
-  };
+  const [pageIndex, setPageIndex] = useState(0);
+  const [limit, setLimit] = useState("10");
+  const [queryParams, setQueryParams] = useState({});
 
   const {
     data: staff,
-    isLoading: staffIsLoading,
     isFetching,
     error: queryError,
     isError,
-    refetch: refetchStaffProfiles
-  } = useQuery({
-    queryKey: ["staffProfiles"],
-    queryFn: () =>
-      tanFetchAny(accountData, accountPermittedActions, "View Staff", baseUrl + "?" + searchUrl.toString()),
-    enabled: Boolean(accountData?.accountStatus),
-    retry: false
-  });
+    fetchNextPage,
+    fetchPreviousPage
+  } = useReusableInfiniteQuery(
+    "staffProfiles",
+    queryParams,
+    Number(limit) || 10,
+    "View Staff Profiles",
+    "alyeqeenschoolapp/api/staff/profile"
+  );
 
   useEffect(() => {
     if (!staff) return;
     setError("");
-    setLocalData(staff.staffProfiles);
-    const { totalCount, chunkCount, nextCursor, prevCursor, hasNext } = staff;
-    setPaginationData({ totalCount, chunkCount, nextCursor, prevCursor, hasNext });
-  }, [staff, staffIsLoading]);
+    const currentPage: any = staff.pages[pageIndex];
+    if (currentPage === undefined) return;
+    setLocalData(currentPage.staffProfiles);
+    const { totalCount, chunkCount, hasNext } = currentPage;
+    setPaginationData({ totalCount, chunkCount, hasNext });
+  }, [staff, isFetching]);
 
   useEffect(() => {
     if (!isError) return;
@@ -106,6 +102,27 @@ const StaffProfile = () => {
     }
   }, [queryError, isError]);
 
+  const renderNextPage = (pageIndex: number, pages: any) => {
+    const foundPage = pages[pageIndex];
+    if (foundPage !== undefined) {
+      const { staffProfiles, ...rest } = foundPage;
+      setLocalData(staffProfiles);
+      setPaginationData(rest);
+    } else {
+      fetchNextPage();
+    }
+  };
+
+  const renderPreviousPage = (pageIndex: number, pages: any) => {
+    const foundPage = pages[pageIndex];
+    if (foundPage !== undefined) {
+      const { staffProfiles, ...rest } = foundPage;
+      setLocalData(staffProfiles);
+      setPaginationData(rest);
+    } else {
+      fetchPreviousPage();
+    }
+  };
   // function to handle sorting
   const handleSort = (sortKey: any) => {
     const keyType = checkDataType([...localData][0][sortKey]);
@@ -160,7 +177,7 @@ const StaffProfile = () => {
     );
 
   return (
-    <div className="px-8 py-6 w-full">
+    <div className="px-4 py-6 w-full">
       {error && (
         <ErrorDiv
           onClose={(close) => {
@@ -175,38 +192,52 @@ const StaffProfile = () => {
 
       {/* data table section */}
       <div className="">
-        {openEditUserDialog && (
-          <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
-            <EditStaffComponent
-              onClose={(open: boolean) => {
-                document.body.style.overflow = "";
-                setOpenEditStaffDialog(!open);
-                return {};
-              }}
-              onSave={(notSave) => {
-                document.body.style.overflow = "";
-                setOpenEditStaffDialog(!notSave);
-                return {};
-              }}
-              data={onOpenEditUserData}
-            />
-          </div>
+        {openStaffDialog && (
+          <StaffProfileDialogComponent
+            type="edit"
+            onClose={(open: boolean) => {
+              document.body.style.overflow = "";
+              setOpenEditStaffDialog(!open);
+            }}
+            onSave={(notSave) => {
+              document.body.style.overflow = "";
+              setOpenEditStaffDialog(!notSave);
+            }}
+            data={onOpenStaffProfileDialogData}
+          />
         )}
         {openNewStaffDialog && (
-          <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-50">
-            <NewStaffComponent
-              onClose={(open: boolean) => {
-                document.body.style.overflow = "";
-                setOpenNewStaffDialog(!open);
-                return {};
-              }}
-              onCreate={(notSave) => {
-                document.body.style.overflow = "";
-                setOpenNewStaffDialog(!notSave);
-                return {};
-              }}
-            />
-          </div>
+          <StaffProfileDialogComponent
+            type="new"
+            data={onOpenStaffProfileDialogData}
+            onClose={(open: boolean) => {
+              document.body.style.overflow = "";
+              setOpenNewStaffDialog(!open);
+              return {};
+            }}
+            onSave={(notSave) => {
+              document.body.style.overflow = "";
+              setOpenNewStaffDialog(!notSave);
+              return {};
+            }}
+          />
+        )}
+
+        {openViewStaffDialog && (
+          <StaffProfileDialogComponent
+            type="view"
+            data={onOpenStaffProfileDialogData}
+            onClose={(open: boolean) => {
+              document.body.style.overflow = "";
+              setOpenViewStaffDialog(!open);
+              return {};
+            }}
+            onSave={(notSave) => {
+              document.body.style.overflow = "";
+              setOpenViewStaffDialog(!notSave);
+              return {};
+            }}
+          />
         )}
 
         {openConfirmDelete && (
@@ -223,14 +254,14 @@ const StaffProfile = () => {
               if (confirmed) {
                 try {
                   let imageDeletionDone = false;
-                  if (returnObject.staffImageDestination || returnObject.staffImageDestination !== "") {
-                    imageDeletionDone = await handledDeleteImage(returnObject.staffImageDestination);
+                  if (returnObject.imageLocalDestination || returnObject.imageLocalDestination !== "") {
+                    imageDeletionDone = await handledDeleteImage(returnObject.imageLocalDestination);
                   } else {
                     imageDeletionDone = true;
                   }
 
                   if (imageDeletionDone) {
-                    await tanDeleteStaffProfile.mutateAsync({ staffIDToDelete: returnObject.staffIDToDelete });
+                    await deleteMutation.mutateAsync({ staffIDToDelete: returnObject.staffIDToDelete });
                   } else {
                     return;
                   }
@@ -248,7 +279,36 @@ const StaffProfile = () => {
           />
         )}
         {/* data table div */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col">
+          <div className={tableTopStyle}>
+            {/* title */}
+            <div className="flex flex-col">
+              <CustomHeading variation="sectionHeader">
+                Staff Profiles
+                {/* <UserRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
+              </CustomHeading>
+              <CustomHeading variation="head5light">Register and manage staff</CustomHeading>
+            </div>
+            <button onClick={() => setOpenFilterDiv(!openFilterDiv)} className={ghostbuttonStyle}>
+              {openFilterDiv ? "Close Filter" : "Open Filter"}
+            </button>
+            <div>
+              <button
+                onClick={() => {
+                  if (hasActionAccess("Create Staff Profile")) {
+                    document.body.style.overflow = "hidden";
+                    setOpenNewStaffDialog(true);
+                  } else {
+                    setError("You do not have Create Staff Access - Please contact your admin");
+                  }
+                }}
+                disabled={!hasActionAccess("Create Staff Profile")}
+                className={defaultButtonStyle}
+              >
+                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Staff
+              </button>
+            </div>
+          </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
               placeholder="Search Staff (Custom ID, Names, Email, Gender, Nationality, Next of Kin)"
@@ -265,66 +325,82 @@ const StaffProfile = () => {
                 }
               ]}
               onQuery={(query: any) => {
-                for (const key in query) {
-                  searchUrl.set(key, query[key]);
-                }
-                refetchStaffProfiles();
+                setQueryParams(query);
               }}
             />
           </div>
-          {/* table body */}
-          {staffIsLoading ? (
-            <div className="flex items-center justify-center">
-              <LoaderDiv
-                type="spinnerText"
-                borderColor="foregroundColor"
-                text="Loading User Data..."
-                textColor="foregroundColor"
-                dimension="h-10 w-10"
+          <div className={paginationContainerStyle}>
+            <div>
+              Showing {paginationData.chunkCount} of {paginationData.totalCount} records
+            </div>
+
+            <div className="flex gap-3 items-center">
+              <p>Limit</p>
+              <div className="w-20">
+                <InputComponent
+                  type="text"
+                  name="limit"
+                  placeholder="5"
+                  value={limit}
+                  onChange={(e) => {
+                    setLimit(e.target.value);
+                  }}
+                />
+              </div>
+
+              <button
+                className={defaultButtonStyle}
+                onClick={() => {
+                  setQueryParams((prev) => ({ ...prev, limit: limit }));
+                }}
+              >
+                Apply
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <PreviousButton
+                onClick={() => {
+                  const prevPage = pageIndex - 1;
+                  setPageIndex(prevPage);
+                  renderPreviousPage(prevPage, staff.pages);
+                }}
+                disabled={pageIndex === 0}
+              />
+
+              <span className=" px-2">
+                Page {pageIndex + 1} of {Math.ceil(paginationData.totalCount / Number(limit))}
+              </span>
+              <NextButton
+                onClick={() => {
+                  const nextPage = pageIndex + 1;
+                  setPageIndex(nextPage);
+                  renderNextPage(nextPage, staff.pages);
+                }}
+                disabled={!paginationData.hasNext}
               />
             </div>
-          ) : (
+          </div>
+          {/* table body */}
+          {
             <div className={tableContainerStyle}>
               {/* table header */}
-              <div className={tableTopStyle}>
-                {/* title */}
-                <div className="flex flex-col gap-2 mb-2">
-                  <h2>Staff Profile</h2>
-                  <h3>Register and manage staff</h3>
-                </div>
-                <button onClick={() => setOpenFilterDiv(!openFilterDiv)} className={ghostbuttonStyle}>
-                  {openFilterDiv ? "Close Filter" : "Open Filter"}
-                </button>
-                <div>
-                  <button
-                    onClick={() => {
-                      if (hasActionAccess("Create Staff")) {
-                        document.body.style.overflow = "hidden";
-                        setOpenNewStaffDialog(true);
-                      } else {
-                        setError("You do not have Create Staff Access - Please contact your admin");
-                      }
-                    }}
-                    disabled={!hasActionAccess("Create Staff")}
-                    className={defaultButtonStyle}
-                  >
-                    <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Staff
-                  </button>
-                </div>
-              </div>
-              <Table className="text-[16px]">
-                <TableHeader>
-                  <TableRow className={tableHeaderStyle}>
-                    <TableHead className="text-center w-[110px] font-semibold p-2 whitespace-nowrap"></TableHead>
 
-                    {(["Staff Custom ID", "First Name", "Last Name", "Gender", "Email"] as const).map((header) => (
-                      <TableHead
+              <table className="relative w-full">
+                <thead className="sticky top-0 z-10 border-b border-borderColor-2">
+                  <tr className={tableHeaderStyle}>
+                    <th className="text-center w-[110px] font-semibold p-2 whitespace-nowrap"></th>
+
+                    {(
+                      ["Staff Custom ID", "Full Name", "Gender", "Email", "Phone Number", "Marital Status"] as const
+                    ).map((header) => (
+                      <th
                         key={header}
                         onClick={() => {
                           const key_Name = {
                             "Staff Custom ID": "staffCustomId",
-                            "First Name": "staffFirstName",
-                            "Last Name": "staffLastName",
+                            "Full Name": "staffFullName",
+                            "Marital Status": "staffMaritalStatus",
+                            "Phone Number": "staffPhone",
                             Gender: "staffGender",
                             Email: "staffEmail"
                           };
@@ -335,21 +411,20 @@ const StaffProfile = () => {
                       >
                         {header}
                         <LuArrowUpDown className="inline-block ml-1" />
-                      </TableHead>
+                      </th>
                     ))}
-                    <TableHead className="text-center font-semibold whitespace-nowrap">Delete</TableHead>
-                  </TableRow>
-                </TableHeader>
+                    <th className={tableHeadCellStyle}>Actions</th>
+                  </tr>
+                </thead>
 
                 {/* table data */}
-                <TableBody className="mt-3 bg-backgroundColor">
-                  {staffIsLoading ? (
+                <tbody className="bg-backgroundColor rounded-b-lg">
+                  {isFetching ? (
                     <tr>
                       <td colSpan={8}>
-                        <div className="flex items-center justify-center mt-10">
+                        <div className="flex items-center justify-center p-10">
                           <LoaderDiv
                             type="spinnerText"
-                            borderColor="foregroundColor"
                             text="Loading Staff Profiles..."
                             textColor="foregroundColor"
                             dimension="h-10 w-10"
@@ -357,7 +432,7 @@ const StaffProfile = () => {
                         </div>
                       </td>
                     </tr>
-                  ) : (localData.length < 1 && !staffIsLoading) || !staff || staff.length === 0 ? (
+                  ) : (localData.length < 1 && !isFetching) || !staff ? (
                     <tr>
                       <td colSpan={8} className="text-center py-4">
                         No data available
@@ -368,32 +443,33 @@ const StaffProfile = () => {
                       const {
                         _id: profileId,
                         staffCustomId,
-                        staffFirstName,
-                        staffLastName,
+                        staffFullName,
                         staffGender,
-                        staffEmail
+                        staffEmail,
+                        staffPhone,
+                        staffMaritalStatus
                       } = doc;
 
                       return (
-                        <TableRow
+                        <tr
                           key={profileId}
                           onClick={() => {
-                            if (hasActionAccess("Edit Staff")) {
+                            if (hasActionAccess("View Staff Profile")) {
                               document.body.style.overflow = "hidden";
-                              setOpenEditStaffDialog(true);
-                              setOnOpenEditStaffData(doc);
+                              setOnOpenStaffProfileDialogData(doc);
+                              setOpenViewStaffDialog(true);
                             } else {
-                              setError("You do not have Edit User Access - Please contact your admin");
+                              setError("You do not have View Staff Profile Access - Please contact your admin");
                             }
                           }}
                           className={tableRowStyle}
                         >
-                          <TableCell className="w-[110px] whitespace-nowrap text-center">
-                            <span className="rounded-full bg-foregroundColor-10 p-2">
-                              {staffFirstName.toUpperCase().slice(0, 2)}
+                          <td className="w-[110px] whitespace-nowrap text-center flex items-center justify-center h-15">
+                            <span className="rounded-full bg-backgroundColor-3 p-2 text-foregroundColor w-10 h-10 flex items-center justify-center">
+                              <p>{staffFullName.toUpperCase().slice(0, 2)}</p>
                             </span>
-                          </TableCell>
-                          <TableCell className="w-[200px] text-center whitespace-nowrap">
+                          </td>
+                          <td className="w-[200px] text-center whitespace-nowrap">
                             {staffCustomId.slice(0, 10)}
                             <MdContentCopy
                               title="copy id"
@@ -403,23 +479,31 @@ const StaffProfile = () => {
                                 await navigator.clipboard.writeText(staffCustomId);
                               }}
                             />
-                          </TableCell>
-                          <TableCell className={tableCellStyle}>{staffFirstName.slice(0, 10)}</TableCell>
-                          <TableCell className={tableCellStyle}>{staffLastName.slice(0, 10)}</TableCell>
-                          <TableCell className={tableCellStyle}>{staffGender}</TableCell>
-                          <TableCell className={tableCellStyle}>{staffEmail}</TableCell>
+                          </td>
+                          <td className={tableCellStyle}>{staffFullName.slice(0, 20)}</td>
+                          <td className={tableCellStyle}>{staffGender}</td>
+                          <td className={tableCellStyle}>{staffEmail}</td>
+                          <td className={tableCellStyle}>{staffPhone}</td>
+                          <td className={tableCellStyle}>{staffMaritalStatus}</td>
 
-                          <TableCell className="w-[200px] text-center whitespace-nowrap">
-                            <span
-                              className="text-[25px] text-red-500 bg-backgroundColor hover:cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (hasActionAccess("Delete Staff")) {
+                          <td className="text-center flex items-center justify-center h-15">
+                            <ActionButtons
+                              onEdit={(e) => {
+                                if (hasActionAccess("Edit Staff Profile")) {
+                                  document.body.style.overflow = "hidden";
+                                  setOnOpenStaffProfileDialogData(doc);
+                                  setOpenEditStaffDialog(true);
+                                } else {
+                                  setError("You do not have Edit Staff Profile Access - Please contact your admin");
+                                }
+                              }}
+                              onDelete={(e) => {
+                                if (hasActionAccess("Delete Staff Profile")) {
                                   document.body.style.overflow = "hidden";
                                   setConfirmWithText(staffCustomId);
                                   setConfirmWithReturnObj({
                                     staffIDToDelete: staffCustomId,
-                                    staffImageDestination: doc.staffImageDestination
+                                    imageLocalDestination: doc.imageLocalDestination
                                   });
                                   setOpenConfirmDelete(true);
                                 } else {
@@ -428,47 +512,16 @@ const StaffProfile = () => {
                                   );
                                 }
                               }}
-                            >
-                              <CgTrash className="inline-block text-[20px]" />
-                            </span>
-                          </TableCell>
-                        </TableRow>
+                            />
+                          </td>
+                        </tr>
                       );
                     })
                   )}
-                </TableBody>
-              </Table>
-              <div className={paginationContainerStyle}>
-                <div>
-                  Showing {paginationData.chunkCount} of {paginationData.totalCount} records
-                </div>
-                <div className="flex items-center gap-2">
-                  <NextButton
-                    onClick={() => {
-                      searchUrl.set("cursorType", "prev");
-                      searchUrl.set("prevCursor", paginationData.prevCursor);
-                      setPage(page > 1 ? page - 1 : page);
-                      refetchStaffProfiles();
-                    }}
-                    disabled={page < 2}
-                  />
-
-                  <span className=" px-2">
-                    Page {page} of {Math.ceil(paginationData.totalCount / 10)}
-                  </span>
-                  <PreviousButton
-                    onClick={() => {
-                      searchUrl.set("cursorType", "next");
-                      searchUrl.set("nextCursor", paginationData.nextCursor);
-                      setPage(paginationData.hasNext ? page + 1 : page);
-                      refetchStaffProfiles();
-                    }}
-                    disabled={!paginationData.hasNext}
-                  />
-                </div>
-              </div>
+                </tbody>
+              </table>
             </div>
-          )}
+          }
         </div>
       </div>
       {/* end of data table */}

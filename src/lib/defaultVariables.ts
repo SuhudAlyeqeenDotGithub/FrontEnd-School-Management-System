@@ -168,19 +168,19 @@ export const allTabs = [
     group: "Staff",
     actions: [
       {
-        action: "Create Staff Contract",
+        action: "Create Staff Profile",
         permission: false
       },
       {
-        action: "View Staff Contract",
+        action: "View Staff Profiles",
         permission: false
       },
       {
-        action: "Edit Staff Contract",
+        action: "Edit Staff Profile",
         permission: false
       },
       {
-        action: "Delete Staff Contract",
+        action: "Delete Staff Profile",
         permission: false
       }
     ]
