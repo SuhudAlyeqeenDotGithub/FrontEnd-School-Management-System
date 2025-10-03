@@ -56,7 +56,10 @@ import {
   CalendarClock,
   PanelRightOpen,
   PanelRightClose,
-  Sun
+  Sun,
+  UserRoundCheck,
+  User,
+  CalendarSync
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
@@ -231,9 +234,14 @@ const layout = ({ children }: { children: ReactNode }) => {
     TimeTable: Timer,
     "Staff Profile": UserRoundPen,
     "Staff Contract": Signature,
-    "Academic Session": Clock,
-    Programme: BookOpenCheck,
     Staff: BookUser,
+    "Academic Session": Clock,
+    "Academic Year": CalendarSync,
+    Period: CalendarClock,
+    Programme: BookOpenCheck,
+    "Student Profile": User,
+    "Student Enrollment": UserRoundCheck,
+    Student: Users,
     Location: School,
     "Learning Plan": Waypoints,
     Level: SquareStack,

@@ -449,8 +449,10 @@ export const SubTabLink = ({ icon, title, url }: { icon?: LucideIcon; title: str
   return (
     <div
       title={title}
-      className={`flex gap-2 px-5 py-3 text-foregroundColor-2 font-medium rounded-md hover:bg-backgroundColor-3 hover:cursor-pointer h-12 items-center justify-center whitespace-nowrap ${
-        pathname === url ? "bg-backgroundColor-3 border border-borderColor shadow-xs" : ""
+      className={`flex gap-2 px-5 py-1 rounded-md hover:bg-backgroundColor-2 hover:cursor-pointer h-10 items-center whitespace-nowrap ${
+        pathname === url
+          ? "text-backgroundColor bg-foregroundColor hover:bg-foregroundColor-2 border border-borderColor shadow-xs"
+          : "text-foregroundColor-2"
       }`}
       onClick={() => handleNavigation(url)}
     >

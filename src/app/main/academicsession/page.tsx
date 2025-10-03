@@ -2,26 +2,37 @@
 import { checkDataType, handledDeleteImage } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { useEffect, useState } from "react";
-import { ErrorDiv, LoaderDiv } from "@/lib/customComponents/general/compLibrary";
+import {
+  ActionButtons,
+  CustomHeading,
+  ErrorDiv,
+  LoaderDiv,
+  SearchComponent
+} from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaLeaf, FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/customComponents/general/compLibrary2";
 import NewAcademicYearComponent from "@/lib/customComponents/academicYear/newAcademicYearComp";
-import { deleteAcademicYear, getAcademicYears } from "@/redux/features/general/academicYear/academicYearThunk";
 import { MdContentCopy, MdAdd } from "react-icons/md";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { tableCellStyle, tableContainerStyle, tableHeaderStyle, tableTopStyle } from "@/lib/generalStyles";
+import {
+  defaultButtonStyle,
+  tableCellStyle,
+  tableContainerStyle,
+  tableHeadCellStyle,
+  tableHeaderStyle,
+  tableRowStyle,
+  tableTopStyle
+} from "@/lib/generalStyles";
 import EditAcademicYearComponent from "@/lib/customComponents/academicYear/editAcademicYear";
-import { useQuery } from "@tanstack/react-query";
-import { tanFetchAny } from "@/tanStack/reusables/fetch";
 import { useTimelineMutation } from "@/tanStack/timeline/mutate";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 
 const AcademicYear = () => {
   const { accountData } = useAppSelector((state) => state.accountData);
-  const { useReusableQuery } = reusableQueries();
+  const { useReusableQuery, hasActionAccess } = reusableQueries();
   const { tanDeleteAcademicYear } = useTimelineMutation();
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
@@ -33,15 +44,6 @@ const AcademicYear = () => {
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
-  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((group: any) =>
-    group.tabs.map((tab: any) =>
-      tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
-    )
-  );
-
-  const hasActionAccess = (action: string) => {
-    return accountPermittedActions.includes(action);
-  };
 
   const {
     data: academicYears,
@@ -50,7 +52,7 @@ const AcademicYear = () => {
     error: academicYearsError,
     isError: isAcademicYearsError,
     refetch: refetchAcademicYears
-  } = useReusableQuery("academicYears", "View Academic Years", `alyeqeenschoolapp/api/timeline/academicYear`);
+  } = useReusableQuery("academicYears", "View Academic Years", `alyeqeenschoolapp/api/academicsession/academicYear`);
 
   useEffect(() => {
     if (!academicYears) return;
@@ -154,8 +156,10 @@ const AcademicYear = () => {
     setSortOrderTracker((prev: any) => ({ ...prev, [sortKey]: nextOrder }));
   };
 
+  console.log("localData", localData);
+
   return (
-    <div className="px-8 py-6 w-full mt-10 gap-5 flex flex-col">
+    <div className="px-8 py-6 w-full gap-5 flex flex-col">
       {error && (
         <ErrorDiv
           onClose={(close) => {
@@ -236,9 +240,44 @@ const AcademicYear = () => {
             warningText="Please confirm the ID of the academic year you want to delete"
           />
         )}
-        {/* data table div */}
-        {/* table body */}
 
+        {/* table header */}
+
+        <div className={tableTopStyle}>
+          <div className="flex flex-col">
+            <CustomHeading variation="sectionHeader">
+              Academic Years
+              {/* <UserRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
+            </CustomHeading>
+            <CustomHeading variation="head5light">Manage Academic Years and Periods</CustomHeading>
+          </div>
+
+          {/* search div */}
+          <SearchComponent
+            placeholder="Search role (Role Name)"
+            name="searchValue"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+
+          {/* new action button */}
+          <div>
+            <button
+              onClick={() => {
+                if (hasActionAccess("Create Academic Year")) {
+                  document.body.style.overflow = "hidden";
+                  setOpenNewAcademicYearDialog(true);
+                } else {
+                  setError("You do not have Create Academic Year Access - Please contact your admin");
+                }
+              }}
+              className={defaultButtonStyle}
+              disabled={!hasActionAccess("Create Academic Year")}
+            >
+              <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Academic Year
+            </button>
+          </div>
+        </div>
         {academicYearsIsPending || academicYearsIsFetching || !academicYears ? (
           <div className="flex items-center justify-center mt-10">
             <LoaderDiv
@@ -250,48 +289,12 @@ const AcademicYear = () => {
             />
           </div>
         ) : (
-          <div className={tableContainerStyle}>
-            {/* table header */}
-            <div className={tableTopStyle}>
-              <div className="flex flex-col gap-2 mb-2">
-                <h2>Academic Year</h2>
-              </div>
-
-              {/* search div */}
-              <div className="flex w-[700px] h-[50px] items-center gap-2 relative">
-                <input
-                  className="border border-foregroundColor-25 bg-backgroundColor rounded p-2 outline-none focus:border-b-3 focus:border-foregroundColor-40 w-full"
-                  placeholder="Search AcademicYear (Name, Start Date, End Date)"
-                  name="searchValue"
-                  onChange={(e) => {
-                    setSearchValue(e.target.value);
-                  }}
-                />
-                <FaSearch className="text-foregroundColor size-5 absolute right-3" />
-              </div>
-              {/* new action button */}
-              <div>
-                <button
-                  onClick={() => {
-                    if (hasActionAccess("Create Academic Year")) {
-                      document.body.style.overflow = "hidden";
-                      setOpenNewAcademicYearDialog(true);
-                    } else {
-                      setError("You do not have Create Academic Year Access - Please contact your admin");
-                    }
-                  }}
-                  disabled={!hasActionAccess("Create Academic Year")}
-                >
-                  <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Academic Year
-                </button>
-              </div>
-            </div>
-
-            <Table className="">
-              <TableHeader>
-                <TableRow className={tableHeaderStyle}>
+          <div className={`${tableContainerStyle} mt-8`}>
+            <table className="relative w-full">
+              <thead className="sticky top-0 z-10 border-b border-borderColor-2">
+                <tr className={tableHeaderStyle}>
                   {(["Academic Year Id", "Academic Year", "Start Date", "End Date"] as const).map((header) => (
-                    <TableHead
+                    <th
                       key={header}
                       onClick={() => {
                         const key_Name = {
@@ -307,26 +310,19 @@ const AcademicYear = () => {
                       hover:bg-foregroundColor-5 p-2 whitespace-nowrap"
                     >
                       {header} <LuArrowUpDown className="inline-block ml-1" />
-                    </TableHead>
-                  ))}
-                  <TableHead className="text-center text-foregroundColor-70 font-semibold whitespace-nowrap">
-                    Delete
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
+                    </th>
+                  ))}{" "}
+                  <th className={tableHeadCellStyle}>Periods</th>
+                  <th className={tableHeadCellStyle}>Actions</th>
+                </tr>
+              </thead>
               {/* table data */}
-              <TableBody className="mt-3 bg-backgroundColor">
+              <tbody className="mt-3 bg-backgroundColor">
                 {academicYearsIsPending ? (
                   <tr>
                     <td colSpan={8}>
                       <div className="flex items-center justify-center mt-10">
-                        <LoaderDiv
-                          type="spinnerText"
-                          borderColor="foregroundColor"
-                          text="Loading Academic Years..."
-                          textColor="foregroundColor"
-                          dimension="h-10 w-10"
-                        />
+                        <LoaderDiv type="spinnerText" text="Loading Academic Years..." dimension="h-10 w-10" />
                       </div>
                     </td>
                   </tr>
@@ -344,10 +340,10 @@ const AcademicYear = () => {
                   </tr>
                 ) : (
                   localData.map((doc: any, index: any) => {
-                    const { _id: academicYearId, academicYear, startDate, endDate } = doc;
+                    const { _id: academicYearId, academicYear, startDate, endDate, periods } = doc;
 
                     return (
-                      <TableRow
+                      <tr
                         key={academicYearId}
                         onClick={() => {
                           if (hasActionAccess("Edit Academic Year")) {
@@ -355,12 +351,12 @@ const AcademicYear = () => {
                             setOpenEditAcademicYearDialog(true);
                             setOnOpenEditAcademicYearData(doc);
                           } else {
-                            setError("You do not have Edit User Access - Please contact your admin");
+                            setError("You do not have Academic Year Access - Please contact your admin");
                           }
                         }}
-                        className="hover:cursor-pointer"
+                        className={tableRowStyle}
                       >
-                        <TableCell className="w-[110px] whitespace-nowrap text-center">
+                        <td className="w-[110px] whitespace-nowrap text-center">
                           <span className="whitespace-nowrap flex items-center justify-center w-[200px] gap-3">
                             Copy Id
                             <MdContentCopy
@@ -372,16 +368,27 @@ const AcademicYear = () => {
                               }}
                             />
                           </span>
-                        </TableCell>
-                        <TableCell className={tableCellStyle}> {academicYear}</TableCell>
-                        <TableCell className={tableCellStyle}>{formatDate(startDate)}</TableCell>
-                        <TableCell className={tableCellStyle}>{formatDate(endDate)}</TableCell>
+                        </td>
+                        <td className={tableCellStyle}> {academicYear}</td>
 
-                        <TableCell className="w-[200px] text-center whitespace-nowrap">
-                          <span
-                            className="text-[25px] text-red-500 bg-backgroundColor hover:cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                        <td className={tableCellStyle}>{formatDate(startDate)}</td>
+                        <td className={tableCellStyle}>{formatDate(endDate)}</td>
+                        <td className={tableCellStyle}>
+                          {periods && periods.length > 0 ? periods.map((period: any) => period.period).join(", ") : []}
+                          ...
+                        </td>
+                        <td className="text-center flex items-center justify-center h-15">
+                          <ActionButtons
+                            onEdit={(e) => {
+                              if (hasActionAccess("Edit Academic Year")) {
+                                document.body.style.overflow = "hidden";
+                                setOpenEditAcademicYearDialog(true);
+                                setOnOpenEditAcademicYearData(doc);
+                              } else {
+                                setError("You do not have Academic Year Access - Please contact your admin");
+                              }
+                            }}
+                            onDelete={(e) => {
                               if (hasActionAccess("Delete Academic Year")) {
                                 document.body.style.overflow = "hidden";
                                 setConfirmWithText(academicYearId);
@@ -394,20 +401,18 @@ const AcademicYear = () => {
                                 setOpenConfirmDelete(true);
                               } else {
                                 setError(
-                                  "Unauthorised Action: You do not have Delete AcademicYear Access - Please contact your admin"
+                                  "Unauthorised Action: You do not have Delete Academic Year Access - Please contact your admin"
                                 );
                               }
                             }}
-                          >
-                            <CgTrash className="inline-block text-[20px]" />
-                          </span>
-                        </TableCell>
-                      </TableRow>
+                          />
+                        </td>
+                      </tr>
                     );
                   })
                 )}
-              </TableBody>
-            </Table>
+              </tbody>
+            </table>
           </div>
         )}
       </div>

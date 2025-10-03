@@ -1,4 +1,4 @@
-export const allGroups = ["Administration", "Curriculum", "Staff", "Attendance"];
+export const allGroups = ["Administration", "Curriculum", "Staff", "Attendance", "Student"];
 export const allTabs = [
   // Administration
   {
@@ -225,6 +225,40 @@ export const allTabs = [
       { action: "View Event Attendances", permission: false },
       { action: "Edit Event Attendance", permission: false },
       { action: "Delete Event Attendance", permission: false }
+    ]
+  },
+
+  // students
+  {
+    tab: "Student Profile",
+    group: "Student",
+    actions: [
+      {
+        action: "Create Student Profile",
+        permission: false
+      },
+      {
+        action: "View Student Profiles",
+        permission: false
+      },
+      {
+        action: "Edit Student Profile",
+        permission: false
+      },
+      {
+        action: "Delete Student Profile",
+        permission: false
+      }
+    ]
+  },
+  {
+    tab: "Student Enrollment",
+    group: "Student",
+    actions: [
+      { action: "Create Student Enrollment", permission: false },
+      { action: "View Student Enrollment", permission: false },
+      { action: "Edit Student Enrollment", permission: false },
+      { action: "Delete Student Enrollment", permission: false }
     ]
   }
 ];
