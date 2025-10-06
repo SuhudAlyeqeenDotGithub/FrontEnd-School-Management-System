@@ -164,38 +164,17 @@ const layout = ({ children }: { children: ReactNode }) => {
 
   // tabAccess = [group: "",{tab: "Admin", actions:[{name: "Create Role", permission: false}]}]
 
-  const path_TabMap = {
-    "/main": "Home",
-    "/main/admin": "Roles & Permission",
-    "/main/admin/users": "User",
-    "/main/admin/activitylog": "Activity Log",
-    "/main/admin/billing": "Billing",
-    "/main/course": "Course",
-    "/main/student": "Student",
-    "/main/academicsession": "Academic Session",
-    "/main/academicsession/period": "Academic Session",
-    "/main/academicsession/academicYear": "Academic Session",
-    "/main/enrollment": "Enrollment",
-    "/main/attendance": "Per Day Attendance",
-    "/main/attendance/persession": "Per Session Attendance",
-    "/main/attendance/perday": "Per Day Attendance",
-    "/main/attendance/event": "Event Attendance",
-    "/main/staff": "Staff Profile",
-    "/main/staff/contract": "Staff Profile",
-    "/main/staff/profile": "Staff Contract"
-  };
-
   const path_GroupMap = {
     "/main": "Home",
     "/main/admin": "Administration",
     "/main/admin/users": "Administration",
     "/main/admin/activitylog": "Administration",
     "/main/admin/billing": "Administration",
-    "/main/course": "Curriculum",
-    "/main/student": "Student",
-    "/main/academicsession": "Curriculum",
-    "/main/academicsession/period": "Curriculum",
-    "/main/academicsession/academicYear": "Curriculum",
+    "/main/curriculum": "Curriculum",
+    "/main/curriculum/academicsession": "Curriculum",
+    "/main/curriculum/programme": "Curriculum",
+    "/main/curriculum/academicsession/period": "Curriculum",
+    "/main/curriculum/academicsession/academicYear": "Curriculum",
     "/main/enrollment": "Enrollment",
     "/main/attendance": "Attendance",
     "/main/attendance/persession": "Attendance",
@@ -203,7 +182,10 @@ const layout = ({ children }: { children: ReactNode }) => {
     "/main/attendance/event": "Attendance",
     "/main/staff": "Staff",
     "/main/staff/contract": "Staff",
-    "/main/staff/profile": "Staff"
+    "/main/staff/profile": "Staff",
+    "/main/student": "Student",
+    "/main/student/enrollment": "Student",
+    "/main/student/profile": "Student"
   };
 
   const tab_PathMap = {
@@ -214,13 +196,16 @@ const layout = ({ children }: { children: ReactNode }) => {
     Billing: "/main/admin/billing",
     Course: "/main/course",
     Student: "/main/student",
-    "Academic Session": "/main/academicsession",
+    "Academic Session": "/main/curriculum/academicsession",
+    Programme: "/main/curriculum/programme",
     Enrollment: "/main/enrollment",
     "Per Day Attendance": "/main/attendance/perday",
     "Per Session Attendance": "/main/attendance/persession",
     "Event Attendance": "/main/attendance/event",
     "Staff Profile": "/main/staff",
-    "Staff Contract": "/main/staff/contract"
+    "Staff Contract": "/main/staff/contract",
+    "Student Profile": "/main/student",
+    "Student Enrollment": "/main/student/enrollment"
   };
 
   const tab_IconMap = {

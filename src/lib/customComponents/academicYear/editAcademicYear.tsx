@@ -9,7 +9,8 @@ import { useTimelineMutation } from "@/tanStack/timeline/mutate";
 import PeriodComponent from "./periodComp";
 import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
-import { useQuery } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
+import { defaultButtonStyle } from "@/lib/generalStyles";
 
 const EditAcademicYearComponent = ({
   onClose,
@@ -21,7 +22,9 @@ const EditAcademicYearComponent = ({
   data: any;
 }) => {
   const { handleUnload } = useNavigationHandler();
-  const { tanUpdateAcademicYear, tanCreatePeriod, tanUpdatePeriod, tanDeletePeriod } = useTimelineMutation();
+  const queryClient = useQueryClient();
+  const { tanUpdateAcademicYear, tanCreatePeriod, tanUpdatePeriod, tanDeletePeriod, tanCreateAcademicYear } =
+    useTimelineMutation();
   const [unsaved, setUnsaved] = useState(false);
   const [error, setError] = useState("");
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
@@ -74,6 +77,17 @@ const EditAcademicYearComponent = ({
       setError("Academic Year is required");
       return false;
     }
+    // Access academic years from react-query cache and check for duplicates
+    const cachedAcademicYears = queryClient.getQueryData(["academicYears"]);
+    if (cachedAcademicYears && Array.isArray(cachedAcademicYears)) {
+      const exists = cachedAcademicYears.some(
+        (ay: any) => ay.academicYear.trim().toLowerCase() === academicYear.trim().toLowerCase()
+      );
+      if (exists) {
+        setError(`Academic Year ${academicYear} already exists`);
+        return false;
+      }
+    }
     if (startDate === "") {
       setError("Start Date is required");
       return false;
@@ -101,7 +115,22 @@ const EditAcademicYearComponent = ({
           onSave(true);
         }
       } catch (error: any) {
-        setError(error.response?.data.message || error.message || "Error creating academic year");
+        setError(error.message || error.response?.data.message || "Error creating academic year");
+      }
+    }
+  };
+
+  const handleCreateAcademicYear = async () => {
+    if (validationPassed()) {
+      setError("");
+
+      try {
+        const response = await tanCreateAcademicYear.mutateAsync(localData);
+        if (response) {
+          onSave(true);
+        }
+      } catch (error: any) {
+        setError(error.message || error.response?.data.message || "Error creating academic year");
       }
     }
   };
@@ -286,7 +315,7 @@ const EditAcademicYearComponent = ({
             <button
               onClick={() => {
                 setOpenNewPeriodDialog(true);
-              }}
+              }} className={defaultButtonStyle}
             >
               Add Period
             </button>

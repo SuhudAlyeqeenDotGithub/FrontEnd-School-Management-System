@@ -12,6 +12,7 @@ import {
   PreviousButton
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
+import { CgTrash } from "react-icons/cg";
 import {
   DisallowedActionDialog,
   ConfirmActionByInputDialog,
@@ -33,27 +34,26 @@ import {
   tableTopStyle
 } from "@/lib/generalStyles";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
-import StaffProfileDialogComponent from "../../../lib/customComponents/staff/staffProfileDIalogComp";
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
-import { UserRoundPen } from "lucide-react";
+import { StudentProfileDialogComponent } from "@/lib/customComponents/student/studentProfileDialogComp";
 
-const StaffProfile = () => {
+const StudentProfile = () => {
   const { hasActionAccess, useReusableInfiniteQuery } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
-  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/staff/profile");
+  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/student/profile");
 
-  // const { staff, isLoading: isFetching } = useAppSelector((state) => state.staffData);
+  // const { student, isLoading: isFetching } = useAppSelector((state) => state.studentData);
   const { accountData } = useAppSelector((state) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openStaffDialog, setOpenEditStaffDialog] = useState(false);
-  const [openNewStaffDialog, setOpenNewStaffDialog] = useState(false);
-  const [openViewStaffDialog, setOpenViewStaffDialog] = useState(false);
+  const [openStudentDialog, setOpenEditStudentDialog] = useState(false);
+  const [openNewStudentDialog, setOpenNewStudentDialog] = useState(false);
+  const [openViewStudentDialog, setOpenViewStudentDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
   const [openFilterDiv, setOpenFilterDiv] = useState(false);
-  const [onOpenStaffProfileDialogData, setOnOpenStaffProfileDialogData] = useState<any>({});
+  const [onOpenStudentProfileDialogData, setOnOpenStudentProfileDialogData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
@@ -68,29 +68,29 @@ const StaffProfile = () => {
   const [queryParams, setQueryParams] = useState({});
 
   const {
-    data: staff,
+    data: student,
     isFetching,
     error: queryError,
     isError,
     fetchNextPage,
     fetchPreviousPage
   } = useReusableInfiniteQuery(
-    "staffProfiles",
+    "studentProfiles",
     queryParams,
     Number(limit) || 10,
-    "View Staff Profiles",
-    "alyeqeenschoolapp/api/staff/profile"
+    "View Student Profiles",
+    "alyeqeenschoolapp/api/student/profile"
   );
 
   useEffect(() => {
-    if (!staff) return;
+    if (!student) return;
     setError("");
-    const currentPage: any = staff.pages[pageIndex];
+    const currentPage: any = student.pages[pageIndex];
     if (currentPage === undefined) return;
-    setLocalData(currentPage.staffProfiles);
+    setLocalData(currentPage.studentProfiles);
     const { totalCount, chunkCount, hasNext } = currentPage;
     setPaginationData({ totalCount, chunkCount, hasNext });
-  }, [staff, isFetching]);
+  }, [student, isFetching]);
 
   useEffect(() => {
     if (!isError) return;
@@ -102,8 +102,8 @@ const StaffProfile = () => {
   const renderNextPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { staffProfiles, ...rest } = foundPage;
-      setLocalData(staffProfiles);
+      const { studentProfiles, ...rest } = foundPage;
+      setLocalData(studentProfiles);
       setPaginationData(rest);
     } else {
       fetchNextPage();
@@ -113,8 +113,8 @@ const StaffProfile = () => {
   const renderPreviousPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { staffProfiles, ...rest } = foundPage;
-      setLocalData(staffProfiles);
+      const { studentProfiles, ...rest } = foundPage;
+      setLocalData(studentProfiles);
       setPaginationData(rest);
     } else {
       fetchPreviousPage();
@@ -189,49 +189,49 @@ const StaffProfile = () => {
 
       {/* data table section */}
       <div className="">
-        {openStaffDialog && (
-          <StaffProfileDialogComponent
+        {openStudentDialog && (
+          <StudentProfileDialogComponent
             type="edit"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditStaffDialog(!open);
+              setOpenEditStudentDialog(!open);
             }}
             onSave={(notSave) => {
               document.body.style.overflow = "";
-              setOpenEditStaffDialog(!notSave);
+              setOpenEditStudentDialog(!notSave);
             }}
-            data={onOpenStaffProfileDialogData}
+            data={onOpenStudentProfileDialogData}
           />
         )}
-        {openNewStaffDialog && (
-          <StaffProfileDialogComponent
+        {openNewStudentDialog && (
+          <StudentProfileDialogComponent
             type="new"
-            data={onOpenStaffProfileDialogData}
+            data={onOpenStudentProfileDialogData}
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewStaffDialog(!open);
+              setOpenNewStudentDialog(!open);
               return {};
             }}
             onSave={(notSave) => {
               document.body.style.overflow = "";
-              setOpenNewStaffDialog(!notSave);
+              setOpenNewStudentDialog(!notSave);
               return {};
             }}
           />
         )}
 
-        {openViewStaffDialog && (
-          <StaffProfileDialogComponent
+        {openViewStudentDialog && (
+          <StudentProfileDialogComponent
             type="view"
-            data={onOpenStaffProfileDialogData}
+            data={onOpenStudentProfileDialogData}
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewStaffDialog(!open);
+              setOpenViewStudentDialog(!open);
               return {};
             }}
             onSave={(notSave) => {
               document.body.style.overflow = "";
-              setOpenViewStaffDialog(!notSave);
+              setOpenViewStudentDialog(!notSave);
               return {};
             }}
           />
@@ -258,12 +258,12 @@ const StaffProfile = () => {
                   }
 
                   if (imageDeletionDone) {
-                    await deleteMutation.mutateAsync({ staffIDToDelete: returnObject.staffIDToDelete });
+                    await deleteMutation.mutateAsync({ studentIDToDelete: returnObject.studentIDToDelete });
                   } else {
                     return;
                   }
                 } catch (err: any) {
-                  console.log("error deleting staff profile", err.message);
+                  console.log("error deleting student profile", err.message);
                   setError(err.message);
                 }
               } else {
@@ -272,7 +272,7 @@ const StaffProfile = () => {
               setOpenConfirmDelete(false);
               document.body.style.overflow = "";
             }}
-            warningText="Please confirm the ID of the staff profile you want to delete"
+            warningText="Please confirm the ID of the student profile you want to delete"
           />
         )}
         {/* data table div */}
@@ -281,10 +281,10 @@ const StaffProfile = () => {
             {/* title */}
             <div className="flex flex-col">
               <CustomHeading variation="sectionHeader">
-                Staff Profiles
+                Student Profiles
                 {/* <UserRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
               </CustomHeading>
-              <CustomHeading variation="head5light">Register and manage staff</CustomHeading>
+              <CustomHeading variation="head5light">Register and manage student</CustomHeading>
             </div>
             <button onClick={() => setOpenFilterDiv(!openFilterDiv)} className={ghostbuttonStyle}>
               {openFilterDiv ? "Close Filter" : "Open Filter"}
@@ -292,32 +292,27 @@ const StaffProfile = () => {
             <div>
               <button
                 onClick={() => {
-                  if (hasActionAccess("Create Staff Profile")) {
+                  if (hasActionAccess("Create Student Profile")) {
                     document.body.style.overflow = "hidden";
-                    setOpenNewStaffDialog(true);
+                    setOpenNewStudentDialog(true);
                   } else {
-                    setError("You do not have Create Staff Access - Please contact your admin");
+                    setError("You do not have Create Student Access - Please contact your admin");
                   }
                 }}
-                disabled={!hasActionAccess("Create Staff Profile")}
+                disabled={!hasActionAccess("Create Student Profile")}
                 className={defaultButtonStyle}
               >
-                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Staff
+                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Student
               </button>
             </div>
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
-              placeholder="Search Staff (Custom ID, Names, Email, Gender, Nationality, Next of Kin)"
+              placeholder="Search Student (Custom ID, Names, Email, Gender, Nationality, Next of Kin)"
               filters={[
                 {
-                  displayText: "Marital Status",
-                  fieldName: "staffMaritalStatus",
-                  options: ["All", "Married", "Single"]
-                },
-                {
                   displayText: "Gender",
-                  fieldName: "staffGender",
+                  fieldName: "studentGender",
                   options: ["All", "Male", "Female", "Other"]
                 }
               ]}
@@ -359,7 +354,7 @@ const StaffProfile = () => {
                 onClick={() => {
                   const prevPage = pageIndex - 1;
                   setPageIndex(prevPage);
-                  renderPreviousPage(prevPage, staff.pages);
+                  renderPreviousPage(prevPage, student.pages);
                 }}
                 disabled={pageIndex === 0}
               />
@@ -371,7 +366,7 @@ const StaffProfile = () => {
                 onClick={() => {
                   const nextPage = pageIndex + 1;
                   setPageIndex(nextPage);
-                  renderNextPage(nextPage, staff.pages);
+                  renderNextPage(nextPage, student.pages);
                 }}
                 disabled={!paginationData.hasNext}
               />
@@ -387,19 +382,17 @@ const StaffProfile = () => {
                   <tr className={tableHeaderStyle}>
                     <th className="text-center w-[110px] font-semibold p-2 whitespace-nowrap"></th>
 
-                    {(
-                      ["Staff Custom ID", "Full Name", "Gender", "Email", "Phone Number", "Marital Status"] as const
-                    ).map((header) => (
+                    {(["Student Custom ID", "Full Name", "Gender", "Email", "Phone Number"] as const).map((header) => (
                       <th
                         key={header}
                         onClick={() => {
                           const key_Name = {
-                            "Staff Custom ID": "staffCustomId",
-                            "Full Name": "staffFullName",
-                            "Marital Status": "staffMaritalStatus",
-                            "Phone Number": "staffPhone",
-                            Gender: "staffGender",
-                            Email: "staffEmail"
+                            "Student Custom ID": "studentCustomId",
+                            "Full Name": "studentFullName",
+
+                            "Phone Number": "studentPhone",
+                            Gender: "studentGender",
+                            Email: "studentEmail"
                           };
                           const sortKey = key_Name[header];
                           handleSort(sortKey);
@@ -422,14 +415,14 @@ const StaffProfile = () => {
                         <div className="flex items-center justify-center p-10">
                           <LoaderDiv
                             type="spinnerText"
-                            text="Loading Staff Profiles..."
+                            text="Loading Student Profiles..."
                             textColor="foregroundColor"
                             dimension="h-10 w-10"
                           />
                         </div>
                       </td>
                     </tr>
-                  ) : (localData.length < 1 && !isFetching) || !staff ? (
+                  ) : (localData.length < 1 && !isFetching) || !student ? (
                     <tr>
                       <td colSpan={8} className="text-center py-4">
                         No data available
@@ -439,73 +432,71 @@ const StaffProfile = () => {
                     localData.map((doc: any, index: any) => {
                       const {
                         _id: profileId,
-                        staffCustomId,
-                        staffFullName,
-                        staffGender,
-                        staffEmail,
-                        staffPhone,
-                        staffMaritalStatus
+                        studentCustomId,
+                        studentFullName,
+                        studentGender,
+                        studentEmail,
+                        studentPhone
                       } = doc;
 
                       return (
                         <tr
                           key={profileId}
                           onClick={() => {
-                            if (hasActionAccess("View Staff Profile")) {
+                            if (hasActionAccess("View Student Profile")) {
                               document.body.style.overflow = "hidden";
-                              setOnOpenStaffProfileDialogData(doc);
-                              setOpenViewStaffDialog(true);
+                              setOnOpenStudentProfileDialogData(doc);
+                              setOpenViewStudentDialog(true);
                             } else {
-                              setError("You do not have View Staff Profile Access - Please contact your admin");
+                              setError("You do not have View Student Profile Access - Please contact your admin");
                             }
                           }}
                           className={tableRowStyle}
                         >
                           <td className="w-[110px] whitespace-nowrap text-center flex items-center justify-center h-15">
                             <span className="rounded-full bg-backgroundColor-3 p-2 text-foregroundColor w-10 h-10 flex items-center justify-center">
-                              <p>{staffFullName.toUpperCase().slice(0, 2)}</p>
+                              <p>{studentFullName.toUpperCase().slice(0, 2)}</p>
                             </span>
                           </td>
                           <td className="w-[200px] text-center whitespace-nowrap">
-                            {staffCustomId.slice(0, 10)}
+                            {studentCustomId.slice(0, 10)}
                             <MdContentCopy
                               title="copy id"
                               className="ml-2 inline-block text-[19px] text-foregroundColor-2  hover:text-foregroundColor-50 hover:cursor-pointer"
                               onClick={async (e) => {
                                 e.stopPropagation();
-                                await navigator.clipboard.writeText(staffCustomId);
+                                await navigator.clipboard.writeText(studentCustomId);
                               }}
                             />
                           </td>
-                          <td className={tableCellStyle}>{staffFullName.slice(0, 20)}</td>
-                          <td className={tableCellStyle}>{staffGender}</td>
-                          <td className={tableCellStyle}>{staffEmail}</td>
-                          <td className={tableCellStyle}>{staffPhone}</td>
-                          <td className={tableCellStyle}>{staffMaritalStatus}</td>
+                          <td className={tableCellStyle}>{studentFullName.slice(0, 20)}</td>
+                          <td className={tableCellStyle}>{studentGender}</td>
+                          <td className={tableCellStyle}>{studentEmail}</td>
+                          <td className={tableCellStyle}>{studentPhone}</td>
 
                           <td className="text-center flex items-center justify-center h-15">
                             <ActionButtons
                               onEdit={(e) => {
-                                if (hasActionAccess("Edit Staff Profile")) {
+                                if (hasActionAccess("Edit Student Profile")) {
                                   document.body.style.overflow = "hidden";
-                                  setOnOpenStaffProfileDialogData(doc);
-                                  setOpenEditStaffDialog(true);
+                                  setOnOpenStudentProfileDialogData(doc);
+                                  setOpenEditStudentDialog(true);
                                 } else {
-                                  setError("You do not have Edit Staff Profile Access - Please contact your admin");
+                                  setError("You do not have Edit Student Profile Access - Please contact your admin");
                                 }
                               }}
                               onDelete={(e) => {
-                                if (hasActionAccess("Delete Staff Profile")) {
+                                if (hasActionAccess("Delete Student Profile")) {
                                   document.body.style.overflow = "hidden";
-                                  setConfirmWithText(staffCustomId);
+                                  setConfirmWithText(studentCustomId);
                                   setConfirmWithReturnObj({
-                                    staffIDToDelete: staffCustomId,
+                                    studentIDToDelete: studentCustomId,
                                     imageLocalDestination: doc.imageLocalDestination
                                   });
                                   setOpenConfirmDelete(true);
                                 } else {
                                   setError(
-                                    "Unauthorised Action: You do not have Delete Staff Access - Please contact your admin"
+                                    "Unauthorised Action: You do not have Delete Student Access - Please contact your admin"
                                   );
                                 }
                               }}
@@ -526,4 +517,4 @@ const StaffProfile = () => {
   );
 };
 
-export default StaffProfile;
+export default StudentProfile;

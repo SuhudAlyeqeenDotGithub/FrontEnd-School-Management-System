@@ -83,5 +83,35 @@ export const useGeneralClientFunctions = () => {
     return signedUrl;
   };
 
-  return { getStaffImageViewSignedUrl };
+  const getStudentImageViewSignedUrl = async (studentId: string, imageLocalDestination: string) => {
+    let signedUrl = "";
+
+    const existingUrlStr = sessionStorage.getItem(`studentImageSignedUrl_${studentId}`);
+    let existingUrl: { url: string; expiresAt: number } | null = null;
+    if (existingUrlStr) {
+      try {
+        existingUrl = JSON.parse(existingUrlStr);
+      } catch (e) {
+        existingUrl = null;
+      }
+    }
+
+    if (existingUrl && existingUrl.expiresAt > Date.now()) {
+      signedUrl = existingUrl.url;
+    } else {
+      const gotSignedUrl = await handleApiRequest("post", "alyeqeenschoolapp/api/studentimageviewsignedurl", {
+        imageLocalDestination
+      });
+
+      if (gotSignedUrl) {
+        signedUrl = gotSignedUrl.data.url;
+        sessionStorage.setItem(
+          `studentImageSignedUrl_${studentId}`,
+          JSON.stringify({ url: signedUrl, expiresAt: Date.now() + 1000 * 60 * 60 })
+        );
+      }
+    }
+    return signedUrl;
+  };
+  return { getStaffImageViewSignedUrl, getStudentImageViewSignedUrl };
 };

@@ -150,6 +150,7 @@ export interface QualificationType {
   _id: string;
   qualificationName: string;
   schoolName: string;
+  grade: string;
   startDate: string;
   endDate: string;
 }

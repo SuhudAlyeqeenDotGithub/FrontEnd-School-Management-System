@@ -260,92 +260,6 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
           });
         }
       }
-      // handle staffs profile changes
-      if ((hasActionAccess("View Staff Profiles") || userIsAbsoluteAdmin) && collection === "staffs") {
-        const changedRecordId = fullDocument._id;
-        const userStaffId = accountData.staffId?._id;
-
-        if (!userIsAbsoluteAdmin && changedRecordId === userStaffId) return;
-        const queriesData = queryClient.getQueriesData({ queryKey: ["staffProfiles"] });
-        if (queriesData.length === 0) return;
-
-        if (changeOperation === "insert") {
-          queriesData.forEach(([queryKey, data]: [any, any]) => {
-            if (queryKey.length === 1) {
-              queryClient.setQueryData(queryKey, (profiles: any) => {
-                return [fullDocument, ...profiles];
-              });
-            } else {
-              const pages = data.pages;
-
-              if (pages.length > 0) {
-                const firstPage = pages[0];
-                if (firstPage !== undefined) {
-                  const { staffProfiles: firstPageStaffProfiles } = firstPage;
-                  queryClient.setQueryData(queryKey, (queryData: any) => {
-                    const { pages: queryPages } = queryData;
-                    const returnArray = {
-                      ...queryData,
-                      pages: [
-                        { ...firstPage, staffProfiles: [fullDocument, ...firstPageStaffProfiles] },
-                        ...queryPages.slice(1)
-                      ]
-                    };
-
-                    return returnArray;
-                  });
-                }
-              }
-            }
-          });
-        }
-        if (changeOperation === "update" || changeOperation === "replace") {
-          queriesData.forEach(([queryKey, data]: [any, any]) => {
-            if (queryKey.length === 1) {
-              queryClient.setQueryData(queryKey, (profiles: any) => {
-                return profiles.map((profile: any) => (profile._id === fullDocument._id ? fullDocument : profile));
-              });
-            } else {
-              queryClient.setQueryData(queryKey, (queryData: any) => {
-                const { pages: queryPages } = queryData;
-                const returnArray = {
-                  ...queryData,
-                  pages: queryPages.map((page: any) => ({
-                    ...page,
-                    staffProfiles: page.staffProfiles.map((profile: any) =>
-                      profile._id === fullDocument._id ? fullDocument : profile
-                    )
-                  }))
-                };
-
-                return returnArray;
-              });
-            }
-          });
-        }
-        if (changeOperation === "delete") {
-          queriesData.forEach(([queryKey, data]: [any, any]) => {
-            if (queryKey.length === 1) {
-              queryClient.setQueryData(queryKey, (profiles: any) => {
-                return profiles.filter((profile: any) => profile._id !== fullDocument._id);
-              });
-            } else {
-              queryClient.setQueryData(queryKey, (queryData: any) => {
-                const { pages: queryPages } = queryData;
-                const returnArray = {
-                  ...queryData,
-                  pages: queryPages.map((page: any) => ({
-                    ...page,
-                    staffProfiles: page.staffProfiles.filter((profile: any) => profile._id !== fullDocument._id)
-                  }))
-                };
-
-                return returnArray;
-              });
-            }
-          });
-        }
-      }
 
       // handle staff contract changes
       if ((hasActionAccess("View Staff Contracts") || userIsAbsoluteAdmin) && collection === "staffcontracts") {
@@ -437,6 +351,7 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
       // handle academic year change stream
       if ((hasActionAccess("View Academic Years") || userIsAbsoluteAdmin) && collection === "academicyears") {
         if (!queryClient.getQueryData(["academicYears"])) return;
+        console.log("fullDocument", fullDocument);
         if (changeOperation === "insert") {
           queryClient.setQueryData(["academicYears"], (oldData: any) => {
             return [fullDocument, ...oldData];
@@ -537,9 +452,181 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
           }
         }
       }
+      // handle staffs profile changes
+      if ((hasActionAccess("View Staff Profiles") || userIsAbsoluteAdmin) && collection === "staffs") {
+        const changedRecordId = fullDocument._id;
+        const userStaffId = accountData.staffId?._id;
 
+        if (!userIsAbsoluteAdmin && changedRecordId === userStaffId) return;
+        const queriesData = queryClient.getQueriesData({ queryKey: ["staffProfiles"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (profiles: any) => {
+                return [fullDocument, ...profiles];
+              });
+            } else {
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { staffProfiles: firstPageStaffProfiles } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [
+                        { ...firstPage, staffProfiles: [fullDocument, ...firstPageStaffProfiles] },
+                        ...queryPages.slice(1)
+                      ]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (profiles: any) => {
+                return profiles.map((profile: any) => (profile._id === fullDocument._id ? fullDocument : profile));
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    staffProfiles: page.staffProfiles.map((profile: any) =>
+                      profile._id === fullDocument._id ? fullDocument : profile
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (profiles: any) => {
+                return profiles.filter((profile: any) => profile._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    staffProfiles: page.staffProfiles.filter((profile: any) => profile._id !== fullDocument._id)
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
       if ((hasActionAccess("View Staff Contracts") || userIsAbsoluteAdmin) && collection === "staffcontracts") {
         queryClient.invalidateQueries({ queryKey: ["staffContracts"] });
+      }
+
+      // handle students profile changes
+      if ((hasActionAccess("View Student Profiles") || userIsAbsoluteAdmin) && collection === "students") {
+        const changedRecordId = fullDocument._id;
+        const userStudentId = accountData.studentId?._id;
+
+        if (!userIsAbsoluteAdmin && changedRecordId === userStudentId) return;
+        const queriesData = queryClient.getQueriesData({ queryKey: ["studentProfiles"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (profiles: any) => {
+                return [fullDocument, ...profiles];
+              });
+            } else {
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { studentProfiles: firstPageStudentProfiles } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [
+                        { ...firstPage, studentProfiles: [fullDocument, ...firstPageStudentProfiles] },
+                        ...queryPages.slice(1)
+                      ]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (profiles: any) => {
+                return profiles.map((profile: any) => (profile._id === fullDocument._id ? fullDocument : profile));
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    studentProfiles: page.studentProfiles.map((profile: any) =>
+                      profile._id === fullDocument._id ? fullDocument : profile
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (profiles: any) => {
+                return profiles.filter((profile: any) => profile._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    studentProfiles: page.studentProfiles.filter((profile: any) => profile._id !== fullDocument._id)
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
       }
     } catch (error: any) {
       if (onError) onError(error || "An error occurred while fetching data");

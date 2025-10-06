@@ -10,6 +10,7 @@ import PeriodComponent from "./periodComp";
 import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 import { useQueryClient } from "@tanstack/react-query";
+import { defaultButtonStyle } from "@/lib/generalStyles";
 
 const NewAcademicYearComponent = ({
   onClose,
@@ -267,6 +268,7 @@ const NewAcademicYearComponent = ({
               onClick={() => {
                 setOpenNewPeriodDialog(true);
               }}
+              className={defaultButtonStyle}
             >
               Add Period
             </button>

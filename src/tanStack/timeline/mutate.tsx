@@ -6,7 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 export const useTimelineMutation = () => {
   const useCreatePeriod = useMutation({
     mutationFn: (data: BasePeriodType) => {
-      return handleApiRequest("post", `alyeqeenschoolapp/api/timeline/period`, data);
+      return handleApiRequest("post", `alyeqeenschoolapp/api/academicsession/period`, data);
     },
     onError: (error: any) => {
       throw new Error(error.response?.data.message || error.message || "Error creating period");
@@ -15,7 +15,7 @@ export const useTimelineMutation = () => {
 
   const useUpdatePeriod = useMutation({
     mutationFn: (data: ParamPeriodType) => {
-      return handleApiRequest("put", `alyeqeenschoolapp/api/timeline/period`, data);
+      return handleApiRequest("put", `alyeqeenschoolapp/api/academicsession/period`, data);
     },
 
     onError: (error: any) => {
@@ -25,7 +25,7 @@ export const useTimelineMutation = () => {
 
   const useDeletePeriod = useMutation({
     mutationFn: (data: { periodIdToDelete: string }) => {
-      return handleApiRequest("delete", `alyeqeenschoolapp/api/timeline/period`, data);
+      return handleApiRequest("delete", `alyeqeenschoolapp/api/academicsession/period`, data);
     },
 
     onError: (error: any) => {
@@ -35,7 +35,7 @@ export const useTimelineMutation = () => {
 
   const useCreateAcademicYear = useMutation({
     mutationFn: (data: BaseAcademicYearType) => {
-      return handleApiRequest("post", `alyeqeenschoolapp/api/timeline/academicYear`, data);
+      return handleApiRequest("post", `alyeqeenschoolapp/api/academicsession/academicYear`, data);
     },
 
     onError: (error: any) => {
@@ -45,7 +45,7 @@ export const useTimelineMutation = () => {
 
   const useUpdateAcademicYear = useMutation({
     mutationFn: (data: ParamAcademicYearType) => {
-      return handleApiRequest("put", `alyeqeenschoolapp/api/timeline/academicYear`, data);
+      return handleApiRequest("put", `alyeqeenschoolapp/api/academicsession/academicYear`, data);
     },
 
     onError: (error: any) => {
@@ -55,7 +55,7 @@ export const useTimelineMutation = () => {
 
   const useDeleteAcademicYear = useMutation({
     mutationFn: (data: { academicYearIdToDelete: string }) => {
-      return handleApiRequest("delete", `alyeqeenschoolapp/api/timeline/academicYear`, data);
+      return handleApiRequest("delete", `alyeqeenschoolapp/api/academicsession/academicYear`, data);
     },
 
     onError: (error: any) => {

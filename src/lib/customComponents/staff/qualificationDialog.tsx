@@ -31,11 +31,12 @@ export const QualificationDialog = ({
     _id: onCreateMode ? nanoid() : data ? data._id : "",
     qualificationName: onCreateMode ? "" : data ? data.qualificationName : "",
     schoolName: onCreateMode ? "" : data ? data.schoolName : "",
+    grade: onCreateMode ? "" : data ? data.grade : "",
     startDate: onCreateMode ? "" : data ? data.startDate : "",
     endDate: onCreateMode ? "" : data ? data.endDate : ""
   });
 
-  const { qualificationName, schoolName, startDate, endDate } = localData;
+  const { qualificationName, schoolName, startDate, endDate, grade } = localData;
 
   useEffect(() => {
     if (!unsaved) return;
@@ -174,6 +175,16 @@ export const QualificationDialog = ({
             required
             name="qualificationName"
             value={qualificationName}
+            onChange={handleInputChange}
+          />
+          <InputComponent
+            title="Grade *"
+            disabled={onViewMode}
+            autocomplete="on"
+            placeholder="Grade *"
+            required
+            name="grade"
+            value={grade}
             onChange={handleInputChange}
           />
           <InputComponent
