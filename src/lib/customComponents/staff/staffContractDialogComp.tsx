@@ -109,31 +109,6 @@ const StaffContractDialog = ({
     allowances: onCreateMode ? [] : data ? data.allowances : []
   };
 
-  const mockData = {
-    academicYearId: "2025-01",
-    academicYear: "2025",
-    staffId: "STF12345",
-    staffCustomId: "CUS56789",
-    staffFullName: "John Doe",
-    contractCustomId: "CON98765",
-    reportingManagerCustomId: "MGR98765",
-    jobTitle: "Software Engineer",
-    department: "IT",
-    contractStartDate: "2025-01-01",
-    contractEndDate: "2025-12-31",
-    responsibilities: [],
-    contractType: "Full-time",
-    contractStatus: "Active",
-    contractSalary: "200000",
-    payFrequency: "Monthly",
-    workingSchedule: [],
-    probationStartDate: "",
-    probationEndDate: "",
-    probationMonths: "",
-    terminationNoticePeriod: "",
-    allowances: []
-  };
-
   const [localData, setLocalData] = useState(initialData);
 
   useEffect(() => {

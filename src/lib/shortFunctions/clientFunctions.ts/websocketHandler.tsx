@@ -628,6 +628,95 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
           });
         }
       }
+
+      // handle programmes changes
+      if ((hasActionAccess("View Programme") || userIsAbsoluteAdmin) && collection === "programmes") {
+        const changedRecordId = fullDocument._id;
+        const userStudentId = accountData.programmeId?._id;
+
+        if (!userIsAbsoluteAdmin && changedRecordId === userStudentId) return;
+        const queriesData = queryClient.getQueriesData({ queryKey: ["programmes"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (programmes: any) => {
+                return [fullDocument, ...programmes];
+              });
+            } else {
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { programmes: firstPageProgrammes } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [
+                        { ...firstPage, programmes: [fullDocument, ...firstPageProgrammes] },
+                        ...queryPages.slice(1)
+                      ]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (programmes: any) => {
+                return programmes.map((programme: any) =>
+                  programme._id === fullDocument._id ? fullDocument : programme
+                );
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    programmes: page.programmes.map((programme: any) =>
+                      programme._id === fullDocument._id ? fullDocument : programme
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (programmes: any) => {
+                return programmes.filter((programme: any) => programme._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    programmes: page.programmes.filter((programme: any) => programme._id !== fullDocument._id)
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
     } catch (error: any) {
       if (onError) onError(error || "An error occurred while fetching data");
     }

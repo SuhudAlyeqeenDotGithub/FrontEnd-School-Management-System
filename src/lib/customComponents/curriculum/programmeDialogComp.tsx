@@ -28,10 +28,8 @@ import { defaultButtonStyle, tabGroupButtonStyle } from "@/lib/generalStyles";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { MdAdd } from "react-icons/md";
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
-import { QualificationDialog } from "../staff/qualificationDialog";
-import { IdentificationDialog } from "../staff/identificationDialog";
 
-export const ProgrammeProfileDialogComponent = ({
+export const ProgrammeDialogComponent = ({
   type,
   data,
   onClose,
@@ -46,7 +44,7 @@ export const ProgrammeProfileDialogComponent = ({
   const { hasActionAccess } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
   const updateMutation = tanMutateAny("put", "alyeqeenschoolapp/api/curriculum/programme");
-  const createMutation = tanMutateAny("post", "alyeqeenschoolapp/api/curriculum/    programme");
+  const createMutation = tanMutateAny("post", "alyeqeenschoolapp/api/curriculum/programme");
   const [unsaved, setUnsaved] = useState(false);
   const [error, setError] = useState("");
   const [onEditMode, setOnEditMode] = useState(type === "edit");
@@ -55,16 +53,16 @@ export const ProgrammeProfileDialogComponent = ({
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
 
   const [localData, setLocalData] = useState<any>({
-    organisationId: onCreateMode ? generateCustomId(`STD`, true, "numeric") : data.organisationId || "",
-    programmeCustomId: onCreateMode ? "" : data.programmeCustomId,
+    programmeCustomId: onCreateMode ? generateCustomId(`PRG`, true, "numeric") : data.programmeCustomId || "",
     programmeName: onCreateMode ? "" : data.programmeName,
     description: onCreateMode ? "" : data.description,
     offeringStartDate: onCreateMode ? "" : data.offeringStartDate,
     offeringEndDate: onCreateMode ? "" : data.offeringEndDate,
     status: onCreateMode ? "" : data.status,
-    searchText: onCreateMode ? "" : data.searchText,
     programmeDuration: onCreateMode ? "" : data.programmeDuration
   });
+
+  console.log("localData", localData);
 
   useEffect(() => {
     if (!unsaved) return;
@@ -98,26 +96,12 @@ export const ProgrammeProfileDialogComponent = ({
 
   const {
     programmeCustomId,
-    programmeFullName,
-    programmeDateOfBirth,
-    programmeGender,
-    programmePhone,
-    programmeEmail,
-    programmeAddress,
-    programmePostCode,
-    programmeImageUrl,
-    imageLocalDestination,
-    programmeStartDate,
-    programmeEndDate,
-    programmeNationality,
-    programmeAllergies,
-    programmeNextOfKinName,
-    programmeNextOfKinRelationship,
-    programmeNextOfKinPhone,
-    programmeNextOfKinEmail,
-    programmeQualification,
-
-    identification
+    programmeName,
+    description,
+    offeringStartDate,
+    offeringEndDate,
+    status,
+    programmeDuration
   } = localData;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -125,33 +109,9 @@ export const ProgrammeProfileDialogComponent = ({
     const { name, value } = e.target;
     setLocalData((prev: any) => ({ ...prev, [name]: value }));
   };
-  const sanitizeProgrammeImageName = (originalName: string) => {
-    const timestamp = Date.now();
-    const extension = originalName.split(".").pop();
-    return `programme_${timestamp}.${extension}`;
-  };
 
   const validationPassed = () => {
-    const {
-      programmeCustomId,
-      programmeImageUrl,
-      imageLocalDestination,
-      programmeQualification,
-      identification,
-      programmePostCode,
-      programmeEndDate,
-      ...copyLocalData
-    } = localData;
-
-    if (!validateEmail(programmeEmail)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    if (!validatePhoneNumber(programmePhone)) {
-      setError("Please enter a valid phone number with the country code. e.g +234, +447");
-      return;
-    }
+    const { description, programmeDuration, ...copyLocalData } = localData;
 
     for (const [key, value] of Object.entries(copyLocalData)) {
       if (!value || (typeof value === "string" && value.trim() === "")) {
@@ -163,15 +123,15 @@ export const ProgrammeProfileDialogComponent = ({
     return true;
   };
 
-  // function to handle all programme profile object data update
-  const handleUpdateProgramme = async (programmeData: any) => {
+  // function to handle all programme programme object data update
+  const handleUpdateProgramme = async () => {
     try {
-      const response = await updateMutation.mutateAsync(programmeData);
+      const response = await updateMutation.mutateAsync(localData);
       if (response?.data) {
         onSave(true);
       }
     } catch (error: any) {
-      setError(error.message || error.response?.data.message || "Error creating profile");
+      setError(error.message || error.response?.data.message || "Error creating programme");
     }
   };
 
@@ -187,7 +147,7 @@ export const ProgrammeProfileDialogComponent = ({
             onSave(true);
           }
         } catch (error: any) {
-          setError(error.message || error.response?.data.message || "Error creating profile");
+          setError(error.message || error.response?.data.message || "Error creating programme");
         }
       }
     }
@@ -195,7 +155,7 @@ export const ProgrammeProfileDialogComponent = ({
 
   return (
     <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-transparent">
-      <ContainerComponent id="programmeDialogContainer" style="w-[80%] h-[90%] gap-5 overflow-auto flex flex-col">
+      <ContainerComponent id="programmeDialogContainer" style="w-[50%] h-[80%] gap-5 overflow-auto flex flex-col">
         {openUnsavedDialog && (
           <YesNoDialog
             warningText="You have unsaved changes. Are you sure you want to proceed?"
@@ -272,10 +232,9 @@ export const ProgrammeProfileDialogComponent = ({
               {error}
             </ErrorDiv>
           )}
-          {/* text and image div */}
-          <div className="flex">
-            {/* text div */}
-            <div className="grid grid-cols-2 gap-3 w-[70%]">
+
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-3 w-full">
               <InputComponent
                 disabled={onViewMode}
                 title="Programme Custom ID *"
@@ -288,149 +247,65 @@ export const ProgrammeProfileDialogComponent = ({
 
               <InputComponent
                 disabled={onViewMode}
-                title="Full Name *"
+                title="Programme Title *"
                 autocomplete="on"
-                placeholder="Full Name *"
-                name="programmeFullName"
-                value={programmeFullName}
+                placeholder="Programme Title *"
+                name="programmeName"
+                value={programmeName}
                 onChange={handleInputChange}
               />
-
+            </div>
+            <div className="w-full">
+              <TextAreaComponent
+                disabled={onViewMode}
+                title="Description"
+                placeholder="Description"
+                name="description"
+                value={description}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3 w-full">
               <InputComponent
                 disabled={onViewMode}
-                title="Date Of Birth *"
-                type="date"
-                placeholder="Date Of Birth *"
-                name="programmeDateOfBirth"
-                value={programmeDateOfBirth}
+                title="Programme Duration"
+                autocomplete="on"
+                placeholder="Programme Duration"
+                name="programmeDuration"
+                value={programmeDuration}
                 onChange={handleInputChange}
               />
 
               <SelectInputComponent
                 disabled={onViewMode}
-                title="Gender *"
-                placeholder="Gender *"
-                name="programmeGender"
-                value={programmeGender}
+                title="Status *"
+                placeholder="Status *"
+                name="status"
+                value={status}
                 onChange={handleInputChange}
                 options={[
-                  { value: "Male", label: "Male" },
-                  { value: "Female", label: "Female" },
-                  { value: "Other", label: "Other" }
+                  { value: "Active", label: "Active" },
+                  { value: "Inactive", label: "Inactive" }
                 ]}
               />
 
               <InputComponent
                 disabled={onViewMode}
-                title="Phone *"
-                placeholder="Phone (+44787654321)*"
-                name="programmePhone"
-                value={programmePhone}
-                onChange={handleInputChange}
-              />
-              <InputComponent
-                disabled={onViewMode}
-                autocomplete="on"
-                title="Email *"
-                placeholder="Email *"
-                name="programmeEmail"
-                value={programmeEmail}
-                onChange={handleInputChange}
-              />
-
-              <InputComponent
-                disabled={onViewMode}
-                title="Nationality *"
-                placeholder="Nationality *"
-                autocomplete="on"
-                name="programmeNationality"
-                value={programmeNationality}
-                onChange={handleInputChange}
-              />
-
-              <InputComponent
-                disabled={onViewMode}
-                title="Joined Date *"
-                placeholder="Joined Date *"
+                title="Offering Start Date *"
+                placeholder="Offering Start Date *"
                 type="date"
-                name="programmeStartDate"
-                value={programmeStartDate}
+                name="offeringStartDate"
+                value={offeringStartDate}
                 onChange={handleInputChange}
               />
 
               <InputComponent
                 disabled={onViewMode}
-                title="Leave Date *"
-                placeholder="Leave Date *"
+                title="Offering End Date *"
+                placeholder="Offering End Date *"
                 type="date"
-                name="programmeEndDate"
-                value={programmeEndDate}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-          <div className="flex w-full gap-3">
-            <div className="w-[70%]">
-              <InputComponent
-                disabled={onViewMode}
-                title="Address *"
-                placeholder="Address *"
-                name="programmeAddress"
-                value={programmeAddress}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="w-[30%]">
-              <InputComponent
-                disabled={onViewMode}
-                title="Post Code *"
-                placeholder="Post Code *"
-                name="programmePostCode"
-                value={programmePostCode}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-          <TextAreaComponent
-            disabled={onViewMode}
-            title="Allergies *"
-            required
-            placeholder="Allergies *"
-            name="programmeAllergies"
-            value={programmeAllergies}
-            onChange={handleInputChange}
-          />
-
-          <div className="flex flex-col gap-3">
-            {/* next of kin section */}
-            <span className="text-[20px] font-bold mt-2">Next of Kin </span>
-            <div className="grid grid-cols-2 gap-3">
-              <InputComponent
-                disabled={onViewMode}
-                placeholder="Next Of Kin Name *"
-                name="programmeNextOfKinName"
-                value={programmeNextOfKinName}
-                onChange={handleInputChange}
-              />
-              <InputComponent
-                disabled={onViewMode}
-                placeholder="Next Of Kin Relationship *"
-                name="programmeNextOfKinRelationship"
-                value={programmeNextOfKinRelationship}
-                onChange={handleInputChange}
-              />
-              <InputComponent
-                disabled={onViewMode}
-                placeholder="Next Of Kin Phone *"
-                name="programmeNextOfKinPhone"
-                value={programmeNextOfKinPhone}
-                onChange={handleInputChange}
-              />
-              <InputComponent
-                disabled={onViewMode}
-                placeholder="Next Of Kin Email *"
-                name="programmeNextOfKinEmail"
-                value={programmeNextOfKinEmail}
+                name="offeringEndDate"
+                value={offeringEndDate}
                 onChange={handleInputChange}
               />
             </div>

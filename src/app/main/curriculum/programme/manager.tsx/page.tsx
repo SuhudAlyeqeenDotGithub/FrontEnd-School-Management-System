@@ -31,7 +31,6 @@ import {
   sortableTableHeadCellStyle,
   tableCellStyle,
   tableContainerStyle,
-  tableHeadCellStyle,
   tableHeaderStyle,
   tableRowStyle,
   tableTopStyle
@@ -43,7 +42,7 @@ import { MdAdd, MdContentCopy } from "react-icons/md";
 const Programmes = () => {
   const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
-  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/curriculum/programme");
+  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/admin/programmes");
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
@@ -68,6 +67,20 @@ const Programmes = () => {
   const [queryParams, setQueryParams] = useState({});
 
   const {
+    data: staffProfiles,
+    isFetching: isFetchingStaffProfiles,
+    error: staffProfilesError,
+    isError: isStaffProfilesError
+  } = useReusableQuery("staffProfiles", "View Staff Profiles", "alyeqeenschoolapp/api/staff/allprofile");
+
+  const {
+    data: roles,
+    isFetching: isFetchingroles,
+    error: rolesError,
+    isError: isrolesError
+  } = useReusableQuery("roles", "View Roles", "alyeqeenschoolapp/api/admin/roles");
+
+  const {
     data: programmes,
     isFetching: isFetchingprogrammes,
     error: programmesError,
@@ -79,8 +92,32 @@ const Programmes = () => {
     queryParams,
     Number(limit) || 10,
     "View Programmes",
-    "alyeqeenschoolapp/api/curriculum/programmes"
+    "alyeqeenschoolapp/api/admin/programmes"
   );
+
+  useEffect(() => {
+    if (!staffProfiles) return;
+    setError("");
+  }, [staffProfiles, isFetchingStaffProfiles]);
+
+  useEffect(() => {
+    if (!isStaffProfilesError) return;
+    if (staffProfilesError) {
+      setError(staffProfilesError.message);
+    }
+  }, [staffProfilesError, isStaffProfilesError]);
+
+  useEffect(() => {
+    if (!roles) return;
+    setError("");
+  }, [roles, isFetchingroles]);
+
+  useEffect(() => {
+    if (!isrolesError) return;
+    if (rolesError) {
+      setError(rolesError.message);
+    }
+  }, [rolesError, isStaffProfilesError]);
 
   useEffect(() => {
     if (!programmes) return;
@@ -128,6 +165,20 @@ const Programmes = () => {
           type="spinnerText"
           borderColor="foregroundColor"
           text="Loading Programme Data..."
+          textColor="foregroundColor"
+          dimension="h-10 w-10"
+        />
+      </div>
+    );
+  }
+
+  if (!roles || !staffProfiles) {
+    return (
+      <div className="flex items-center justify-center mt-10">
+        <LoaderDiv
+          type="spinnerText"
+          borderColor="foregroundColor"
+          text="Loading Required Data..."
           textColor="foregroundColor"
           dimension="h-10 w-10"
         />
@@ -273,7 +324,7 @@ const Programmes = () => {
                 {/* <ProgrammeRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
               </CustomHeading>
               <CustomHeading variation="head5light">
-                Education Stage or Qualification Type (e.g. GCSE, BTEC, Bachelor’s, Nursery, Primary, JSS, SSS)
+                Use this section to create and manage programmes and their access
               </CustomHeading>
             </div>
 
@@ -383,26 +434,19 @@ const Programmes = () => {
             <table className="relative w-full">
               <thead className="sticky top-0 z-10 border-b border-borderColor-2">
                 <tr className={tableHeaderStyle}>
+                  <th className="text-center w-[110px] font-semibold p-2 whitespace-nowrap">Programme Id</th>
                   {(
-                    [
-                      "Programme Custom ID",
-                      "Programme Name",
-                      "Status",
-                      "Duration",
-                      "Offering Start Date",
-                      "Offering End Date"
-                    ] as const
+                    ["Programme Name", "Programme Role", "Programme Email", "Account Status", "Created At"] as const
                   ).map((header) => (
                     <th
                       key={header}
                       onClick={() => {
                         const key_Name = {
-                          "Programme Name": "programmeName",
-                          "Programme Custom ID": "programmeCustomId",
-                          Status: "status",
-                          Duration: "programmeDuration",
-                          "Offering Start Date": "offeringStartDate",
-                          "Offering End Date": "offeringEndDate"
+                          "Programme Name": "accountName",
+                          "Programme Role": "role",
+                          "Programme Email": "accountEmail",
+                          "Account Status": "accountStatus",
+                          "Created At": "createdAt"
                         };
                         const sortKey = key_Name[header];
                         handleSort(sortKey);
@@ -412,7 +456,7 @@ const Programmes = () => {
                       {header} <LuArrowUpDown className="inline-block ml-1" />
                     </th>
                   ))}
-                  <th className={tableHeadCellStyle}>Actions</th>
+                  <th className={tableHeaderStyle}>Actions</th>
                 </tr>
               </thead>
 
@@ -440,18 +484,26 @@ const Programmes = () => {
                 ) : (
                   localData.map((doc: any, index: any) => {
                     const {
-                      _id: programmeId,
-                      programmeCustomId,
-                      programmeName,
-                      offeringStartDate,
-                      offeringEndDate,
-                      status,
-                      programmeDuration
+                      _id: accountId,
+                      staffId,
+                      accountName,
+                      accountEmail,
+                      accountType,
+                      accountStatus,
+                      roleId,
+                      accountPassword,
+                      createdAt
                     } = doc;
 
+                    const tabs = roleId
+                      ? roleId.tabAccess
+                          ?.map((tab: any) => tab.tab)
+                          .slice(0, 5)
+                          .join(", ")
+                      : "Unknown Role";
                     return (
                       <tr
-                        key={programmeId}
+                        key={accountId}
                         onClick={() => {
                           if (hasActionAccess("View Programme")) {
                             document.body.style.overflow = "hidden";
@@ -464,57 +516,81 @@ const Programmes = () => {
                         className={tableRowStyle}
                       >
                         <td className="w-[110px] whitespace-nowrap text-center">
-                          {programmeCustomId}
+                          CID
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(programmeCustomId);
+                              await navigator.clipboard.writeText(accountId);
                             }}
                           />
                         </td>
                         <td className={tableCellStyle}>
-                          {programmeName}
+                          {accountName}{" "}
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(programmeName);
+                              await navigator.clipboard.writeText(accountName);
                             }}
                           />
                         </td>
-
-                        <td className={tableCellStyle}>{status}</td>
-                        <td className={tableCellStyle}>{programmeDuration}</td>
-
-                        <td className={tableCellStyle}>{formatDate(offeringStartDate)}</td>
-                        <td className={tableCellStyle}>{formatDate(offeringEndDate)}</td>
+                        <td className={tableCellStyle}>{roleId ? roleId?.roleName.slice(0, 15) : "Unknown Role"}</td>
+                        <td className={tableCellStyle}>
+                          {accountEmail}{" "}
+                          <MdContentCopy
+                            title="copy id"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              await navigator.clipboard.writeText(accountEmail);
+                            }}
+                          />
+                        </td>
+                        <td className={tableCellStyle}>{accountStatus}</td>
+                        <td className={tableCellStyle}>{formatDate(createdAt)}</td>
 
                         <td className="text-center flex items-center justify-center h-15">
                           <ActionButtons
                             onEdit={(e) => {
                               if (hasActionAccess("Edit Programme")) {
                                 document.body.style.overflow = "hidden";
+
                                 setOnOpenProgrammeDialogData(doc);
                                 setOpenEditProgrammeDialog(true);
                               } else {
                                 setError("You do not have Edit Programme Access - Please contact your admin");
                               }
                             }}
+                            disableDelete={roleId.absoluteAdmin}
+                            hideDelete={roleId.absoluteAdmin}
                             onDelete={(e) => {
-                              if (hasActionAccess("Delete Programme")) {
-                                document.body.style.overflow = "hidden";
-                                setOpenConfirmDelete(true);
-                                setConfirmWithText(programmeCustomId);
-                                setConfirmWithReturnObj({
-                                  programmeCustomId
-                                });
-                              } else {
+                              if (roleId.absoluteAdmin) {
                                 setError(
-                                  "Unauthorised Action: You do not have Delete Programme Access - Please contact your admin"
+                                  "Disallowed Action: Default Absolute Admin / organisation account Cannot be deleted"
                                 );
+                                setOpenDisallowedDeleteDialog(true);
+                              } else {
+                                if (hasActionAccess("Delete Programme")) {
+                                  document.body.style.overflow = "hidden";
+                                  setOpenConfirmDelete(true);
+                                  setConfirmWithText(accountId);
+                                  setConfirmWithReturnObj({
+                                    accountIdToDelete: accountId,
+                                    accountType,
+                                    staffId,
+                                    programmeName: accountName,
+                                    programmeEmail: accountEmail,
+                                    programmeStatus: accountStatus,
+                                    roleId
+                                  });
+                                } else {
+                                  setError(
+                                    "Unauthorised Action: You do not have Delete Programme Access - Please contact your admin"
+                                  );
+                                }
                               }
                             }}
                           />

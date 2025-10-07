@@ -82,7 +82,8 @@ const layout = ({ children }: { children: ReactNode }) => {
     Staff: true,
     Finance: true,
     Assessment: true,
-    Attendance: true
+    Attendance: true,
+    Student: true
   });
   const wrapperDivRef = useRef<HTMLDivElement>(null);
 
