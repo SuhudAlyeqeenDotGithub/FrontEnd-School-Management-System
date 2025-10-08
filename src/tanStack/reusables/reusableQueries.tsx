@@ -12,11 +12,11 @@ const reusableQueries = () => {
 
   const uniqueTabs = accountData.uniqueTabAccess;
 
-  const uniqueTabsGroups = new Set(uniqueTabs.map((tab: any) => tab.group));
+  const uniqueTabsGroups = uniqueTabs.map((tab: any) => tab.group);
 
   const assignedTabAccessGroups = assignedTabAccess.map((group: any) => group.group);
 
-  const allUniqueTabsGroup = [...uniqueTabsGroups, ...assignedTabAccessGroups];
+  const allUniqueTabsGroup = Array.from(new Set([...uniqueTabsGroups, ...assignedTabAccessGroups]));
 
   const mergedTabAccess = allUniqueTabsGroup.map((group) => {
     const groupObject = assignedTabAccess.find((groupObj: any) => groupObj.group === group);

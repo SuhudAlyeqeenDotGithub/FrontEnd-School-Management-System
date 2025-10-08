@@ -102,7 +102,7 @@ export const SelectInputComponent = ({
 }) => {
   return (
     <div className="flex flex-col gap-1 w-full">
-      <label htmlFor={name} className="block font-medium text-foregroundColor-2 mb-1 ml-1">
+      <label htmlFor={name} className="block font-medium text-foregroundColor mb-1 ml-1">
         {title}
       </label>
       <select

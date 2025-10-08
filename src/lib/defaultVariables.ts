@@ -190,7 +190,7 @@ export const allTabs = [
     group: "Staff",
     actions: [
       { action: "Create Staff Contract", permission: false },
-      { action: "View Staff Contract", permission: false },
+      { action: "View Staff Contracts", permission: false },
       { action: "Edit Staff Contract", permission: false },
       { action: "Delete Staff Contract", permission: false }
     ]

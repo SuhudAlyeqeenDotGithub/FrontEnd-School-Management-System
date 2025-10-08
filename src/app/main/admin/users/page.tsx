@@ -63,7 +63,7 @@ const Users = () => {
     hasNext: false
   });
   const [pageIndex, setPageIndex] = useState(0);
-  const [limit, setLimit] = useState("3");
+  const [limit, setLimit] = useState("10");
   const [queryParams, setQueryParams] = useState({});
 
   const {
@@ -117,7 +117,7 @@ const Users = () => {
     if (rolesError) {
       setError(rolesError.message);
     }
-  }, [rolesError, isStaffProfilesError]);
+  }, [rolesError, isrolesError]);
 
   useEffect(() => {
     if (!users) return;

@@ -64,7 +64,7 @@ const Programmes = () => {
     hasNext: false
   });
   const [pageIndex, setPageIndex] = useState(0);
-  const [limit, setLimit] = useState("3");
+  const [limit, setLimit] = useState("10");
   const [queryParams, setQueryParams] = useState({});
 
   const {
@@ -299,12 +299,12 @@ const Programmes = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
-              placeholder="Search role (Programme Name, Email, Status)"
+              placeholder="Search role (Programme Name, Programme Custom ID)"
               filters={[
                 {
-                  displayText: "Account Status",
-                  fieldName: "accountStatus",
-                  options: ["All", "Active", "Locked"]
+                  displayText: "Status",
+                  fieldName: "status",
+                  options: ["All", "Active", "Inactive"]
                 }
               ]}
               onQuery={(query: any) => {
@@ -453,7 +453,7 @@ const Programmes = () => {
                       <tr
                         key={programmeId}
                         onClick={() => {
-                          if (hasActionAccess("View Programme")) {
+                          if (hasActionAccess("View Programmes")) {
                             document.body.style.overflow = "hidden";
                             setOnOpenProgrammeDialogData(doc);
                             setOpenViewProgrammeDialog(true);

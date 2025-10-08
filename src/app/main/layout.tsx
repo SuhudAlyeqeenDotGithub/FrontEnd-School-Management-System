@@ -174,6 +174,7 @@ const layout = ({ children }: { children: ReactNode }) => {
     "/main/curriculum": "Curriculum",
     "/main/curriculum/academicsession": "Curriculum",
     "/main/curriculum/programme": "Curriculum",
+    "/main/curriculum/programme/manager": "Curriculum",
     "/main/curriculum/academicsession/period": "Curriculum",
     "/main/curriculum/academicsession/academicYear": "Curriculum",
     "/main/enrollment": "Enrollment",

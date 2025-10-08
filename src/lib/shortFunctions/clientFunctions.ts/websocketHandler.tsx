@@ -7,19 +7,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { BASE_API_URL } from "../shortFunctions";
 import axios from "axios";
 import StaffProfile from "@/app/main/staff/page";
+import reusableQueries from "@/tanStack/reusables/reusableQueries";
 
 const useWebSocketHandler = (onError?: (error: string) => void) => {
   const socketRef = useRef<any>(null);
+  const { hasActionAccess } = reusableQueries();
 
-  const dispatch = useAppDispatch();
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const organisationId = accountData?.organisationId._id;
-  const accountPermittedActions = accountData.roleId.tabAccess.flatMap((group: any) =>
-    group.tabs.map((tab: any) =>
-      tab.actions.filter((action: any) => action.permission).map((action: any) => action.name)
-    )
-  );
-
   const queryClient = useQueryClient();
   useEffect(() => {
     if (!organisationId) return;
@@ -89,12 +84,10 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
     };
   }, [organisationId]);
 
-  const hasActionAccess = (action: string) => {
-    return accountPermittedActions.includes(action);
-  };
-
   const handleDataFetch = async (change: { collection: string; fullDocument: any; changeOperation: string }) => {
     const { collection, fullDocument, changeOperation } = change;
+    console.log("Received change:", change);
+
     const userIsAbsoluteAdmin = accountData.roleId.absoluteAdmin;
     try {
       if ((hasActionAccess("View Roles") || userIsAbsoluteAdmin) && collection === "roles") {
@@ -538,9 +531,6 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
           });
         }
       }
-      if ((hasActionAccess("View Staff Contracts") || userIsAbsoluteAdmin) && collection === "staffcontracts") {
-        queryClient.invalidateQueries({ queryKey: ["staffContracts"] });
-      }
 
       // handle students profile changes
       if ((hasActionAccess("View Student Profiles") || userIsAbsoluteAdmin) && collection === "students") {
@@ -630,11 +620,7 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
       }
 
       // handle programmes changes
-      if ((hasActionAccess("View Programme") || userIsAbsoluteAdmin) && collection === "programmes") {
-        const changedRecordId = fullDocument._id;
-        const userStudentId = accountData.programmeId?._id;
-
-        if (!userIsAbsoluteAdmin && changedRecordId === userStudentId) return;
+      if ((hasActionAccess("View Programmes") || userIsAbsoluteAdmin) && collection === "programmes") {
         const queriesData = queryClient.getQueriesData({ queryKey: ["programmes"] });
         if (queriesData.length === 0) return;
 
@@ -708,6 +694,100 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
                   pages: queryPages.map((page: any) => ({
                     ...page,
                     programmes: page.programmes.filter((programme: any) => programme._id !== fullDocument._id)
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
+
+      // handle programme managers changes
+      if ((hasActionAccess("View Programme Managers") || userIsAbsoluteAdmin) && collection === "programmemanagers") {
+        const changedRecordId = fullDocument.programmeManagerStaffId;
+        const userStaffId = accountData.staffId?._id;
+
+        if (!userIsAbsoluteAdmin && changedRecordId === userStaffId) return;
+        const queriesData = queryClient.getQueriesData({ queryKey: ["programmeManagers"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              console.log("Inserting into singly cache", fullDocument);
+              queryClient.setQueryData(queryKey, (programmeManagers: any) => {
+                0;
+                return [fullDocument, ...programmeManagers];
+              });
+            } else {
+              console.log("Inserting into paginated cache", fullDocument);
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { programmeManagers: firstPageProgrammeManagers } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [
+                        { ...firstPage, programmeManagers: [fullDocument, ...firstPageProgrammeManagers] },
+                        ...queryPages.slice(1)
+                      ]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (programmeManagers: any) => {
+                return programmeManagers.map((programmeManager: any) =>
+                  programmeManager._id === fullDocument._id ? fullDocument : programmeManager
+                );
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    programmeManagers: page.programmeManagers.map((programmeManager: any) =>
+                      programmeManager._id === fullDocument._id ? fullDocument : programmeManager
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (programmeManagers: any) => {
+                return programmeManagers.filter((programmeManager: any) => programmeManager._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    programmeManagers: page.programmeManagers.filter(
+                      (programmeManager: any) => programmeManager._id !== fullDocument._id
+                    )
                   }))
                 };
 

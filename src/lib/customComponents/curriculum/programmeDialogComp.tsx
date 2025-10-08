@@ -62,8 +62,6 @@ export const ProgrammeDialogComponent = ({
     programmeDuration: onCreateMode ? "" : data.programmeDuration
   });
 
-  console.log("localData", localData);
-
   useEffect(() => {
     if (!unsaved) return;
     handleUnload("add");
@@ -196,8 +194,8 @@ export const ProgrammeDialogComponent = ({
             )}
             {onViewMode && (
               <button
-                disabled={!hasActionAccess("Edit Programme Profile")}
-                hidden={!hasActionAccess("Edit Programme Profile")}
+                disabled={!hasActionAccess("Edit Programme")}
+                hidden={!hasActionAccess("Edit Programme")}
                 onClick={() => setOnEditMode(true)}
                 className={defaultButtonStyle}
               >
