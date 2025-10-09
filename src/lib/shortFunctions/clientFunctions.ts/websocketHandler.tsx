@@ -971,6 +971,178 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
           });
         }
       }
+
+      // handle levels changes
+      if ((hasActionAccess("View Levels") || userIsAbsoluteAdmin) && collection === "levels") {
+        const queriesData = queryClient.getQueriesData({ queryKey: ["levels"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (levels: any) => {
+                return [fullDocument, ...levels];
+              });
+            } else {
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { levels: firstPageLevels } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [{ ...firstPage, levels: [fullDocument, ...firstPageLevels] }, ...queryPages.slice(1)]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (levels: any) => {
+                return levels.map((level: any) => (level._id === fullDocument._id ? fullDocument : level));
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    levels: page.levels.map((level: any) => (level._id === fullDocument._id ? fullDocument : level))
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (levels: any) => {
+                return levels.filter((level: any) => level._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    levels: page.levels.filter((level: any) => level._id !== fullDocument._id)
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
+
+      // handle level managers changes
+      if ((hasActionAccess("View Levels Managers") || userIsAbsoluteAdmin) && collection === "levelmanagers") {
+        const changedRecordId = fullDocument.levelManagerStaffId;
+        const userStaffId = accountData.staffId?._id;
+
+        if (!userIsAbsoluteAdmin && changedRecordId === userStaffId) return;
+        const queriesData = queryClient.getQueriesData({ queryKey: ["levelManagers"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              console.log("Inserting into singly cache", fullDocument);
+              queryClient.setQueryData(queryKey, (levelManagers: any) => {
+                0;
+                return [fullDocument, ...levelManagers];
+              });
+            } else {
+              console.log("Inserting into paginated cache", fullDocument);
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { levelManagers: firstPageLevelsManagers } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [
+                        { ...firstPage, levelManagers: [fullDocument, ...firstPageLevelsManagers] },
+                        ...queryPages.slice(1)
+                      ]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (levelManagers: any) => {
+                return levelManagers.map((levelManager: any) =>
+                  levelManager._id === fullDocument._id ? fullDocument : levelManager
+                );
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    levelManagers: page.levelManagers.map((levelManager: any) =>
+                      levelManager._id === fullDocument._id ? fullDocument : levelManager
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (levelManagers: any) => {
+                return levelManagers.filter((levelManager: any) => levelManager._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    levelManagers: page.levelManagers.filter(
+                      (levelManager: any) => levelManager._id !== fullDocument._id
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
     } catch (error: any) {
       if (onError) onError(error || "An error occurred while fetching data");
     }
