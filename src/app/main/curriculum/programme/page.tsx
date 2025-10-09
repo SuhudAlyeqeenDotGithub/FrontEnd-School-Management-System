@@ -41,7 +41,7 @@ import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { MdAdd, MdContentCopy } from "react-icons/md";
 
 const Programmes = () => {
-  const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
+  const { useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
   const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/curriculum/programme");
   const { accountData } = useAppSelector((state: any) => state.accountData);
@@ -260,7 +260,7 @@ const Programmes = () => {
               setOpenConfirmDelete(false);
               document.body.style.overflow = "";
             }}
-            warningText="Please confirm the ID of the programme/account you want to delete"
+            warningText="Please confirm the ID of the programme you want to delete"
           />
         )}
         {/* data table div */}
@@ -272,8 +272,10 @@ const Programmes = () => {
                 Programmes
                 {/* <ProgrammeRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
               </CustomHeading>
-              <CustomHeading variation="head5light">
-                Education Stage or Qualification Type (e.g. GCSE, BTEC, Bachelor’s, Nursery, Primary, JSS, SSS)
+              <CustomHeading variation="head5">Education Stage or Qualification Type</CustomHeading>
+              <CustomHeading variation="head6light">
+                Defines the overall stage e.g. GCSE, BTEC, Bachelor’s, Foundational Education, Junior Secondary
+                Education
               </CustomHeading>
             </div>
 

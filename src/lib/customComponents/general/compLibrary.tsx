@@ -486,7 +486,7 @@ export const TabLink = ({ icon, tab, url }: { icon?: LucideIcon; tab: string; ur
     <div
       title={tab}
       className={`flex gap-2 px-5 py-1 rounded-md hover:bg-backgroundColor-2 hover:cursor-pointer h-10 items-center whitespace-nowrap ${
-        pathname === url
+        pathname.includes(url)
           ? "text-backgroundColor bg-foregroundColor hover:bg-foregroundColor-2 shadow-xs"
           : "text-foregroundColor-2"
       }`}

@@ -163,7 +163,7 @@ const StaffContracts = () => {
     );
   }
 
-  if (!academicYears || !staffContracts || !staffProfiles) {
+  if (!academicYearsIsFetching || !isFetchingStaffProfiles || isFetchingStaffContracts) {
     return (
       <div className="flex items-center justify-center mt-10">
         <LoaderDiv

@@ -12,8 +12,6 @@ import {
   PreviousButton
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
-import { FaSearch } from "react-icons/fa";
-import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 
 import {
@@ -21,6 +19,7 @@ import {
   ConfirmActionByInputDialog,
   CustomFilterComponent
 } from "@/lib/customComponents/general/compLibrary2";
+import { CourseDialogComponent } from "@/lib/customComponents/curriculum/courseDialogComp";
 
 import {
   dataRowCellStyle,
@@ -38,22 +37,21 @@ import {
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { MdAdd, MdContentCopy } from "react-icons/md";
-import { ProgrammeManagerDialogComponent } from "@/lib/customComponents/curriculum/programmeManagerDialogComp";
 
-const ProgrammeManager = () => {
+const Courses = () => {
   const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
-  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/curriculum/programme/manager");
+  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/curriculum/course");
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openEditProgrammeManagerDialog, setOpenEditProgrammeManagerDialog] = useState(false);
-  const [openNewProgrammeManagerDialog, setOpenNewProgrammeManagerDialog] = useState(false);
-  const [openViewProgrammeManagerDialog, setOpenViewProgrammeManagerDialog] = useState(false);
+  const [openEditCourseDialog, setOpenEditCourseDialog] = useState(false);
+  const [openNewCourseDialog, setOpenNewCourseDialog] = useState(false);
+  const [openViewCourseDialog, setOpenViewCourseDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
-  const [onOpenProgrammeManagerDialogData, setOnOpenProgrammeManagerDialogData] = useState<any>({});
+  const [onOpenCourseDialogData, setOnOpenCourseDialogData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
@@ -68,13 +66,6 @@ const ProgrammeManager = () => {
   const [queryParams, setQueryParams] = useState({});
 
   const {
-    data: staffContracts,
-    isFetching: isFetchingStaffContracts,
-    error: staffContractsError,
-    isError: isStaffContractsError
-  } = useReusableQuery("staffContracts", "View Staff Contracts", "alyeqeenschoolapp/api/staff/allcontract");
-
-  const {
     data: programmes,
     isFetching: isFetchingprogrammes,
     error: programmesError,
@@ -82,31 +73,19 @@ const ProgrammeManager = () => {
   } = useReusableQuery("programmes", "View Programmes", "alyeqeenschoolapp/api/curriculum/allprogrammes");
 
   const {
-    data: programmeManagers,
-    isFetching: isFetchingprogrammeManagers,
-    error: programmeManagersError,
-    isError: isProgrammeManagersError,
+    data: courses,
+    isFetching: isFetchingcourses,
+    error: coursesError,
+    isError: isCoursesError,
     fetchNextPage,
     fetchPreviousPage
   } = useReusableInfiniteQuery(
-    "programmeManagers",
+    "courses",
     queryParams,
     Number(limit) || 10,
-    "View Programme Managers",
-    "alyeqeenschoolapp/api/curriculum/programme/managers"
+    "View Courses",
+    "alyeqeenschoolapp/api/curriculum/courses"
   );
-
-  useEffect(() => {
-    if (!staffContracts) return;
-    setError("");
-  }, [staffContracts, isFetchingStaffContracts]);
-
-  useEffect(() => {
-    if (!isStaffContractsError) return;
-    if (staffContractsError) {
-      setError(staffContractsError.message);
-    }
-  }, [staffContractsError, isStaffContractsError]);
 
   useEffect(() => {
     if (!programmes) return;
@@ -121,27 +100,27 @@ const ProgrammeManager = () => {
   }, [programmesError, isprogrammesError]);
 
   useEffect(() => {
-    if (!programmeManagers) return;
+    if (!courses) return;
     setError("");
-    const currentPage: any = programmeManagers.pages[pageIndex];
+    const currentPage: any = courses.pages[pageIndex];
     if (currentPage === undefined) return;
-    setLocalData(currentPage.programmeManagers);
+    setLocalData(currentPage.courses);
     const { totalCount, chunkCount, hasNext } = currentPage;
     setPaginationData({ totalCount, chunkCount, hasNext });
-  }, [programmeManagers, isFetchingprogrammeManagers]);
+  }, [courses, isFetchingcourses]);
 
   useEffect(() => {
-    if (!isProgrammeManagersError) return;
-    if (programmeManagersError) {
-      setError(programmeManagersError.message);
+    if (!isCoursesError) return;
+    if (coursesError) {
+      setError(coursesError.message);
     }
-  }, [programmeManagersError, isProgrammeManagersError]);
+  }, [coursesError, isCoursesError]);
 
   const renderNextPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { programmeManagers, ...rest } = foundPage;
-      setLocalData(programmeManagers);
+      const { courses, ...rest } = foundPage;
+      setLocalData(courses);
       setPaginationData(rest);
     } else {
       fetchNextPage();
@@ -151,8 +130,8 @@ const ProgrammeManager = () => {
   const renderPreviousPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { programmeManagers, ...rest } = foundPage;
-      setLocalData(programmeManagers);
+      const { courses, ...rest } = foundPage;
+      setLocalData(courses);
       setPaginationData(rest);
     } else {
       fetchPreviousPage();
@@ -165,7 +144,7 @@ const ProgrammeManager = () => {
         <LoaderDiv
           type="spinnerText"
           borderColor="foregroundColor"
-          text="Loading Programme Manager Data..."
+          text="Loading Course Data..."
           textColor="foregroundColor"
           dimension="h-10 w-10"
         />
@@ -231,58 +210,55 @@ const ProgrammeManager = () => {
     <div className="px-4 py-6 w-full">
       {/* data table section */}
       <>
-        {openEditProgrammeManagerDialog && (
-          <ProgrammeManagerDialogComponent
+        {openEditCourseDialog && (
+          <CourseDialogComponent
             type="edit"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditProgrammeManagerDialog(!open);
+              setOpenEditCourseDialog(!open);
               return {};
             }}
             onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditProgrammeManagerDialog(!notSave);
+              setOpenEditCourseDialog(!notSave);
               return {};
             }}
-            data={onOpenProgrammeManagerDialogData}
             programmes={programmes ? programmes : []}
-            staffContracts={staffContracts ? staffContracts : []}
+            data={onOpenCourseDialogData}
           />
         )}
 
-        {openViewProgrammeManagerDialog && (
-          <ProgrammeManagerDialogComponent
+        {openViewCourseDialog && (
+          <CourseDialogComponent
             type="view"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewProgrammeManagerDialog(!open);
+              setOpenViewCourseDialog(!open);
               return {};
             }}
             onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewProgrammeManagerDialog(!notSave);
+              setOpenViewCourseDialog(!notSave);
               return {};
             }}
-            data={onOpenProgrammeManagerDialogData}
             programmes={programmes ? programmes : []}
-            staffContracts={staffContracts ? staffContracts : []}
+            data={onOpenCourseDialogData}
           />
         )}
-        {openNewProgrammeManagerDialog && (
-          <ProgrammeManagerDialogComponent
+        {openNewCourseDialog && (
+          <CourseDialogComponent
             type="new"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewProgrammeManagerDialog(!open);
+              setOpenNewCourseDialog(!open);
               return {};
             }}
             onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewProgrammeManagerDialog(!notSave);
+              setOpenNewCourseDialog(!notSave);
               return {};
             }}
             programmes={programmes ? programmes : []}
-            staffContracts={staffContracts ? staffContracts : []}
           />
         )}
         {openDisallowedDeleteDialog && (
@@ -318,7 +294,7 @@ const ProgrammeManager = () => {
               setOpenConfirmDelete(false);
               document.body.style.overflow = "";
             }}
-            warningText="Please confirm the ID of the programme Manager you want to delete"
+            warningText="Please confirm the ID of the course/account you want to delete"
           />
         )}
         {/* data table div */}
@@ -327,11 +303,14 @@ const ProgrammeManager = () => {
             {/* title */}
             <div className="flex flex-col">
               <CustomHeading variation="sectionHeader">
-                Programme Manager
-                {/* <ProgrammeManagerRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
+                Courses
+                {/* <CourseRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
               </CustomHeading>
-              <CustomHeading variation="head5light">
-                Manage and assign programme managers to specific programmes
+              <CustomHeading variation="head5">
+                Stream or Department - Defines the path within the programme
+              </CustomHeading>
+              <CustomHeading variation="head6light">
+                e.g. JSE (Junior Secondary Education), Computer Science, Art, Commercial, Science, Software Engineering
               </CustomHeading>
             </div>
 
@@ -341,23 +320,23 @@ const ProgrammeManager = () => {
             <div>
               <button
                 onClick={() => {
-                  if (hasActionAccess("Create Programme Manager")) {
+                  if (hasActionAccess("Create Course")) {
                     document.body.style.overflow = "hidden";
-                    setOpenNewProgrammeManagerDialog(true);
+                    setOpenNewCourseDialog(true);
                   } else {
-                    setError("You do not have Create Programme Manager Access - Please contact your admin");
+                    setError("You do not have Create Course Access - Please contact your admin");
                   }
                 }}
-                disabled={!hasActionAccess("Create Programme Manager")}
+                disabled={!hasActionAccess("Create Course")}
                 className={defaultButtonStyle}
               >
-                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Programme Manager
+                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Course
               </button>
             </div>
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
-              placeholder="Search role (Programme Manager Name, Programme Manager Custom ID)"
+              placeholder="Search role (Course Name, Course Custom ID, Course Full Title)"
               filters={[
                 {
                   displayText: "Status",
@@ -416,7 +395,7 @@ const ProgrammeManager = () => {
                 onClick={() => {
                   const prevPage = pageIndex - 1;
                   setPageIndex(prevPage);
-                  renderPreviousPage(prevPage, programmeManagers.pages);
+                  renderPreviousPage(prevPage, courses.pages);
                 }}
                 disabled={pageIndex === 0}
               />
@@ -428,7 +407,7 @@ const ProgrammeManager = () => {
                 onClick={() => {
                   const nextPage = pageIndex + 1;
                   setPageIndex(nextPage);
-                  renderNextPage(nextPage, programmeManagers.pages);
+                  renderNextPage(nextPage, courses.pages);
                 }}
                 disabled={!paginationData.hasNext}
               />
@@ -443,24 +422,26 @@ const ProgrammeManager = () => {
                 <tr className={tableHeaderStyle}>
                   {(
                     [
-                      "Programme Manager ID",
-                      "Programme Name",
-                      "Manager Name",
-                      "Management Status",
-                      "Managed From",
-                      "Managed Until"
+                      "Course Custom ID",
+                      "Course Name",
+                      "Course Full Title",
+                      "Status",
+                      "Duration",
+                      "Offering Start Date",
+                      "Offering End Date"
                     ] as const
                   ).map((header) => (
                     <th
                       key={header}
                       onClick={() => {
                         const key_Name = {
-                          "Programme Manager ID": "_id",
-                          "Manager Name": "programmeManagerFullName",
-                          "Programme Name": "programmeName",
-                          "Management Status": "status",
-                          "Managed From": "managedFrom",
-                          "Managed Until": "managedUntil"
+                          "Course Name": "courseName",
+                          "Course Custom ID": "courseCustomId",
+                          "Course Full Title": "courseFullTitle",
+                          Status: "status",
+                          Duration: "courseDuration",
+                          "Offering Start Date": "offeringStartDate",
+                          "Offering End Date": "offeringEndDate"
                         };
                         const sortKey = key_Name[header];
                         handleSort(sortKey);
@@ -476,20 +457,20 @@ const ProgrammeManager = () => {
 
               {/* table data */}
               <tbody className="mt-3 bg-backgroundColor">
-                {isFetchingprogrammeManagers ? (
+                {isFetchingcourses ? (
                   <tr>
                     <td colSpan={8}>
                       <div className="flex items-center justify-center p-10">
                         <LoaderDiv
                           type="spinnerText"
-                          text="Loading Programme Managers..."
+                          text="Loading Courses..."
                           textColor="foregroundColor"
                           dimension="h-10 w-10"
                         />
                       </div>
                     </td>
                   </tr>
-                ) : (localData.length < 1 && !isFetchingprogrammeManagers) || !programmeManagers ? (
+                ) : (localData.length < 1 && !isFetchingcourses) || !courses ? (
                   <tr>
                     <td colSpan={8} className="text-center py-4">
                       No data available
@@ -498,76 +479,92 @@ const ProgrammeManager = () => {
                 ) : (
                   localData.map((doc: any, index: any) => {
                     const {
-                      _id: programmeManagerId,
-                      programmeName,
-                      programmeManagerFullName,
-                      managedFrom,
-                      managedUntil,
-                      status
+                      _id: courseId,
+                      courseCustomId,
+                      courseName,
+                      offeringStartDate,
+                      offeringEndDate,
+                      status,
+                      courseFullTitle,
+                      courseDuration
                     } = doc;
 
                     return (
                       <tr
-                        key={programmeManagerId}
+                        key={courseId}
                         onClick={() => {
-                          if (hasActionAccess("View Programme Managers")) {
+                          if (hasActionAccess("View Courses")) {
                             document.body.style.overflow = "hidden";
-                            setOnOpenProgrammeManagerDialogData(doc);
-                            setOpenViewProgrammeManagerDialog(true);
+                            setOnOpenCourseDialogData(doc);
+                            setOpenViewCourseDialog(true);
                           } else {
-                            setError("You do not have View Programme Manager Access - Please contact your admin");
+                            setError("You do not have View Course Access - Please contact your admin");
                           }
                         }}
                         className={tableRowStyle}
                       >
                         <td className="w-[110px] whitespace-nowrap text-center">
-                          {programmeManagerId.slice(15)}
+                          {courseCustomId}
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(programmeManagerId);
+                              await navigator.clipboard.writeText(courseCustomId);
                             }}
                           />
                         </td>
-                        <td className={tableCellStyle}>{programmeName}</td>
                         <td className={tableCellStyle}>
-                          {programmeManagerFullName}
+                          {courseName}
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(programmeManagerFullName);
+                              await navigator.clipboard.writeText(courseName);
                             }}
                           />
                         </td>
+                        <td className={tableCellStyle}>
+                          {courseFullTitle.slice(0, 40)}...
+                          <MdContentCopy
+                            title="copy id"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              await navigator.clipboard.writeText(courseFullTitle);
+                            }}
+                          />
+                        </td>
+
                         <td className={tableCellStyle}>{status}</td>
-                        <td className={tableCellStyle}>{formatDate(managedFrom)}</td>
-                        <td className={tableCellStyle}>{formatDate(managedUntil)}</td>
+                        <td className={tableCellStyle}>{courseDuration}</td>
+
+                        <td className={tableCellStyle}>{formatDate(offeringStartDate)}</td>
+                        <td className={tableCellStyle}>{formatDate(offeringEndDate)}</td>
+
                         <td className="text-center flex items-center justify-center h-15">
                           <ActionButtons
                             onEdit={(e) => {
-                              if (hasActionAccess("Edit Programme Manager")) {
+                              if (hasActionAccess("Edit Course")) {
                                 document.body.style.overflow = "hidden";
-                                setOnOpenProgrammeManagerDialogData(doc);
-                                setOpenEditProgrammeManagerDialog(true);
+                                setOnOpenCourseDialogData(doc);
+                                setOpenEditCourseDialog(true);
                               } else {
-                                setError("You do not have Edit Programme Manager Access - Please contact your admin");
+                                setError("You do not have Edit Course Access - Please contact your admin");
                               }
                             }}
                             onDelete={(e) => {
-                              if (hasActionAccess("Delete Programme Manager")) {
+                              if (hasActionAccess("Delete Course")) {
                                 document.body.style.overflow = "hidden";
                                 setOpenConfirmDelete(true);
-                                setConfirmWithText(programmeManagerId);
+                                setConfirmWithText(courseCustomId);
                                 setConfirmWithReturnObj({
-                                  programmeManagerId
+                                  courseCustomId
                                 });
                               } else {
                                 setError(
-                                  "Unauthorised Action: You do not have Delete Programme Manager Access - Please contact your admin"
+                                  "Unauthorised Action: You do not have Delete Course Access - Please contact your admin"
                                 );
                               }
                             }}
@@ -586,4 +583,4 @@ const ProgrammeManager = () => {
   );
 };
 
-export default ProgrammeManager;
+export default Courses;

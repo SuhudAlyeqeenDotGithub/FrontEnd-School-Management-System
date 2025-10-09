@@ -797,6 +797,180 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
           });
         }
       }
+
+      // handle courses changes
+      if ((hasActionAccess("View Courses") || userIsAbsoluteAdmin) && collection === "courses") {
+        const queriesData = queryClient.getQueriesData({ queryKey: ["courses"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (courses: any) => {
+                return [fullDocument, ...courses];
+              });
+            } else {
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { courses: firstPageCourses } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [{ ...firstPage, courses: [fullDocument, ...firstPageCourses] }, ...queryPages.slice(1)]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (courses: any) => {
+                return courses.map((course: any) => (course._id === fullDocument._id ? fullDocument : course));
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    courses: page.courses.map((course: any) =>
+                      course._id === fullDocument._id ? fullDocument : course
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (courses: any) => {
+                return courses.filter((course: any) => course._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    courses: page.courses.filter((course: any) => course._id !== fullDocument._id)
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
+
+      // handle course managers changes
+      if ((hasActionAccess("View Course Managers") || userIsAbsoluteAdmin) && collection === "coursemanagers") {
+        const changedRecordId = fullDocument.courseManagerStaffId;
+        const userStaffId = accountData.staffId?._id;
+
+        if (!userIsAbsoluteAdmin && changedRecordId === userStaffId) return;
+        const queriesData = queryClient.getQueriesData({ queryKey: ["courseManagers"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              console.log("Inserting into singly cache", fullDocument);
+              queryClient.setQueryData(queryKey, (courseManagers: any) => {
+                0;
+                return [fullDocument, ...courseManagers];
+              });
+            } else {
+              console.log("Inserting into paginated cache", fullDocument);
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { courseManagers: firstPageCourseManagers } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [
+                        { ...firstPage, courseManagers: [fullDocument, ...firstPageCourseManagers] },
+                        ...queryPages.slice(1)
+                      ]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (courseManagers: any) => {
+                return courseManagers.map((courseManager: any) =>
+                  courseManager._id === fullDocument._id ? fullDocument : courseManager
+                );
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    courseManagers: page.courseManagers.map((courseManager: any) =>
+                      courseManager._id === fullDocument._id ? fullDocument : courseManager
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (courseManagers: any) => {
+                return courseManagers.filter((courseManager: any) => courseManager._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    courseManagers: page.courseManagers.filter(
+                      (courseManager: any) => courseManager._id !== fullDocument._id
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
     } catch (error: any) {
       if (onError) onError(error || "An error occurred while fetching data");
     }

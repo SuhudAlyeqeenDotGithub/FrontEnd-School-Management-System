@@ -27,17 +27,17 @@ import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import { SearchableDropDownInput } from "../general/compLibrary2";
 import StaffProfile from "@/app/main/staff/page";
 
-export const ProgrammeManagerDialogComponent = ({
+export const CourseManagerDialogComponent = ({
   type,
   data,
   onClose,
   onSave,
-  programmes,
+  courses,
   staffContracts
 }: {
   type: "new" | "edit" | "view";
   data?: any;
-  programmes: any[];
+  courses: any[];
   staffContracts: any[];
   onClose: (close: boolean) => void;
   onSave: (save: boolean) => void;
@@ -45,8 +45,8 @@ export const ProgrammeManagerDialogComponent = ({
   const { handleUnload } = useNavigationHandler();
   const { hasActionAccess } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
-  const updateMutation = tanMutateAny("put", "alyeqeenschoolapp/api/curriculum/programme/manager");
-  const createMutation = tanMutateAny("post", "alyeqeenschoolapp/api/curriculum/programme/manager");
+  const updateMutation = tanMutateAny("put", "alyeqeenschoolapp/api/curriculum/course/manager");
+  const createMutation = tanMutateAny("post", "alyeqeenschoolapp/api/curriculum/course/manager");
   const [unsaved, setUnsaved] = useState(false);
   const [error, setError] = useState("");
   const [onEditMode, setOnEditMode] = useState(type === "edit");
@@ -56,12 +56,12 @@ export const ProgrammeManagerDialogComponent = ({
 
   const [localData, setLocalData] = useState<any>({
     _id: onCreateMode ? "" : data._id,
-    programmeId: onCreateMode ? "" : data.programmeId,
-    programmeName: onCreateMode ? "" : data.programmeName,
-    programmeCustomId: onCreateMode ? "" : data.programmeCustomId,
-    programmeManagerStaffId: onCreateMode ? "" : data.programmeManagerStaffId,
-    programmeManagerCustomStaffId: onCreateMode ? "" : data.programmeManagerCustomStaffId,
-    programmeManagerFullName: onCreateMode ? "" : data.programmeManagerFullName,
+    courseId: onCreateMode ? "" : data.courseId,
+    courseFullTitle: onCreateMode ? "" : data.courseFullTitle,
+    courseCustomId: onCreateMode ? "" : data.courseCustomId,
+    courseManagerStaffId: onCreateMode ? "" : data.courseManagerStaffId,
+    courseManagerCustomStaffId: onCreateMode ? "" : data.courseManagerCustomStaffId,
+    courseManagerFullName: onCreateMode ? "" : data.courseManagerFullName,
     managedFrom: onCreateMode ? "" : data.managedFrom,
     managedUntil: onCreateMode ? "" : data.managedUntil,
     status: onCreateMode ? "" : data.status
@@ -98,12 +98,12 @@ export const ProgrammeManagerDialogComponent = ({
   }, [onEditMode]);
 
   const {
-    programmeId,
-    programmeName,
-    programmeCustomId,
-    programmeManagerStaffId,
-    programmeManagerCustomStaffId,
-    programmeManagerFullName,
+    courseId,
+    courseFullTitle,
+    courseCustomId,
+    courseManagerStaffId,
+    courseManagerCustomStaffId,
+    courseManagerFullName,
     managedFrom,
     managedUntil,
     status
@@ -130,20 +130,20 @@ export const ProgrammeManagerDialogComponent = ({
     return true;
   };
 
-  // function to handle all programmeManager programmeManager object data update
-  const handleUpdateProgrammeManager = async () => {
+  // function to handle all courseManager courseManager object data update
+  const handleUpdateCourseManager = async () => {
     try {
       const response = await updateMutation.mutateAsync(localData);
       if (response?.data) {
         onSave(true);
       }
     } catch (error: any) {
-      setError(error.message || error.response?.data.message || "Error creating programmeManager");
+      setError(error.message || error.response?.data.message || "Error creating courseManager");
     }
   };
 
-  // function to handle programmeManager creation
-  const handleCreateProgrammeManager = async () => {
+  // function to handle courseManager creation
+  const handleCreateCourseManager = async () => {
     if (validationPassed()) {
       setError("");
 
@@ -156,7 +156,7 @@ export const ProgrammeManagerDialogComponent = ({
             onSave(true);
           }
         } catch (error: any) {
-          setError(error.message || error.response?.data.message || "Error creating programmeManager");
+          setError(error.message || error.response?.data.message || "Error creating courseManager");
         }
       }
     }
@@ -164,15 +164,12 @@ export const ProgrammeManagerDialogComponent = ({
 
   return (
     <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-transparent">
-      <ContainerComponent
-        id="programmeManagerDialogContainer"
-        style="w-[50%] h-[80%] gap-5 overflow-auto flex flex-col"
-      >
+      <ContainerComponent id="courseManagerDialogContainer" style="w-[50%] h-[80%] gap-5 overflow-auto flex flex-col">
         {openUnsavedDialog && (
           <YesNoDialog
             warningText="You have unsaved changes. Are you sure you want to proceed?"
             onNo={() => {
-              const container = document.getElementById("programmeManagerDialogContainer");
+              const container = document.getElementById("courseManagerDialogContainer");
               if (container) {
                 container.style.overflow = "";
               }
@@ -186,30 +183,30 @@ export const ProgrammeManagerDialogComponent = ({
         )}
         {/* top div */}
         <div className="flex justify-between items-center">
-          <h2>{onCreateMode ? "Create" : onViewMode ? "View" : "Edit"} Programme Manager</h2>
+          <h2>{onCreateMode ? "Create" : onViewMode ? "View" : "Edit"} Course Manager</h2>
           <div className="flex justify-between items-center gap-5">
             {onCreateMode && (
               <LoaderButton
                 buttonText="Create"
-                loadingButtonText="Creating Programme Manager..."
+                loadingButtonText="Creating Course Manager..."
                 disabled={!unsaved}
                 isLoading={createMutation.isPending}
-                onClick={handleCreateProgrammeManager}
+                onClick={handleCreateCourseManager}
               />
             )}
             {onEditMode && (
               <LoaderButton
                 buttonText="Save"
-                loadingButtonText="Saving ProgrammeManager..."
+                loadingButtonText="Saving CourseManager..."
                 disabled={!unsaved}
                 isLoading={updateMutation.isPending}
-                onClick={handleUpdateProgrammeManager}
+                onClick={handleUpdateCourseManager}
               />
             )}
             {onViewMode && (
               <button
-                disabled={!hasActionAccess("Edit ProgrammeManager Profile")}
-                hidden={!hasActionAccess("Edit ProgrammeManager Profile")}
+                disabled={!hasActionAccess("Edit CourseManager Profile")}
+                hidden={!hasActionAccess("Edit CourseManager Profile")}
                 onClick={() => setOnEditMode(true)}
                 className={defaultButtonStyle}
               >
@@ -221,7 +218,7 @@ export const ProgrammeManagerDialogComponent = ({
                 if (!unsaved) {
                   onClose(true);
                 }
-                const container = document.getElementById("programmeManagerDialogContainer");
+                const container = document.getElementById("courseManagerDialogContainer");
                 if (container) {
                   container.style.overflow = "hidden";
                 }
@@ -247,19 +244,19 @@ export const ProgrammeManagerDialogComponent = ({
 
           <div className="grid grid-cols-2 gap-3 w-full">
             <SearchableDropDownInput
-              defaultText={`|${programmeCustomId}`}
+              defaultText={`|${courseCustomId}`}
               disabled={onViewMode}
-              title="Programme Custom Id *"
-              placeholder="Search Programme *"
-              data={programmes}
-              displayKeys={["_id", "programmeCustomId", "programmeName"]}
+              title="Course Custom Id *"
+              placeholder="Search Course *"
+              data={courses}
+              displayKeys={["_id", "courseCustomId", "courseFullTitle"]}
               onSelected={(selectedData, save) => {
                 if (save) {
                   setLocalData((prev: any) => ({
                     ...prev,
-                    programmeCustomId: selectedData[1],
-                    programmeId: selectedData[0],
-                    programmeName: selectedData[2]
+                    courseCustomId: selectedData[1],
+                    courseId: selectedData[0],
+                    courseFullTitle: selectedData[2]
                   }));
                   setUnsaved(true);
                 }
@@ -271,7 +268,7 @@ export const ProgrammeManagerDialogComponent = ({
               }}
             />
             <SearchableDropDownInput
-              defaultText={`|${programmeManagerCustomStaffId}`}
+              defaultText={`|${courseManagerCustomStaffId}`}
               disabled={onViewMode}
               title="Manager Staff Id *"
               placeholder="Search Staff *"
@@ -282,9 +279,9 @@ export const ProgrammeManagerDialogComponent = ({
                   const staffContract = staffContracts.find((contract: any) => contract._id === selectedData[0]);
                   setLocalData((prev: any) => ({
                     ...prev,
-                    programmeManagerCustomStaffId: staffContract?.staffCustomId,
-                    programmeManagerStaffId: staffContract?.staffId,
-                    programmeManagerFullName: staffContract?.staffFullName
+                    courseManagerCustomStaffId: staffContract?.staffCustomId,
+                    courseManagerStaffId: staffContract?.staffId,
+                    courseManagerFullName: staffContract?.staffFullName
                   }));
                   setUnsaved(true);
                 }
@@ -296,21 +293,21 @@ export const ProgrammeManagerDialogComponent = ({
               }}
             />
             <InputComponent
-              disabled={onViewMode}
-              title="Programme Name *"
-              placeholder="Programme Name * (Auto-fill)"
+              disabled={true}
+              title="Course Full Title *"
+              placeholder="Course Full Title * (Auto-fill)"
               required
-              name="programmeName"
-              value={programmeName}
+              name="courseFullTitle"
+              value={courseFullTitle}
               onChange={handleInputChange}
             />
             <InputComponent
               disabled={onViewMode}
-              title="Programme Manager Full Name *"
+              title="Course Manager Full Name *"
               autocomplete="on"
-              placeholder="Programme Manager Full Name * (Auto-fill)"
-              name="programmeManagerFullName"
-              value={programmeManagerFullName}
+              placeholder="Course Manager Full Name * (Auto-fill)"
+              name="courseManagerFullName"
+              value={courseManagerFullName}
               onChange={handleInputChange}
             />
             <InputComponent
