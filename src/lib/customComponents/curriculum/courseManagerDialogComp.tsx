@@ -302,7 +302,7 @@ export const CourseManagerDialogComponent = ({
               onChange={handleInputChange}
             />
             <InputComponent
-              disabled={onViewMode}
+              disabled={true}
               title="Course Manager Full Name *"
               autocomplete="on"
               placeholder="Course Manager Full Name * (Auto-fill)"

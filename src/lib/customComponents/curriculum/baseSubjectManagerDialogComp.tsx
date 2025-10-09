@@ -22,20 +22,21 @@ import {
 import { YesNoDialog } from "../general/compLibrary";
 import { defaultButtonStyle, tabGroupButtonStyle } from "@/lib/generalStyles";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
+import { MdAdd } from "react-icons/md";
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import { SearchableDropDownInput } from "../general/compLibrary2";
 
-export const LevelManagerDialogComponent = ({
+export const BaseSubjectManagerDialogComponent = ({
   type,
   data,
   onClose,
   onSave,
-  levels,
+  baseSubjects,
   staffContracts
 }: {
   type: "new" | "edit" | "view";
   data?: any;
-  levels: any[];
+  baseSubjects: any[];
   staffContracts: any[];
   onClose: (close: boolean) => void;
   onSave: (save: boolean) => void;
@@ -43,8 +44,8 @@ export const LevelManagerDialogComponent = ({
   const { handleUnload } = useNavigationHandler();
   const { hasActionAccess } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
-  const updateMutation = tanMutateAny("put", "alyeqeenschoolapp/api/curriculum/level/manager");
-  const createMutation = tanMutateAny("post", "alyeqeenschoolapp/api/curriculum/level/manager");
+  const updateMutation = tanMutateAny("put", "alyeqeenschoolapp/api/curriculum/basesubject/manager");
+  const createMutation = tanMutateAny("post", "alyeqeenschoolapp/api/curriculum/basesubject/manager");
   const [unsaved, setUnsaved] = useState(false);
   const [error, setError] = useState("");
   const [onEditMode, setOnEditMode] = useState(type === "edit");
@@ -54,12 +55,12 @@ export const LevelManagerDialogComponent = ({
 
   const [localData, setLocalData] = useState<any>({
     _id: onCreateMode ? "" : data._id,
-    levelId: onCreateMode ? "" : data.levelId,
-    levelFullTitle: onCreateMode ? "" : data.levelFullTitle,
-    levelCustomId: onCreateMode ? "" : data.levelCustomId,
-    levelManagerStaffId: onCreateMode ? "" : data.levelManagerStaffId,
-    levelManagerCustomStaffId: onCreateMode ? "" : data.levelManagerCustomStaffId,
-    levelManagerFullName: onCreateMode ? "" : data.levelManagerFullName,
+    baseSubjectId: onCreateMode ? "" : data.baseSubjectId,
+    baseSubjectName: onCreateMode ? "" : data.baseSubjectName,
+    baseSubjectCustomId: onCreateMode ? "" : data.baseSubjectCustomId,
+    baseSubjectManagerStaffId: onCreateMode ? "" : data.baseSubjectManagerStaffId,
+    baseSubjectManagerCustomStaffId: onCreateMode ? "" : data.baseSubjectManagerCustomStaffId,
+    baseSubjectManagerFullName: onCreateMode ? "" : data.baseSubjectManagerFullName,
     managedFrom: onCreateMode ? "" : data.managedFrom,
     managedUntil: onCreateMode ? "" : data.managedUntil,
     status: onCreateMode ? "" : data.status
@@ -96,12 +97,12 @@ export const LevelManagerDialogComponent = ({
   }, [onEditMode]);
 
   const {
-    levelId,
-    levelFullTitle,
-    levelCustomId,
-    levelManagerStaffId,
-    levelManagerCustomStaffId,
-    levelManagerFullName,
+    baseSubjectId,
+    baseSubjectName,
+    baseSubjectCustomId,
+    baseSubjectManagerStaffId,
+    baseSubjectManagerCustomStaffId,
+    baseSubjectManagerFullName,
     managedFrom,
     managedUntil,
     status
@@ -128,20 +129,20 @@ export const LevelManagerDialogComponent = ({
     return true;
   };
 
-  // function to handle all levelManager levelManager object data update
-  const handleUpdateLevelManager = async () => {
+  // function to handle all baseSubjectManager baseSubjectManager object data update
+  const handleUpdateBaseSubjectManager = async () => {
     try {
       const response = await updateMutation.mutateAsync(localData);
       if (response?.data) {
         onSave(true);
       }
     } catch (error: any) {
-      setError(error.message || error.response?.data.message || "Error creating levelManager");
+      setError(error.message || error.response?.data.message || "Error creating base subject manager");
     }
   };
 
-  // function to handle levelManager creation
-  const handleCreateLevelManager = async () => {
+  // function to handle baseSubjectManager creation
+  const handleCreateBaseSubjectManager = async () => {
     if (validationPassed()) {
       setError("");
 
@@ -154,7 +155,7 @@ export const LevelManagerDialogComponent = ({
             onSave(true);
           }
         } catch (error: any) {
-          setError(error.message || error.response?.data.message || "Error creating levelManager");
+          setError(error.message || error.response?.data.message || "Error creating base subject manager");
         }
       }
     }
@@ -162,12 +163,15 @@ export const LevelManagerDialogComponent = ({
 
   return (
     <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-transparent">
-      <ContainerComponent id="levelManagerDialogContainer" style="w-[50%] h-[80%] gap-5 overflow-auto flex flex-col">
+      <ContainerComponent
+        id="baseSubjectManagerDialogContainer"
+        style="w-[50%] h-[80%] gap-5 overflow-auto flex flex-col"
+      >
         {openUnsavedDialog && (
           <YesNoDialog
             warningText="You have unsaved changes. Are you sure you want to proceed?"
             onNo={() => {
-              const container = document.getElementById("levelManagerDialogContainer");
+              const container = document.getElementById("baseSubjectManagerDialogContainer");
               if (container) {
                 container.style.overflow = "";
               }
@@ -181,30 +185,30 @@ export const LevelManagerDialogComponent = ({
         )}
         {/* top div */}
         <div className="flex justify-between items-center">
-          <h2>{onCreateMode ? "Create" : onViewMode ? "View" : "Edit"} Level Manager</h2>
+          <h2>{onCreateMode ? "Create" : onViewMode ? "View" : "Edit"} Base Subject Manager</h2>
           <div className="flex justify-between items-center gap-5">
             {onCreateMode && (
               <LoaderButton
                 buttonText="Create"
-                loadingButtonText="Creating Level Manager..."
+                loadingButtonText="Creating BaseSubject Manager..."
                 disabled={!unsaved}
                 isLoading={createMutation.isPending}
-                onClick={handleCreateLevelManager}
+                onClick={handleCreateBaseSubjectManager}
               />
             )}
             {onEditMode && (
               <LoaderButton
                 buttonText="Save"
-                loadingButtonText="Saving LevelManager..."
+                loadingButtonText="Saving BaseSubjectManager..."
                 disabled={!unsaved}
                 isLoading={updateMutation.isPending}
-                onClick={handleUpdateLevelManager}
+                onClick={handleUpdateBaseSubjectManager}
               />
             )}
             {onViewMode && (
               <button
-                disabled={!hasActionAccess("Edit LevelManager Profile")}
-                hidden={!hasActionAccess("Edit LevelManager Profile")}
+                disabled={!hasActionAccess("Edit BaseSubjectManager Profile")}
+                hidden={!hasActionAccess("Edit BaseSubjectManager Profile")}
                 onClick={() => setOnEditMode(true)}
                 className={defaultButtonStyle}
               >
@@ -216,7 +220,7 @@ export const LevelManagerDialogComponent = ({
                 if (!unsaved) {
                   onClose(true);
                 }
-                const container = document.getElementById("levelManagerDialogContainer");
+                const container = document.getElementById("baseSubjectManagerDialogContainer");
                 if (container) {
                   container.style.overflow = "hidden";
                 }
@@ -242,19 +246,19 @@ export const LevelManagerDialogComponent = ({
 
           <div className="grid grid-cols-2 gap-3 w-full">
             <SearchableDropDownInput
-              defaultText={`|${levelCustomId}`}
+              defaultText={`|${baseSubjectCustomId}`}
               disabled={onViewMode}
-              title="Level Custom Id *"
-              placeholder="Search Level *"
-              data={levels}
-              displayKeys={["_id", "levelCustomId", "levelFullTitle"]}
+              title="Base Subject Custom Id *"
+              placeholder="Search Base Subject *"
+              data={baseSubjects}
+              displayKeys={["_id", "baseSubjectCustomId", "baseSubjectName"]}
               onSelected={(selectedData, save) => {
                 if (save) {
                   setLocalData((prev: any) => ({
                     ...prev,
-                    levelCustomId: selectedData[1],
-                    levelId: selectedData[0],
-                    levelFullTitle: selectedData[2]
+                    baseSubjectCustomId: selectedData[1],
+                    baseSubjectId: selectedData[0],
+                    baseSubjectName: selectedData[2]
                   }));
                   setUnsaved(true);
                 }
@@ -266,7 +270,7 @@ export const LevelManagerDialogComponent = ({
               }}
             />
             <SearchableDropDownInput
-              defaultText={`|${levelManagerCustomStaffId}`}
+              defaultText={`|${baseSubjectManagerCustomStaffId}`}
               disabled={onViewMode}
               title="Manager Staff Id *"
               placeholder="Search Staff *"
@@ -277,9 +281,9 @@ export const LevelManagerDialogComponent = ({
                   const staffContract = staffContracts.find((contract: any) => contract._id === selectedData[0]);
                   setLocalData((prev: any) => ({
                     ...prev,
-                    levelManagerCustomStaffId: staffContract?.staffCustomId,
-                    levelManagerStaffId: staffContract?.staffId,
-                    levelManagerFullName: staffContract?.staffFullName
+                    baseSubjectManagerCustomStaffId: staffContract?.staffCustomId,
+                    baseSubjectManagerStaffId: staffContract?.staffId,
+                    baseSubjectManagerFullName: staffContract?.staffFullName
                   }));
                   setUnsaved(true);
                 }
@@ -292,20 +296,20 @@ export const LevelManagerDialogComponent = ({
             />
             <InputComponent
               disabled={true}
-              title="Level Full Title *"
-              placeholder="Level Full Title * (Auto-fill)"
+              title="Base Subject Name *"
+              placeholder="Base Subject Name * (Auto-fill)"
               required
-              name="levelFullTitle"
-              value={levelFullTitle}
+              name="baseSubjectName"
+              value={baseSubjectName}
               onChange={handleInputChange}
             />
             <InputComponent
               disabled={true}
-              title="Level Manager Full Name *"
+              title="Base Subject Manager Full Name *"
               autocomplete="on"
-              placeholder="Level Manager Full Name * (Auto-fill)"
-              name="levelManagerFullName"
-              value={levelManagerFullName}
+              placeholder="Base Subject Manager Full Name * (Auto-fill)"
+              name="baseSubjectManagerFullName"
+              value={baseSubjectManagerFullName}
               onChange={handleInputChange}
             />
             <InputComponent

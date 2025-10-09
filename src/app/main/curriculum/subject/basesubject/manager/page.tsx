@@ -12,6 +12,8 @@ import {
   PreviousButton
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
+import { FaSearch } from "react-icons/fa";
+import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 
 import {
@@ -36,22 +38,21 @@ import {
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { MdAdd, MdContentCopy } from "react-icons/md";
-import { LevelDialogComponent } from "@/lib/customComponents/curriculum/levelDialogComp";
+import { BaseSubjectManagerDialogComponent } from "@/lib/customComponents/curriculum/baseSubjectManagerDialogComp";
 
-const Levels = () => {
+const BaseSubjectManager = () => {
   const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
-  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/curriculum/level");
+  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/curriculum/basesubject/manager");
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
-  const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openEditLevelDialog, setOpenEditLevelDialog] = useState(false);
-  const [openNewLevelDialog, setOpenNewLevelDialog] = useState(false);
-  const [openViewLevelDialog, setOpenViewLevelDialog] = useState(false);
+  const [openEditBaseSubjectManagerDialog, setOpenEditBaseSubjectManagerDialog] = useState(false);
+  const [openNewBaseSubjectManagerDialog, setOpenNewBaseSubjectManagerDialog] = useState(false);
+  const [openViewBaseSubjectManagerDialog, setOpenViewBaseSubjectManagerDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
-  const [onOpenLevelDialogData, setOnOpenLevelDialogData] = useState<any>({});
+  const [onOpenBaseSubjectManagerDialogData, setOnOpenBaseSubjectManagerDialogData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
@@ -66,61 +67,80 @@ const Levels = () => {
   const [queryParams, setQueryParams] = useState({});
 
   const {
-    data: courses,
-    isFetching: isFetchingcourses,
-    error: coursesError,
-    isError: iscoursesError
-  } = useReusableQuery("courses", "View Courses", "alyeqeenschoolapp/api/curriculum/allcourses");
+    data: staffContracts,
+    isFetching: isFetchingStaffContracts,
+    error: staffContractsError,
+    isError: isStaffContractsError
+  } = useReusableQuery("staffContracts", "View Staff Contracts", "alyeqeenschoolapp/api/staff/allcontract");
 
   const {
-    data: levels,
-    isFetching: isFetchinglevels,
-    error: levelsError,
-    isError: isLevelsError,
+    data: baseSubjects,
+    isFetching: isFetchingbaseSubjects,
+    error: baseSubjectsError,
+    isError: isbaseSubjectsError
+  } = useReusableQuery("baseSubjects", "View BaseSubjects", "alyeqeenschoolapp/api/curriculum/allbasesubjects");
+
+  const {
+    data: baseSubjectManagers,
+    isFetching: isFetchingbaseSubjectManagers,
+    error: baseSubjectManagersError,
+    isError: isBaseSubjectManagersError,
     fetchNextPage,
     fetchPreviousPage
   } = useReusableInfiniteQuery(
-    "levels",
+    "basesubjectmanagers",
     queryParams,
     Number(limit) || 10,
-    "View Levels",
-    "alyeqeenschoolapp/api/curriculum/levels"
+    "View Base Subject Managers",
+    "alyeqeenschoolapp/api/curriculum/basesubject/managers"
   );
 
   useEffect(() => {
-    if (!courses) return;
+    if (!staffContracts) return;
     setError("");
-  }, [courses, isFetchingcourses]);
+  }, [staffContracts, isFetchingStaffContracts]);
 
   useEffect(() => {
-    if (!iscoursesError) return;
-    if (coursesError) {
-      setError(coursesError.message);
+    if (!isStaffContractsError) return;
+    if (staffContractsError) {
+      setError(staffContractsError.message);
     }
-  }, [coursesError, iscoursesError]);
+  }, [staffContractsError, isStaffContractsError]);
 
   useEffect(() => {
-    if (!levels) return;
+    if (!baseSubjects) return;
     setError("");
-    const currentPage: any = levels.pages[pageIndex];
+  }, [baseSubjects, isFetchingbaseSubjects]);
+
+  useEffect(() => {
+    if (!isbaseSubjectsError) return;
+    if (baseSubjectsError) {
+      setError(baseSubjectsError.message);
+    }
+  }, [baseSubjectsError, isbaseSubjectsError]);
+
+  useEffect(() => {
+    if (!baseSubjectManagers) return;
+    setError("");
+    const currentPage: any = baseSubjectManagers.pages[pageIndex];
     if (currentPage === undefined) return;
-    setLocalData(currentPage.levels);
+    setLocalData(currentPage.baseSubjectManagers);
     const { totalCount, chunkCount, hasNext } = currentPage;
     setPaginationData({ totalCount, chunkCount, hasNext });
-  }, [levels, isFetchinglevels]);
+  }, [baseSubjectManagers, isFetchingbaseSubjectManagers]);
 
   useEffect(() => {
-    if (!isLevelsError) return;
-    if (levelsError) {
-      setError(levelsError.message);
+    if (!isBaseSubjectManagersError) return;
+    if (baseSubjectManagersError) {
+      setError(baseSubjectManagersError.message);
     }
-  }, [levelsError, isLevelsError]);
+  }, [baseSubjectManagersError, isBaseSubjectManagersError]);
 
   const renderNextPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { levels, ...rest } = foundPage;
-      setLocalData(levels);
+      const { baseSubjectManagers, ...rest } = foundPage;
+      setLocalData(baseSubjectManagers);
       setPaginationData(rest);
     } else {
       fetchNextPage();
@@ -130,8 +150,8 @@ const Levels = () => {
   const renderPreviousPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { levels, ...rest } = foundPage;
-      setLocalData(levels);
+      const { baseSubjectManagers, ...rest } = foundPage;
+      setLocalData(baseSubjectManagers);
       setPaginationData(rest);
     } else {
       fetchPreviousPage();
@@ -144,7 +164,7 @@ const Levels = () => {
         <LoaderDiv
           type="spinnerText"
           borderColor="foregroundColor"
-          text="Loading Level Data..."
+          text="Loading BaseSubject Manager Data..."
           textColor="foregroundColor"
           dimension="h-10 w-10"
         />
@@ -152,7 +172,7 @@ const Levels = () => {
     );
   }
 
-  if (isFetchingcourses) {
+  if (isFetchingbaseSubjects) {
     return (
       <div className="flex items-center justify-center mt-10">
         <LoaderDiv
@@ -210,65 +230,58 @@ const Levels = () => {
     <div className="px-4 py-6 w-full">
       {/* data table section */}
       <>
-        {openEditLevelDialog && (
-          <LevelDialogComponent
+        {openEditBaseSubjectManagerDialog && (
+          <BaseSubjectManagerDialogComponent
             type="edit"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditLevelDialog(!open);
+              setOpenEditBaseSubjectManagerDialog(!open);
               return {};
             }}
             onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditLevelDialog(!notSave);
+              setOpenEditBaseSubjectManagerDialog(!notSave);
               return {};
             }}
-            courses={courses ? courses : []}
-            data={onOpenLevelDialogData}
+            data={onOpenBaseSubjectManagerDialogData}
+            baseSubjects={baseSubjects ? baseSubjects : []}
+            staffContracts={staffContracts ? staffContracts : []}
           />
         )}
 
-        {openViewLevelDialog && (
-          <LevelDialogComponent
+        {openViewBaseSubjectManagerDialog && (
+          <BaseSubjectManagerDialogComponent
             type="view"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewLevelDialog(!open);
+              setOpenViewBaseSubjectManagerDialog(!open);
               return {};
             }}
             onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewLevelDialog(!notSave);
+              setOpenViewBaseSubjectManagerDialog(!notSave);
               return {};
             }}
-            courses={courses ? courses : []}
-            data={onOpenLevelDialogData}
+            data={onOpenBaseSubjectManagerDialogData}
+            baseSubjects={baseSubjects ? baseSubjects : []}
+            staffContracts={staffContracts ? staffContracts : []}
           />
         )}
-        {openNewLevelDialog && (
-          <LevelDialogComponent
+        {openNewBaseSubjectManagerDialog && (
+          <BaseSubjectManagerDialogComponent
             type="new"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewLevelDialog(!open);
+              setOpenNewBaseSubjectManagerDialog(!open);
               return {};
             }}
             onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewLevelDialog(!notSave);
+              setOpenNewBaseSubjectManagerDialog(!notSave);
               return {};
             }}
-            courses={courses ? courses : []}
-          />
-        )}
-        {openDisallowedDeleteDialog && (
-          <DisallowedActionDialog
-            warningText="This delete action is disallowed as it relates to the default Admin / organisation account"
-            onOk={() => {
-              document.body.style.overflow = "";
-              setOpenDisallowedDeleteDialog(false);
-              setError("");
-            }}
+            baseSubjects={baseSubjects ? baseSubjects : []}
+            staffContracts={staffContracts ? staffContracts : []}
           />
         )}
         {openConfirmDelete && (
@@ -294,7 +307,7 @@ const Levels = () => {
               setOpenConfirmDelete(false);
               document.body.style.overflow = "";
             }}
-            warningText="Please confirm the ID of the level you want to delete"
+            warningText="Please confirm the ID of the base subject manager you want to delete"
           />
         )}
         {/* data table div */}
@@ -303,12 +316,11 @@ const Levels = () => {
             {/* title */}
             <div className="flex flex-col">
               <CustomHeading variation="sectionHeader">
-                Levels
-                {/* <LevelRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
+                Base Subject Manager
+                {/* <BaseSubjectManagerRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
               </CustomHeading>
-              <CustomHeading variation="head5">Defines the specific year or stage within a course</CustomHeading>
-              <CustomHeading variation="head6light">
-                e.g. Level 1, SSS1, JSS1, Nursery 1, Primary 1, 100 Level etc.
+              <CustomHeading variation="head5light">
+                Manage and assign base subject managers to specific base subjects
               </CustomHeading>
             </div>
 
@@ -318,23 +330,23 @@ const Levels = () => {
             <div>
               <button
                 onClick={() => {
-                  if (hasActionAccess("Create Level")) {
+                  if (hasActionAccess("Create Base Subject Manager")) {
                     document.body.style.overflow = "hidden";
-                    setOpenNewLevelDialog(true);
+                    setOpenNewBaseSubjectManagerDialog(true);
                   } else {
-                    setError("You do not have Create Level Access - Please contact your admin");
+                    setError("You do not have Create Base Subject Manager Access - Please contact your admin");
                   }
                 }}
-                disabled={!hasActionAccess("Create Level")}
+                disabled={!hasActionAccess("Create Base Subject Manager")}
                 className={defaultButtonStyle}
               >
-                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Level
+                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Base Subject Manager
               </button>
             </div>
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
-              placeholder="Search role (Level Name, Level Custom ID, Level Full Title)"
+              placeholder="Search role (Base Subject Manager Name, Base Subject Manager Custom ID)"
               filters={[
                 {
                   displayText: "Status",
@@ -393,7 +405,7 @@ const Levels = () => {
                 onClick={() => {
                   const prevPage = pageIndex - 1;
                   setPageIndex(prevPage);
-                  renderPreviousPage(prevPage, levels.pages);
+                  renderPreviousPage(prevPage, baseSubjectManagers.pages);
                 }}
                 disabled={pageIndex === 0}
               />
@@ -405,7 +417,7 @@ const Levels = () => {
                 onClick={() => {
                   const nextPage = pageIndex + 1;
                   setPageIndex(nextPage);
-                  renderNextPage(nextPage, levels.pages);
+                  renderNextPage(nextPage, baseSubjectManagers.pages);
                 }}
                 disabled={!paginationData.hasNext}
               />
@@ -418,16 +430,26 @@ const Levels = () => {
             <table className="relative w-full">
               <thead className="sticky top-0 z-10 border-b border-borderColor-2">
                 <tr className={tableHeaderStyle}>
-                  {(["Level Custom ID", "Level", "Level Full Title", "Status", "Duration"] as const).map((header) => (
+                  {(
+                    [
+                      "Base Subject Manager ID",
+                      "Base Subject Name",
+                      "Manager Name",
+                      "Management Status",
+                      "Managed From",
+                      "Managed Until"
+                    ] as const
+                  ).map((header) => (
                     <th
                       key={header}
                       onClick={() => {
                         const key_Name = {
-                          Level: "level",
-                          "Level Custom ID": "levelCustomId",
-                          "Level Full Title": "levelFullTitle",
-                          Status: "status",
-                          Duration: "levelDuration"
+                          "Base Subject Manager ID": "_id",
+                          "Manager Name": "baseSubjectManagerFullName",
+                          "Base Subject Name": "baseSubjectName",
+                          "Management Status": "status",
+                          "Managed From": "managedFrom",
+                          "Managed Until": "managedUntil"
                         };
                         const sortKey = key_Name[header];
                         handleSort(sortKey);
@@ -443,20 +465,20 @@ const Levels = () => {
 
               {/* table data */}
               <tbody className="mt-3 bg-backgroundColor">
-                {isFetchinglevels ? (
+                {isFetchingbaseSubjectManagers ? (
                   <tr>
                     <td colSpan={8}>
                       <div className="flex items-center justify-center p-10">
                         <LoaderDiv
                           type="spinnerText"
-                          text="Loading Levels..."
+                          text="Loading Base Subject Managers..."
                           textColor="foregroundColor"
                           dimension="h-10 w-10"
                         />
                       </div>
                     </td>
                   </tr>
-                ) : (localData.length < 1 && !isFetchinglevels) || !levels ? (
+                ) : (localData.length < 1 && !isFetchingbaseSubjectManagers) || !baseSubjectManagers ? (
                   <tr>
                     <td colSpan={8} className="text-center py-4">
                       No data available
@@ -465,89 +487,78 @@ const Levels = () => {
                 ) : (
                   localData.map((doc: any, index: any) => {
                     const {
-                      _id: levelId,
-                      levelCustomId,
-                      level,
-                      offeringStartDate,
-                      offeringEndDate,
-                      status,
-                      levelFullTitle,
-                      levelDuration
+                      _id: baseSubjectManagerId,
+                      baseSubjectName,
+                      baseSubjectManagerFullName,
+                      managedFrom,
+                      managedUntil,
+                      status
                     } = doc;
 
                     return (
                       <tr
-                        key={levelId}
+                        key={baseSubjectManagerId}
                         onClick={() => {
-                          if (hasActionAccess("View Levels")) {
+                          if (hasActionAccess("View Base Subject Managers")) {
                             document.body.style.overflow = "hidden";
-                            setOnOpenLevelDialogData(doc);
-                            setOpenViewLevelDialog(true);
+                            setOnOpenBaseSubjectManagerDialogData(doc);
+                            setOpenViewBaseSubjectManagerDialog(true);
                           } else {
-                            setError("You do not have View Level Access - Please contact your admin");
+                            setError("You do not have View Base Subject Manager Access - Please contact your admin");
                           }
                         }}
                         className={tableRowStyle}
                       >
                         <td className="w-[110px] whitespace-nowrap text-center">
-                          {levelCustomId}
+                          {baseSubjectManagerId.slice(15)}
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(levelCustomId);
+                              await navigator.clipboard.writeText(baseSubjectManagerId);
                             }}
                           />
                         </td>
+                        <td className={tableCellStyle}>{baseSubjectName}</td>
                         <td className={tableCellStyle}>
-                          {level}
+                          {baseSubjectManagerFullName}
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(level);
+                              await navigator.clipboard.writeText(baseSubjectManagerFullName);
                             }}
                           />
                         </td>
-                        <td className={tableCellStyle}>
-                          {levelFullTitle}
-                          <MdContentCopy
-                            title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              await navigator.clipboard.writeText(levelFullTitle);
-                            }}
-                          />
-                        </td>
-
                         <td className={tableCellStyle}>{status}</td>
-                        <td className={tableCellStyle}>{levelDuration}</td>
-
+                        <td className={tableCellStyle}>{formatDate(managedFrom)}</td>
+                        <td className={tableCellStyle}>{formatDate(managedUntil)}</td>
                         <td className="text-center flex items-center justify-center h-15">
                           <ActionButtons
                             onEdit={(e) => {
-                              if (hasActionAccess("Edit Level")) {
+                              if (hasActionAccess("Edit BaseSubject Manager")) {
                                 document.body.style.overflow = "hidden";
-                                setOnOpenLevelDialogData(doc);
-                                setOpenEditLevelDialog(true);
+                                setOnOpenBaseSubjectManagerDialogData(doc);
+                                setOpenEditBaseSubjectManagerDialog(true);
                               } else {
-                                setError("You do not have Edit Level Access - Please contact your admin");
+                                setError(
+                                  "You do not have Edit Base Subject Manager Access - Please contact your admin"
+                                );
                               }
                             }}
                             onDelete={(e) => {
-                              if (hasActionAccess("Delete Level")) {
+                              if (hasActionAccess("Delete Base Subject Manager")) {
                                 document.body.style.overflow = "hidden";
                                 setOpenConfirmDelete(true);
-                                setConfirmWithText(levelCustomId);
+                                setConfirmWithText(baseSubjectManagerId);
                                 setConfirmWithReturnObj({
-                                  levelCustomId
+                                  baseSubjectManagerId
                                 });
                               } else {
                                 setError(
-                                  "Unauthorised Action: You do not have Delete Level Access - Please contact your admin"
+                                  "Unauthorised Action: You do not have Delete Base Subject Manager Access - Please contact your admin"
                                 );
                               }
                             }}
@@ -566,4 +577,4 @@ const Levels = () => {
   );
 };
 
-export default Levels;
+export default BaseSubjectManager;

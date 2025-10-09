@@ -20,34 +20,28 @@ import {
   validatePhoneNumber
 } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../general/compLibrary";
-import { useAppSelector } from "@/redux/hooks";
-import ImageUploadDiv from "../general/imageUploadCom";
-import { handleApiRequest } from "@/axios/axiosClient";
-import axios from "axios";
 import { defaultButtonStyle, tabGroupButtonStyle } from "@/lib/generalStyles";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { MdAdd } from "react-icons/md";
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import { SearchableDropDownInput } from "../general/compLibrary2";
 
-export const CourseDialogComponent = ({
+export const BaseSubjectDialogComponent = ({
   type,
   data,
   onClose,
-  onSave,
-  programmes
+  onSave
 }: {
   type: "new" | "edit" | "view";
   data?: any;
   onClose: (close: boolean) => void;
   onSave: (save: boolean) => void;
-  programmes: any[];
 }) => {
   const { handleUnload } = useNavigationHandler();
   const { hasActionAccess } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
-  const updateMutation = tanMutateAny("put", "alyeqeenschoolapp/api/curriculum/course");
-  const createMutation = tanMutateAny("post", "alyeqeenschoolapp/api/curriculum/course");
+  const updateMutation = tanMutateAny("put", "alyeqeenschoolapp/api/curriculum/basesubject");
+  const createMutation = tanMutateAny("post", "alyeqeenschoolapp/api/curriculum/basesubject");
   const [unsaved, setUnsaved] = useState(false);
   const [error, setError] = useState("");
   const [onEditMode, setOnEditMode] = useState(type === "edit");
@@ -56,32 +50,16 @@ export const CourseDialogComponent = ({
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
 
   const [localData, setLocalData] = useState<any>({
-    courseCustomId: onCreateMode ? generateCustomId(`CRS`, true, "numeric") : data.courseCustomId || "",
-    courseName: onCreateMode ? "" : data.courseName,
-    courseFullTitle: onCreateMode ? "" : data.courseFullTitle,
-    programmeId: onCreateMode ? "" : data.programmeId,
-    programmeCustomId: onCreateMode ? "" : data.programmeCustomId,
-    programmeName: onCreateMode ? "" : data.programmeName,
+    baseSubjectCustomId: onCreateMode ? generateCustomId(`BSBJ`, true, "numeric") : data.baseSubjectCustomId || "",
+    baseSubjectName: onCreateMode ? "" : data.baseSubjectName,
     description: onCreateMode ? "" : data.description,
     offeringStartDate: onCreateMode ? "" : data.offeringStartDate,
     offeringEndDate: onCreateMode ? "" : data.offeringEndDate,
     status: onCreateMode ? "" : data.status,
-    courseDuration: onCreateMode ? "" : data.courseDuration
+    baseSubjectDuration: onCreateMode ? "" : data.baseSubjectDuration
   });
 
-  const {
-    courseCustomId,
-    courseName,
-    courseFullTitle,
-    description,
-    offeringStartDate,
-    offeringEndDate,
-    status,
-    courseDuration,
-    programmeName,
-    programmeCustomId,
-    programmeId
-  } = localData;
+  const { baseSubjectCustomId, baseSubjectName, description, offeringStartDate, offeringEndDate, status } = localData;
 
   useEffect(() => {
     if (!unsaved) return;
@@ -91,18 +69,6 @@ export const CourseDialogComponent = ({
       handleUnload("remove");
     };
   }, [unsaved]);
-
-  useEffect(() => {
-    setLocalData((prev: any) => ({
-      ...prev,
-      courseFullTitle:
-        programmeCustomId === ""
-          ? "Select a Programme"
-          : courseName === ""
-          ? "Enter Course Title"
-          : `${programmeName} - ${courseName}`
-    }));
-  }, [programmeCustomId, programmeId, courseName]);
 
   useEffect(() => {
     if (onViewMode) {
@@ -132,7 +98,7 @@ export const CourseDialogComponent = ({
   };
 
   const validationPassed = () => {
-    const { description, courseDuration, programmeName, ...copyLocalData } = localData;
+    const { description, baseSubjectDuration, programmeName, ...copyLocalData } = localData;
 
     for (const [key, value] of Object.entries(copyLocalData)) {
       if (!value || (typeof value === "string" && value.trim() === "")) {
@@ -144,20 +110,20 @@ export const CourseDialogComponent = ({
     return true;
   };
 
-  // function to handle all course object data update
-  const handleUpdateCourse = async () => {
+  // function to handle all baseSubject object data update
+  const handleUpdateBaseSubject = async () => {
     try {
       const response = await updateMutation.mutateAsync(localData);
       if (response?.data) {
         onSave(true);
       }
     } catch (error: any) {
-      setError(error.message || error.response?.data.message || "Error creating course");
+      setError(error.message || error.response?.data.message || "Error creating base subject");
     }
   };
 
-  // function to handle course creation
-  const handleCreateCourse = async () => {
+  // function to handle baseSubject creation
+  const handleCreateBaseSubject = async () => {
     if (validationPassed()) {
       setError("");
 
@@ -168,7 +134,7 @@ export const CourseDialogComponent = ({
             onSave(true);
           }
         } catch (error: any) {
-          setError(error.message || error.response?.data.message || "Error creating course");
+          setError(error.message || error.response?.data.message || "Error creating base subject");
         }
       }
     }
@@ -176,12 +142,12 @@ export const CourseDialogComponent = ({
 
   return (
     <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-transparent">
-      <ContainerComponent id="courseDialogContainer" style="w-[50%] h-[90%] gap-5 overflow-auto flex flex-col">
+      <ContainerComponent id="baseSubjectDialogContainer" style="w-[50%] h-[90%] gap-5 overflow-auto flex flex-col">
         {openUnsavedDialog && (
           <YesNoDialog
             warningText="You have unsaved changes. Are you sure you want to proceed?"
             onNo={() => {
-              const container = document.getElementById("courseDialogContainer");
+              const container = document.getElementById("baseSubjectDialogContainer");
               if (container) {
                 container.style.overflow = "";
               }
@@ -195,30 +161,30 @@ export const CourseDialogComponent = ({
         )}
         {/* top div */}
         <div className="flex justify-between items-center">
-          <h2>{onCreateMode ? "Create" : onViewMode ? "View" : "Edit"} Course</h2>
+          <h2>{onCreateMode ? "Create" : onViewMode ? "View" : "Edit"} Base Subject</h2>
           <div className="flex justify-between items-center gap-5">
             {onCreateMode && (
               <LoaderButton
                 buttonText="Create"
-                loadingButtonText="Creating Course..."
+                loadingButtonText="Creating Base Subject..."
                 disabled={!unsaved}
                 isLoading={createMutation.isPending}
-                onClick={handleCreateCourse}
+                onClick={handleCreateBaseSubject}
               />
             )}
             {onEditMode && (
               <LoaderButton
                 buttonText="Save"
-                loadingButtonText="Saving Course..."
+                loadingButtonText="Saving Base Subject..."
                 disabled={!unsaved}
                 isLoading={updateMutation.isPending}
-                onClick={handleUpdateCourse}
+                onClick={handleUpdateBaseSubject}
               />
             )}
             {onViewMode && (
               <button
-                disabled={!hasActionAccess("Edit Course")}
-                hidden={!hasActionAccess("Edit Course")}
+                disabled={!hasActionAccess("Edit Base Subject")}
+                hidden={!hasActionAccess("Edit Base Subject")}
                 onClick={() => setOnEditMode(true)}
                 className={defaultButtonStyle}
               >
@@ -230,7 +196,7 @@ export const CourseDialogComponent = ({
                 if (!unsaved) {
                   onClose(true);
                 }
-                const container = document.getElementById("courseDialogContainer");
+                const container = document.getElementById("baseSubjectDialogContainer");
                 if (container) {
                   container.style.overflow = "hidden";
                 }
@@ -258,71 +224,20 @@ export const CourseDialogComponent = ({
             <div className="grid grid-cols-2 gap-3 w-full">
               <InputComponent
                 disabled={onViewMode}
-                title="Course Custom ID *"
-                placeholder="Course Custom ID"
+                title="Base Subject Custom ID *"
+                placeholder="Base Subject Custom ID"
                 required
-                name="courseCustomId"
-                value={courseCustomId}
+                name="baseSubjectCustomId"
+                value={baseSubjectCustomId}
                 onChange={handleInputChange}
-              />
-              <SearchableDropDownInput
-                defaultText={`|${programmeCustomId}`}
-                disabled={onViewMode}
-                title="Programme Custom Id *"
-                placeholder="Search Programme *"
-                data={programmes}
-                displayKeys={["_id", "programmeCustomId", "programmeName"]}
-                onSelected={(selectedData, save) => {
-                  if (save) {
-                    setLocalData((prev: any) => ({
-                      ...prev,
-                      programmeCustomId: selectedData[1],
-                      programmeId: selectedData[0],
-                      programmeName: selectedData[2]
-                    }));
-                    setUnsaved(true);
-                  }
-                }}
-                onClearSearch={(cleared) => {
-                  if (cleared) {
-                    // setSearchValue("");
-                  }
-                }}
               />
               <InputComponent
                 disabled={onViewMode}
-                title="Course Title *"
+                title="Base Subject Title *"
                 autocomplete="on"
-                placeholder="Course Title *"
-                name="courseName"
-                value={courseName}
-                onChange={handleInputChange}
-              />{" "}
-              <InputComponent
-                disabled={onViewMode}
-                title="Course Duration"
-                autocomplete="on"
-                placeholder="Course Duration"
-                name="courseDuration"
-                value={courseDuration}
-                onChange={handleInputChange}
-              />
-              <InputComponent
-                title="Programme Title (auto-generated)"
-                disabled={true}
-                autocomplete="on"
-                placeholder="Programme Title (auto-generated)"
-                name="programmeName"
-                value={programmeName}
-                onChange={handleInputChange}
-              />
-              <InputComponent
-                disabled={true}
-                title="Course Full Title (auto-generated)"
-                autocomplete="on"
-                placeholder="Course Full Title (auto-generated)"
-                name="courseFullTitle"
-                value={courseFullTitle}
+                placeholder="Base Subject Title *"
+                name="baseSubjectName"
+                value={baseSubjectName}
                 onChange={handleInputChange}
               />{" "}
             </div>

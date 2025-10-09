@@ -5,14 +5,14 @@ export const tableCellStyle = "w-[200px] text-center whitespace-nowrap text-cent
 export const tableRowStyle = "hover:bg-backgroundColor-2 hover:cursor-pointer border-y border-borderColor-2 h-15";
 export const inputStyle =
   "w-full bg-backgroundColor border border-borderColor rounded p-2 outline-none focus:border-b-3 focus:border-borderColor w-full";
-export const tableHeaderStyle = "bg-backgroundColor-3 text-foregroundColor font-semibold h-18";
+export const tableHeaderStyle = "bg-backgroundColor-3 text-foregroundColor font-semibold h-18 w-full";
 export const tableTopStyle = "flex justify-between gap-5 items-center mb-2 px-2 pb-4 border-b border-borderColor";
 export const tableContainerStyle =
-  "mt-3 border border-borderColor text-foregroundColor bg-backgroundColor rounded-lg shadow relative max-h-[600px] overflow-y-auto overflow-x-auto";
+  "mt-3 border border-borderColor text-foregroundColor rounded-lg shadow relative max-h-[600px] overflow-y-auto overflow-x-auto";
 export const paginationContainerStyle =
   "flex items-center justify-between px-2 text-[15px] mb-1 mt-8 font-semibold text-foregroundColor-2 rounded-t-lg";
 export const tableHeadCellStyle =
-  "hover:bg-backgroundColor-2 text-center font-semibold whitespace-nowrap text-foregroundColor";
+  "hover:bg-backgroundColor-2 text-center font-semibold whitespace-nowrap text-foregroundColor p-2";
 export const sortableTableHeadCellStyle =
   "hover:bg-backgroundColor-2 text-center w-[200px] font-semibold hover:cursor-pointer p-2 whitespace-nowrap text-foregroundColor";
 export const defaultButtonStyle =

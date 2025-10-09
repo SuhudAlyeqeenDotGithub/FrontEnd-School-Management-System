@@ -305,7 +305,7 @@ export const ProgrammeManagerDialogComponent = ({
               onChange={handleInputChange}
             />
             <InputComponent
-              disabled={onViewMode}
+              disabled={true}
               title="Programme Manager Full Name *"
               autocomplete="on"
               placeholder="Programme Manager Full Name * (Auto-fill)"

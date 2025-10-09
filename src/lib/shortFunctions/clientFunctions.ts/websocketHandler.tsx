@@ -1143,6 +1143,190 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
           });
         }
       }
+
+      // handle baseSubjects changes
+      if ((hasActionAccess("View Base Subjects") || userIsAbsoluteAdmin) && collection === "basesubjects") {
+        const queriesData = queryClient.getQueriesData({ queryKey: ["basesubjects"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (baseSubjects: any) => {
+                return [fullDocument, ...baseSubjects];
+              });
+            } else {
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { baseSubjects: firstPageBaseSubjects } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [
+                        { ...firstPage, baseSubjects: [fullDocument, ...firstPageBaseSubjects] },
+                        ...queryPages.slice(1)
+                      ]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (baseSubjects: any) => {
+                return baseSubjects.map((baseSubject: any) =>
+                  baseSubject._id === fullDocument._id ? fullDocument : baseSubject
+                );
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    baseSubjects: page.baseSubjects.map((baseSubject: any) =>
+                      baseSubject._id === fullDocument._id ? fullDocument : baseSubject
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (baseSubjects: any) => {
+                return baseSubjects.filter((baseSubject: any) => baseSubject._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    baseSubjects: page.baseSubjects.filter((baseSubject: any) => baseSubject._id !== fullDocument._id)
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
+
+      // handle base subject managers changes
+      if (
+        (hasActionAccess("View Base Subject Managers") || userIsAbsoluteAdmin) &&
+        collection === "basesubjectmanagers"
+      ) {
+        const changedRecordId = fullDocument.baseSubjectManagerStaffId;
+        const userStaffId = accountData.staffId?._id;
+
+        if (!userIsAbsoluteAdmin && changedRecordId === userStaffId) return;
+        const queriesData = queryClient.getQueriesData({ queryKey: ["basesubjectmanagers"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              console.log("Inserting into singly cache", fullDocument);
+              queryClient.setQueryData(queryKey, (baseSubjectManagers: any) => {
+                0;
+                return [fullDocument, ...baseSubjectManagers];
+              });
+            } else {
+              console.log("Inserting into paginated cache", fullDocument);
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { baseSubjectManagers: firstPageBaseSubjectManagers } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [
+                        { ...firstPage, baseSubjectManagers: [fullDocument, ...firstPageBaseSubjectManagers] },
+                        ...queryPages.slice(1)
+                      ]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (baseSubjectManagers: any) => {
+                return baseSubjectManagers.map((baseSubjectManager: any) =>
+                  baseSubjectManager._id === fullDocument._id ? fullDocument : baseSubjectManager
+                );
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    baseSubjectManagers: page.baseSubjectManagers.map((baseSubjectManager: any) =>
+                      baseSubjectManager._id === fullDocument._id ? fullDocument : baseSubjectManager
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (baseSubjectManagers: any) => {
+                return baseSubjectManagers.filter(
+                  (baseSubjectManager: any) => baseSubjectManager._id !== fullDocument._id
+                );
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    baseSubjectManagers: page.baseSubjectManagers.filter(
+                      (baseSubjectManager: any) => baseSubjectManager._id !== fullDocument._id
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
     } catch (error: any) {
       if (onError) onError(error || "An error occurred while fetching data");
     }

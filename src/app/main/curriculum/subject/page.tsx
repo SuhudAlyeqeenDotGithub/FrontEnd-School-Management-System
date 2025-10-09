@@ -294,7 +294,7 @@ const Levels = () => {
               setOpenConfirmDelete(false);
               document.body.style.overflow = "";
             }}
-            warningText="Please confirm the ID of the level you want to delete"
+            warningText="Please confirm the ID of the level/account you want to delete"
           />
         )}
         {/* data table div */}
