@@ -259,9 +259,9 @@ const BaseSubjects = () => {
                 Base Subjects
                 {/* <BaseSubjectRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
               </CustomHeading>
-              <CustomHeading variation="head5">Defines the specific year or stage within a course</CustomHeading>
+              <CustomHeading variation="head5">Subjects that exist across multiple courses</CustomHeading>
               <CustomHeading variation="head6light">
-                e.g. Mathematics, Civic Education, Chemistry, Physics, Biology etc.
+                Mathematics, Civic Education, Chemistry, Physics, Biology etc.
               </CustomHeading>
             </div>
 
@@ -452,7 +452,7 @@ const BaseSubjects = () => {
                           {baseSubjectCustomId}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(baseSubjectCustomId);
@@ -463,7 +463,7 @@ const BaseSubjects = () => {
                           {baseSubjectName}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(baseSubjectName);

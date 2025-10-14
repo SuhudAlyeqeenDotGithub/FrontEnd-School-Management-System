@@ -261,16 +261,6 @@ const Levels = () => {
             courses={courses ? courses : []}
           />
         )}
-        {openDisallowedDeleteDialog && (
-          <DisallowedActionDialog
-            warningText="This delete action is disallowed as it relates to the default Admin / organisation account"
-            onOk={() => {
-              document.body.style.overflow = "";
-              setOpenDisallowedDeleteDialog(false);
-              setError("");
-            }}
-          />
-        )}
         {openConfirmDelete && (
           <ConfirmActionByInputDialog
             returnObject={confirmWithReturnObj}
@@ -308,7 +298,7 @@ const Levels = () => {
               </CustomHeading>
               <CustomHeading variation="head5">Defines the specific year or stage within a course</CustomHeading>
               <CustomHeading variation="head6light">
-                e.g. Level 1, SSS1, JSS1, Nursery 1, Primary 1, 100 Level etc.
+                Level 1, SSS1, JSS1, Nursery 1, Primary 1, 100 Level etc.
               </CustomHeading>
             </div>
 
@@ -493,7 +483,7 @@ const Levels = () => {
                           {levelCustomId}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(levelCustomId);
@@ -504,7 +494,7 @@ const Levels = () => {
                           {level}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(level);
@@ -515,7 +505,7 @@ const Levels = () => {
                           {levelFullTitle}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(levelFullTitle);

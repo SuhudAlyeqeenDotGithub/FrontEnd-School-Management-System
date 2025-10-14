@@ -230,7 +230,7 @@ const NewAcademicYearComponent = ({
           <InputComponent
             title="Academic Year *"
             autocomplete="on"
-            placeholder=" e.g. (Academic Year 2023-2024)"
+            placeholder=" (Academic Year 2023-2024)"
             required
             name="academicYear"
             value={academicYear}

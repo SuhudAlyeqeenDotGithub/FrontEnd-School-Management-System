@@ -1,24 +1,33 @@
 "use client";
 
-import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv, TextAreaComponent } from "../general/compLibrary";
+import {
+  InputComponent,
+  LoaderButton,
+  ContainerComponent,
+  ErrorDiv,
+  SelectInputComponent
+} from "../general/compLibrary";
 import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/clientFunctions";
 import { YesNoDialog } from "../general/compLibrary";
-import { WorkExperienceType } from "@/interfaces/interfaces";
 import { nanoid } from "@reduxjs/toolkit";
 import { defaultButtonStyle } from "@/lib/generalStyles";
+import { SearchableDropDownInput } from "../general/compLibrary2";
+import { LearningObjectivesDialog } from "./learningObjectiveDialogComp";
 
-export const WorkExperienceDialog = ({
+export const SyllabusTopicsDialog = ({
   type = "new",
   data,
   onSave,
-  onClose
+  onClose,
+  topics
 }: {
   type?: "new" | "edit" | "view";
-  data?: WorkExperienceType;
-  onSave: (save: boolean, returnData: WorkExperienceType) => void;
+  data?: { topicId: string; topic: string; topicCustomId: string; week: string };
+  onSave: (save: boolean, returnData: { topicId: string; topic: string; topicCustomId: string; week: string }) => void;
   onClose: (close: boolean) => void;
+  topics: { topicId: string; topic: string; topicCustomId: string }[];
 }) => {
   const { handleUnload } = useNavigationHandler();
   const [unsaved, setUnsaved] = useState(false);
@@ -28,15 +37,13 @@ export const WorkExperienceDialog = ({
   const [onCreateMode, setOnCreateMode] = useState(type === "new");
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
   const [localData, setLocalData] = useState({
-    _id: onCreateMode ? nanoid() : data ? data._id : "",
-    organisation: onCreateMode ? "" : data ? data.organisation : "",
-    position: onCreateMode ? "" : data ? data.position : "",
-    experience: onCreateMode ? "" : data ? data.experience : "",
-    startDate: onCreateMode ? "" : data ? data.startDate : "",
-    endDate: onCreateMode ? "" : data ? data.endDate : ""
+    topicId: onCreateMode ? nanoid() : data ? data.topicId : "",
+    topicCustomId: onCreateMode ? "" : data ? data.topicCustomId : "",
+    topic: onCreateMode ? "" : data ? data.topic : "",
+    week: onCreateMode ? "" : data ? data.week : ""
   });
 
-  const { organisation, position, experience, startDate, endDate } = localData;
+  const { topic, week, topicCustomId } = localData;
 
   useEffect(() => {
     if (!unsaved) return;
@@ -74,35 +81,27 @@ export const WorkExperienceDialog = ({
   };
 
   const validationPassed = () => {
-    if (!organisation) {
-      setError("Missing Data: Please provide a company name/organisation name");
+    if (!topic) {
+      setError("Missing Data: Please provide a topic");
       return false;
     }
 
-    if (!position) {
-      setError("Missing Data: Please provide a position title or role name");
+    if (!topicCustomId) {
+      setError("Missing Data: Please provide a topicCustomId");
       return false;
     }
 
-    if (!experience) {
-      setError("Missing Data: Please provide a description of your experience");
-      return false;
-    }
-
-    if (!startDate) {
-      setError("Missing Data: Please provide a qualification start date");
-      return false;
-    }
-    if (!endDate) {
-      setError("Missing Data: Please provide a qualification end date");
+    if (!week) {
+      setError("Missing Data: Please provide a week");
       return false;
     }
 
     return true;
   };
+
   return (
     <div className="flex justify-center items-center absolute bg-foregroundColor-transparent inset-0">
-      <ContainerComponent style="w-[55%] h-[65%] gap-10 flex flex-col z-40 bg-backgroundColor overflow-auto">
+      <ContainerComponent style="w-[55%] h-[45%] gap-10 flex flex-col z-40 bg-backgroundColor overflow-auto">
         {error && (
           <ErrorDiv
             onClose={(close) => {
@@ -118,7 +117,7 @@ export const WorkExperienceDialog = ({
           <YesNoDialog
             warningText="You have unsaved changes. Are you sure you want to proceed?"
             onNo={() => {
-              const container = document.getElementById("staffExperienceDialogContainer");
+              const container = document.getElementById("SyllabusTopicsDialogContainer");
               if (container) {
                 container.style.overflow = "";
               }
@@ -126,7 +125,7 @@ export const WorkExperienceDialog = ({
             }}
             onYes={() => {
               handleUnload("remove");
-              const container = document.getElementById("staffExperienceDialogContainer");
+              const container = document.getElementById("SyllabusTopicsDialogContainer");
               if (container) {
                 container.style.overflow = "";
               }
@@ -135,7 +134,7 @@ export const WorkExperienceDialog = ({
           />
         )}
         <div className="flex justify-between items-center">
-          <h2>{onCreateMode ? "New" : onEditMode ? "Edit" : "View"} Work Experience</h2>
+          <h2>{onCreateMode ? "New" : onEditMode ? "Edit" : "View"} Syllabus Topic</h2>
           <div className="flex justify-between items-center gap-5">
             {!onViewMode ? (
               <LoaderButton
@@ -160,7 +159,7 @@ export const WorkExperienceDialog = ({
                 if (!unsaved) {
                   onClose(true);
                 } else {
-                  const container = document.getElementById("staffExperienceDialogContainer");
+                  const container = document.getElementById("SyllabusTopicsDialogContainer");
                   if (container) {
                     container.style.overflow = "hidden";
                   }
@@ -172,54 +171,79 @@ export const WorkExperienceDialog = ({
           </div>
         </div>
         <div className="flex gap-3 flex-col">
+          <SearchableDropDownInput
+            defaultText={`|${topicCustomId}`}
+            disabled={onViewMode}
+            title="Topic Custom Id *"
+            placeholder="Search Topic *"
+            data={topics}
+            displayKeys={["_id", "topicCustomId", "topic"]}
+            onSelected={(selectedData, save) => {
+              if (save) {
+                setLocalData((prev: any) => ({
+                  ...prev,
+                  topicCustomId: selectedData[1],
+                  topic: selectedData[2],
+                  topicId: selectedData[0]
+                }));
+                setUnsaved(true);
+              }
+            }}
+            onClearSearch={(cleared) => {
+              if (cleared) {
+                // setSearchValue("");
+              }
+            }}
+          />{" "}
           <InputComponent
-            title="Organisation *"
+            title="Topic *"
             disabled={onViewMode}
             autocomplete="on"
-            placeholder="Organisation Name *"
+            placeholder="Topic *"
             required
-            name="organisation"
-            value={organisation}
+            name="topic"
+            value={topic}
             onChange={handleInputChange}
           />
-          <InputComponent
-            title="Position *"
+          <SelectInputComponent
             disabled={onViewMode}
-            autocomplete="on"
-            placeholder="Position *"
-            required
-            name="position"
-            value={position}
+            title="Week"
+            placeholder="Week"
+            name="week"
+            value={week}
             onChange={handleInputChange}
-          />
-          <InputComponent
-            title="Start Date *"
-            disabled={onViewMode}
-            placeholder="Start Date *"
-            type="date"
-            required
-            name="startDate"
-            value={startDate}
-            onChange={handleInputChange}
-          />
-          <InputComponent
-            title="End Date *"
-            disabled={onViewMode}
-            placeholder="End Date *"
-            type="date"
-            required
-            name="endDate"
-            value={endDate}
-            onChange={handleInputChange}
-          />
-          <TextAreaComponent
-            title="Experience Description (Responsibilities, Achievements etc) *"
-            disabled={onViewMode}
-            placeholder="Work Experience Description *"
-            required
-            name="experience"
-            value={experience}
-            onChange={handleInputChange}
+            options={[
+              { label: "1", value: "1" },
+              { label: "2", value: "2" },
+              { label: "3", value: "3" },
+              { label: "4", value: "4" },
+              { label: "5", value: "5" },
+              { label: "6", value: "6" },
+              { label: "7", value: "7" },
+              { label: "8", value: "8" },
+              { label: "9", value: "9" },
+              { label: "10", value: "10" },
+              { label: "11", value: "11" },
+              { label: "12", value: "12" },
+              { label: "13", value: "13" },
+              { label: "14", value: "14" },
+              { label: "15", value: "15" },
+              { label: "16", value: "16" },
+              { label: "17", value: "17" },
+              { label: "18", value: "18" },
+              { label: "19", value: "19" },
+              { label: "20", value: "20" },
+              { label: "21", value: "21" },
+              { label: "22", value: "22" },
+              { label: "23", value: "23" },
+              { label: "24", value: "24" },
+              { label: "25", value: "25" },
+              { label: "26", value: "26" },
+              { label: "27", value: "27" },
+              { label: "28", value: "28" },
+              { label: "29", value: "29" },
+              { label: "30", value: "30" }
+            ]}
           />
         </div>
       </ContainerComponent>

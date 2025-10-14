@@ -1,7 +1,7 @@
 "use client";
 import { checkDataType } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActionButtons,
   CustomHeading,
@@ -12,8 +12,6 @@ import {
   PreviousButton
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
-import { FaSearch } from "react-icons/fa";
-import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 
 import {
@@ -21,16 +19,16 @@ import {
   ConfirmActionByInputDialog,
   CustomFilterComponent
 } from "@/lib/customComponents/general/compLibrary2";
-import { UserDialogComponent } from "@/lib/customComponents/admin/userDialogComp";
+import { SyllabusDialogComponent } from "@/lib/customComponents/curriculum/syllabusDialogComp";
 
 import {
-  dataRowCellStyle,
   defaultButtonStyle,
   ghostbuttonStyle,
   paginationContainerStyle,
   sortableTableHeadCellStyle,
   tableCellStyle,
   tableContainerStyle,
+  tableHeadCellStyle,
   tableHeaderStyle,
   tableRowStyle,
   tableTopStyle
@@ -39,20 +37,19 @@ import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { MdAdd, MdContentCopy } from "react-icons/md";
 
-const Users = () => {
-  const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
+const Syllabuses = () => {
+  const { useReusableInfiniteQuery, hasActionAccess, useReusableQuery } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
-  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/admin/users");
+  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/curriculum/syllabus");
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
-  const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openEditUserDialog, setOpenEditUserDialog] = useState(false);
-  const [openNewUserDialog, setOpenNewUserDialog] = useState(false);
-  const [openViewUserDialog, setOpenViewUserDialog] = useState(false);
+  const [openEditSyllabusDialog, setOpenEditSyllabusDialog] = useState(false);
+  const [openNewSyllabusDialog, setOpenNewSyllabusDialog] = useState(false);
+  const [openViewSyllabusDialog, setOpenViewSyllabusDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
-  const [onOpenUserDialogData, setOnOpenUserDialogData] = useState<any>({});
+  const [onOpenSyllabusDialogData, setOnOpenSyllabusDialogData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
@@ -67,80 +64,80 @@ const Users = () => {
   const [queryParams, setQueryParams] = useState({});
 
   const {
-    data: staffProfiles,
-    isFetching: isFetchingStaffProfiles,
-    error: staffProfilesError,
-    isError: isStaffProfilesError
-  } = useReusableQuery("staffProfiles", "View Staff Profiles", "alyeqeenschoolapp/api/staff/allprofile");
+    data: topics,
+    isFetching: isFetchingtopics,
+    error: topicsError,
+    isError: istopicsError
+  } = useReusableQuery("topics", "View Topics", "alyeqeenschoolapp/api/curriculum/alltopics");
 
   const {
-    data: roles,
-    isFetching: isFetchingroles,
-    error: rolesError,
-    isError: isrolesError
-  } = useReusableQuery("roles", "View Roles", "alyeqeenschoolapp/api/admin/roles");
+    data: subjects,
+    isFetching: isFetchingsubjects,
+    error: subjectsError,
+    isError: issubjectsError
+  } = useReusableQuery("subjects", "View Subjects", "alyeqeenschoolapp/api/curriculum/allsubjects");
 
   const {
-    data: users,
-    isFetching: isFetchingusers,
-    error: usersError,
-    isError: isUsersError,
+    data: syllabuses,
+    isFetching: isFetchingsyllabuses,
+    error: syllabusesError,
+    isError: isSyllabusesError,
     fetchNextPage,
     fetchPreviousPage
   } = useReusableInfiniteQuery(
-    "users",
+    "syllabuses",
     queryParams,
     Number(limit) || 10,
-    "View Users",
-    "alyeqeenschoolapp/api/admin/users"
+    "View Syllabuses",
+    "alyeqeenschoolapp/api/curriculum/syllabuses"
   );
 
   useEffect(() => {
-    if (!staffProfiles) return;
+    if (!topics) return;
     setError("");
-  }, [staffProfiles, isFetchingStaffProfiles]);
+  }, [topics, isFetchingtopics]);
 
   useEffect(() => {
-    if (!isStaffProfilesError) return;
-    if (staffProfilesError) {
-      setError(staffProfilesError.message);
+    if (!istopicsError) return;
+    if (topicsError) {
+      setError(topicsError.message);
     }
-  }, [staffProfilesError, isStaffProfilesError]);
+  }, [topicsError, istopicsError]);
 
   useEffect(() => {
-    if (!roles) return;
+    if (!subjects) return;
     setError("");
-  }, [roles, isFetchingroles]);
+  }, [subjects, isFetchingsubjects]);
 
   useEffect(() => {
-    if (!isrolesError) return;
-    if (rolesError) {
-      setError(rolesError.message);
+    if (!issubjectsError) return;
+    if (subjectsError) {
+      setError(subjectsError.message);
     }
-  }, [rolesError, isrolesError]);
+  }, [subjectsError, issubjectsError]);
 
   useEffect(() => {
-    if (!users) return;
+    if (!syllabuses) return;
     setError("");
-    const currentPage: any = users.pages[pageIndex];
+    const currentPage: any = syllabuses.pages[pageIndex];
     if (currentPage === undefined) return;
-    setLocalData(currentPage.users);
+    setLocalData(currentPage.syllabuses);
     const { totalCount, chunkCount, hasNext } = currentPage;
     setPaginationData({ totalCount, chunkCount, hasNext });
-  }, [users, isFetchingusers]);
+  }, [syllabuses, isFetchingsyllabuses]);
 
   useEffect(() => {
-    if (!isUsersError) return;
-    if (usersError) {
-      setError(usersError.message);
+    if (!isSyllabusesError) return;
+    if (syllabusesError) {
+      setError(syllabusesError.message);
     }
-  }, [usersError, isUsersError]);
+  }, [syllabusesError, isSyllabusesError]);
 
   const renderNextPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { users, ...rest } = foundPage;
-      setLocalData(users);
+      const { syllabuses, ...rest } = foundPage;
+      setLocalData(syllabuses);
       setPaginationData(rest);
     } else {
       fetchNextPage();
@@ -150,8 +147,8 @@ const Users = () => {
   const renderPreviousPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { users, ...rest } = foundPage;
-      setLocalData(users);
+      const { syllabuses, ...rest } = foundPage;
+      setLocalData(syllabuses);
       setPaginationData(rest);
     } else {
       fetchPreviousPage();
@@ -164,7 +161,7 @@ const Users = () => {
         <LoaderDiv
           type="spinnerText"
           borderColor="foregroundColor"
-          text="Loading User Data..."
+          text="Loading Syllabus Data..."
           textColor="foregroundColor"
           dimension="h-10 w-10"
         />
@@ -172,7 +169,7 @@ const Users = () => {
     );
   }
 
-  if (!roles || !staffProfiles) {
+  if (isFetchingtopics || isFetchingsyllabuses || isFetchingsubjects) {
     return (
       <div className="flex items-center justify-center mt-10">
         <LoaderDiv
@@ -185,7 +182,6 @@ const Users = () => {
       </div>
     );
   }
-
   // function to handle sorting
   const handleSort = (sortKey: any) => {
     const keyType = checkDataType([...localData][0][sortKey]);
@@ -230,75 +226,52 @@ const Users = () => {
     <div className="px-4 py-6 w-full">
       {/* data table section */}
       <>
-        {openEditUserDialog && (
-          <UserDialogComponent
+        {openEditSyllabusDialog && (
+          <SyllabusDialogComponent
             type="edit"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditUserDialog(!open);
-              return {};
+              setOpenEditSyllabusDialog(!open);
             }}
-            onSave={(notSave) => {
+            onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditUserDialog(!notSave);
-              return {};
+              setOpenEditSyllabusDialog(!notSave);
             }}
-            staffProfiles={staffProfiles}
-            data={onOpenUserDialogData}
-            roles={roles
-              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-              .map(({ _id, roleName, tabAccess }: any) => ({
-                _id,
-                name: roleName,
-                tabAccess,
-                searchText: _id + roleName
-              }))}
+            data={onOpenSyllabusDialogData}
+            topics={topics ? topics : []}
+            subjects={subjects ? subjects : []}
           />
         )}
 
-        {openViewUserDialog && (
-          <UserDialogComponent
+        {openViewSyllabusDialog && (
+          <SyllabusDialogComponent
             type="view"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewUserDialog(!open);
-              return {};
+              setOpenViewSyllabusDialog(!open);
             }}
-            onSave={(notSave) => {
+            onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewUserDialog(!notSave);
-              return {};
+              setOpenViewSyllabusDialog(!notSave);
             }}
-            data={onOpenUserDialogData}
-            staffProfiles={staffProfiles}
-            roles={roles
-              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-              .map((roleDocument: any) => ({
-                ...roleDocument,
-                searchText: roleDocument._id + roleDocument.roleName
-              }))}
+            data={onOpenSyllabusDialogData}
+            topics={topics ? topics : []}
+            subjects={subjects ? subjects : []}
           />
         )}
-        {openNewUserDialog && (
-          <UserDialogComponent
+        {openNewSyllabusDialog && (
+          <SyllabusDialogComponent
             type="new"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewUserDialog(!open);
-              return {};
+              setOpenNewSyllabusDialog(!open);
             }}
-            onSave={(notSave) => {
+            onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewUserDialog(!notSave);
-              return {};
+              setOpenNewSyllabusDialog(!notSave);
             }}
-            staffProfiles={staffProfiles}
-            roles={roles
-              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-              .map((roleDocument: any) => ({
-                ...roleDocument,
-                searchText: roleDocument._id + roleDocument.roleName
-              }))}
+            topics={topics ? topics : []}
+            subjects={subjects ? subjects : []}
           />
         )}
         {openDisallowedDeleteDialog && (
@@ -334,7 +307,7 @@ const Users = () => {
               setOpenConfirmDelete(false);
               document.body.style.overflow = "";
             }}
-            warningText="Please confirm the ID of the user/account you want to delete"
+            warningText="Please confirm the ID of the syllabus you want to delete"
           />
         )}
         {/* data table div */}
@@ -343,11 +316,11 @@ const Users = () => {
             {/* title */}
             <div className="flex flex-col">
               <CustomHeading variation="sectionHeader">
-                Users
-                {/* <UserRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
+                Syllabuses
+                {/* <SyllabusRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
               </CustomHeading>
               <CustomHeading variation="head5light">
-                Use this section to create and manage users and their access
+                Manage Syllabuses - Collection of topics and plan for a subject (course - base subject - level)
               </CustomHeading>
             </div>
 
@@ -357,28 +330,28 @@ const Users = () => {
             <div>
               <button
                 onClick={() => {
-                  if (hasActionAccess("Create User")) {
+                  if (hasActionAccess("Create Syllabus")) {
                     document.body.style.overflow = "hidden";
-                    setOpenNewUserDialog(true);
+                    setOpenNewSyllabusDialog(true);
                   } else {
-                    setError("You do not have Create User Access - Please contact your admin");
+                    setError("You do not have Create Syllabus Access - Please contact your admin");
                   }
                 }}
-                disabled={!hasActionAccess("Create User")}
+                disabled={!hasActionAccess("Create Syllabus")}
                 className={defaultButtonStyle}
               >
-                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New User
+                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Syllabus
               </button>
             </div>
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
-              placeholder="Search role (User Name, Email, Status)"
+              placeholder="Search role (Syllabus Name, Syllabus Custom ID)"
               filters={[
                 {
-                  displayText: "Account Status",
-                  fieldName: "accountStatus",
-                  options: ["All", "Active", "Locked"]
+                  displayText: "Status",
+                  fieldName: "status",
+                  options: ["All", "Active", "Inactive"]
                 }
               ]}
               onQuery={(query: any) => {
@@ -432,7 +405,7 @@ const Users = () => {
                 onClick={() => {
                   const prevPage = pageIndex - 1;
                   setPageIndex(prevPage);
-                  renderPreviousPage(prevPage, users.pages);
+                  renderPreviousPage(prevPage, syllabuses.pages);
                 }}
                 disabled={pageIndex === 0}
               />
@@ -444,7 +417,7 @@ const Users = () => {
                 onClick={() => {
                   const nextPage = pageIndex + 1;
                   setPageIndex(nextPage);
-                  renderNextPage(nextPage, users.pages);
+                  renderNextPage(nextPage, syllabuses.pages);
                 }}
                 disabled={!paginationData.hasNext}
               />
@@ -457,17 +430,24 @@ const Users = () => {
             <table className="relative w-full">
               <thead className="sticky top-0 z-10 border-b border-borderColor-2">
                 <tr className={tableHeaderStyle}>
-                  <th className="text-center w-[110px] font-semibold p-2 whitespace-nowrap">User Id</th>
-                  {(["User Name", "User Role", "User Email", "Account Status", "Created At"] as const).map((header) => (
+                  {(
+                    [
+                      "Syllabus Custom ID",
+                      "Syllabus Name",
+                      "Status",
+                      "Offering Start Date",
+                      "Offering End Date"
+                    ] as const
+                  ).map((header) => (
                     <th
                       key={header}
                       onClick={() => {
                         const key_Name = {
-                          "User Name": "accountName",
-                          "User Role": "role",
-                          "User Email": "accountEmail",
-                          "Account Status": "accountStatus",
-                          "Created At": "createdAt"
+                          "Syllabus Name": "syllabus",
+                          "Syllabus Custom ID": "syllabusCustomId",
+                          Status: "status",
+                          "Offering Start Date": "offeringStartDate",
+                          "Offering End Date": "offeringEndDate"
                         };
                         const sortKey = key_Name[header];
                         handleSort(sortKey);
@@ -477,26 +457,26 @@ const Users = () => {
                       {header} <LuArrowUpDown className="inline-block ml-1" />
                     </th>
                   ))}
-                  <th className={tableHeaderStyle}>Actions</th>
+                  <th className={tableHeadCellStyle}>Actions</th>
                 </tr>
               </thead>
 
               {/* table data */}
               <tbody className="mt-3 bg-backgroundColor">
-                {isFetchingusers ? (
+                {isFetchingsyllabuses ? (
                   <tr>
                     <td colSpan={8}>
                       <div className="flex items-center justify-center p-10">
                         <LoaderDiv
                           type="spinnerText"
-                          text="Loading Users..."
+                          text="Loading Syllabuses..."
                           textColor="foregroundColor"
                           dimension="h-10 w-10"
                         />
                       </div>
                     </td>
                   </tr>
-                ) : (localData.length < 1 && !isFetchingusers) || !users ? (
+                ) : (localData.length < 1 && !isFetchingsyllabuses) || !syllabuses ? (
                   <tr>
                     <td colSpan={8} className="text-center py-4">
                       No data available
@@ -505,113 +485,79 @@ const Users = () => {
                 ) : (
                   localData.map((doc: any, index: any) => {
                     const {
-                      _id: accountId,
-                      staffId,
-                      accountName,
-                      accountEmail,
-                      accountType,
-                      accountStatus,
-                      roleId,
-                      accountPassword,
-                      createdAt
+                      _id: syllabusId,
+                      syllabusCustomId,
+                      syllabus,
+                      offeringStartDate,
+                      offeringEndDate,
+                      status,
+                      syllabusDuration
                     } = doc;
 
-                    const tabs = roleId
-                      ? roleId.tabAccess
-                          ?.map((tab: any) => tab.tab)
-                          .slice(0, 5)
-                          .join(", ")
-                      : "Unknown Role";
                     return (
                       <tr
-                        key={accountId}
+                        key={syllabusId}
                         onClick={() => {
-                          if (hasActionAccess("View User")) {
+                          if (hasActionAccess("View Syllabuses")) {
                             document.body.style.overflow = "hidden";
-                            setOnOpenUserDialogData(doc);
-                            setOpenViewUserDialog(true);
+                            setOnOpenSyllabusDialogData(doc);
+                            setOpenViewSyllabusDialog(true);
                           } else {
-                            setError("You do not have View User Access - Please contact your admin");
+                            setError("You do not have View Syllabus Access - Please contact your admin");
                           }
                         }}
                         className={tableRowStyle}
                       >
                         <td className="w-[110px] whitespace-nowrap text-center">
-                          {accountId.slice(15)}
+                          {syllabusCustomId}
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(accountId);
+                              await navigator.clipboard.writeText(syllabusCustomId);
                             }}
                           />
                         </td>
                         <td className={tableCellStyle}>
-                          {accountName}{" "}
+                          {syllabus}
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(accountName);
+                              await navigator.clipboard.writeText(syllabus);
                             }}
                           />
                         </td>
-                        <td className={tableCellStyle}>{roleId ? roleId?.roleName.slice(0, 15) : "Unknown Role"}</td>
-                        <td className={tableCellStyle}>
-                          {accountEmail}{" "}
-                          <MdContentCopy
-                            title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              await navigator.clipboard.writeText(accountEmail);
-                            }}
-                          />
-                        </td>
-                        <td className={tableCellStyle}>{accountStatus}</td>
-                        <td className={tableCellStyle}>{formatDate(createdAt)}</td>
+
+                        <td className={tableCellStyle}>{status}</td>
+                        <td className={tableCellStyle}>{formatDate(offeringStartDate)}</td>
+                        <td className={tableCellStyle}>{formatDate(offeringEndDate)}</td>
 
                         <td className="text-center flex items-center justify-center h-15">
                           <ActionButtons
                             onEdit={(e) => {
-                              if (hasActionAccess("Edit User")) {
+                              if (hasActionAccess("Edit Syllabus")) {
                                 document.body.style.overflow = "hidden";
-
-                                setOnOpenUserDialogData(doc);
-                                setOpenEditUserDialog(true);
+                                setOnOpenSyllabusDialogData(doc);
+                                setOpenEditSyllabusDialog(true);
                               } else {
-                                setError("You do not have Edit User Access - Please contact your admin");
+                                setError("You do not have Edit Syllabus Access - Please contact your admin");
                               }
                             }}
-                            disableDelete={roleId.absoluteAdmin}
-                            hideDelete={roleId.absoluteAdmin}
                             onDelete={(e) => {
-                              if (roleId.absoluteAdmin) {
-                                setError(
-                                  "Disallowed Action: Default Absolute Admin / organisation account Cannot be deleted"
-                                );
-                                setOpenDisallowedDeleteDialog(true);
+                              if (hasActionAccess("Delete Syllabus")) {
+                                document.body.style.overflow = "hidden";
+                                setOpenConfirmDelete(true);
+                                setConfirmWithText(syllabusCustomId);
+                                setConfirmWithReturnObj({
+                                  syllabusCustomId
+                                });
                               } else {
-                                if (hasActionAccess("Delete User")) {
-                                  document.body.style.overflow = "hidden";
-                                  setOpenConfirmDelete(true);
-                                  setConfirmWithText(accountId);
-                                  setConfirmWithReturnObj({
-                                    accountIdToDelete: accountId,
-                                    accountType,
-                                    staffId,
-                                    userName: accountName,
-                                    userEmail: accountEmail,
-                                    userStatus: accountStatus,
-                                    roleId
-                                  });
-                                } else {
-                                  setError(
-                                    "Unauthorised Action: You do not have Delete User Access - Please contact your admin"
-                                  );
-                                }
+                                setError(
+                                  "Unauthorised Action: You do not have Delete Syllabus Access - Please contact your admin"
+                                );
                               }
                             }}
                           />
@@ -629,4 +575,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default Syllabuses;

@@ -12,20 +12,12 @@ import {
 import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/clientFunctions";
-import {
-  formatDate,
-  generateCustomId,
-  handledDeleteImage,
-  validateEmail,
-  validatePhoneNumber
-} from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../general/compLibrary";
 import { defaultButtonStyle, tabGroupButtonStyle } from "@/lib/generalStyles";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { MdAdd } from "react-icons/md";
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import { SearchableDropDownInput } from "../general/compLibrary2";
-import StaffProfile from "@/app/main/staff/page";
 
 export const CourseManagerDialogComponent = ({
   type,
@@ -138,7 +130,7 @@ export const CourseManagerDialogComponent = ({
         onSave(true);
       }
     } catch (error: any) {
-      setError(error.message || error.response?.data.message || "Error creating courseManager");
+      setError(error.message || error.response?.data.message || "Error creating course manager");
     }
   };
 
@@ -156,7 +148,7 @@ export const CourseManagerDialogComponent = ({
             onSave(true);
           }
         } catch (error: any) {
-          setError(error.message || error.response?.data.message || "Error creating courseManager");
+          setError(error.message || error.response?.data.message || "Error creating course manager");
         }
       }
     }
@@ -197,7 +189,7 @@ export const CourseManagerDialogComponent = ({
             {onEditMode && (
               <LoaderButton
                 buttonText="Save"
-                loadingButtonText="Saving CourseManager..."
+                loadingButtonText="Saving Course Manager..."
                 disabled={!unsaved}
                 isLoading={updateMutation.isPending}
                 onClick={handleUpdateCourseManager}
@@ -205,8 +197,8 @@ export const CourseManagerDialogComponent = ({
             )}
             {onViewMode && (
               <button
-                disabled={!hasActionAccess("Edit CourseManager Profile")}
-                hidden={!hasActionAccess("Edit CourseManager Profile")}
+                disabled={!hasActionAccess("Edit Course Manager")}
+                hidden={!hasActionAccess("Edit Course Manager")}
                 onClick={() => setOnEditMode(true)}
                 className={defaultButtonStyle}
               >

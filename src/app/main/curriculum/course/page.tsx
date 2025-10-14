@@ -310,7 +310,7 @@ const Courses = () => {
                 Stream or Department - Defines the path within the programme
               </CustomHeading>
               <CustomHeading variation="head6light">
-                e.g. JSE (Junior Secondary Education), Computer Science, Art, Commercial, Science, Software Engineering
+                JSE (Junior Secondary Education), Computer Science, Art, Commercial, Science, Software Engineering
               </CustomHeading>
             </div>
 
@@ -507,7 +507,7 @@ const Courses = () => {
                           {courseCustomId}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(courseCustomId);
@@ -518,7 +518,7 @@ const Courses = () => {
                           {courseName}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(courseName);
@@ -529,7 +529,7 @@ const Courses = () => {
                           {courseFullTitle.slice(0, 40)}...
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(courseFullTitle);

@@ -51,7 +51,6 @@ export const StudentProfileDialogComponent = ({
   const { getStudentImageViewSignedUrl } = useGeneralClientFunctions();
   const updateMutation = tanMutateAny("put", "alyeqeenschoolapp/api/student/profile");
   const createMutation = tanMutateAny("post", "alyeqeenschoolapp/api/student/profile");
-  const { accountData } = useAppSelector((state: any) => state.accountData);
   const [unsaved, setUnsaved] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageName, setImageName] = useState("");
@@ -749,7 +748,7 @@ export const StudentProfileDialogComponent = ({
                 return (
                   <div
                     key={_id}
-                    className="flex flex-col w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
+                    className="flex flex-col gap-2 w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
                     onClick={() => {
                       setOnOpenQualificationDialogData(qualification);
                       setViewQualificationDialog(true);
@@ -823,7 +822,7 @@ export const StudentProfileDialogComponent = ({
                 return (
                   <div
                     key={_id}
-                    className="flex flex-col w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
+                    className="flex flex-col gap-2 w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
                     onClick={() => {
                       setOnOpenIdentificationDialogData(identification);
                       setViewIdentificationDialog(true);

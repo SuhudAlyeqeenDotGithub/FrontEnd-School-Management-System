@@ -48,6 +48,10 @@ export const SearchableDropDownInput = ({
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setLocalData(data);
+  }, [data]);
+
+  useEffect(() => {
     if (defaultText) {
       onSelected([defaultText.split("|")[0], defaultText.split("|")[1]], false);
     }
@@ -81,10 +85,7 @@ export const SearchableDropDownInput = ({
     }
   }, [searchValue]);
 
-  useEffect(() => {
-    setLocalData(data);
-  }, [data]);
-
+  console.log("localData", localData);
   return (
     <div ref={wrapperRef} className="w-full flex flex-col gap-1 relative">
       <InputComponent

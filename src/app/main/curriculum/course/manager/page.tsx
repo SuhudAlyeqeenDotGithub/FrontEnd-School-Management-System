@@ -524,7 +524,7 @@ const CourseManager = () => {
                           {courseManagerId.slice(15)}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(courseManagerId);
@@ -535,7 +535,7 @@ const CourseManager = () => {
                           {courseFullTitle.slice(0, 40)}...
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(courseFullTitle);
@@ -547,7 +547,7 @@ const CourseManager = () => {
                           {courseManagerFullName}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(courseManagerFullName);

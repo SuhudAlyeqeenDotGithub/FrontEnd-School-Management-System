@@ -1,23 +1,23 @@
 "use client";
 
-import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv, TextAreaComponent } from "../general/compLibrary";
+import { InputComponent, LoaderButton, ContainerComponent, ErrorDiv } from "../general/compLibrary";
 import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/clientFunctions";
 import { YesNoDialog } from "../general/compLibrary";
-import { WorkExperienceType } from "@/interfaces/interfaces";
 import { nanoid } from "@reduxjs/toolkit";
 import { defaultButtonStyle } from "@/lib/generalStyles";
+import { url } from "inspector";
 
-export const WorkExperienceDialog = ({
+export const ResourcesDialog = ({
   type = "new",
   data,
   onSave,
   onClose
 }: {
   type?: "new" | "edit" | "view";
-  data?: WorkExperienceType;
-  onSave: (save: boolean, returnData: WorkExperienceType) => void;
+  data?: { _id: string; resourceType: string; resourceName: string; url: string };
+  onSave: (save: boolean, returnData: { _id: string; resourceType: string; resourceName: string; url: string }) => void;
   onClose: (close: boolean) => void;
 }) => {
   const { handleUnload } = useNavigationHandler();
@@ -29,14 +29,12 @@ export const WorkExperienceDialog = ({
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
   const [localData, setLocalData] = useState({
     _id: onCreateMode ? nanoid() : data ? data._id : "",
-    organisation: onCreateMode ? "" : data ? data.organisation : "",
-    position: onCreateMode ? "" : data ? data.position : "",
-    experience: onCreateMode ? "" : data ? data.experience : "",
-    startDate: onCreateMode ? "" : data ? data.startDate : "",
-    endDate: onCreateMode ? "" : data ? data.endDate : ""
+    resourceType: onCreateMode ? "" : data ? data.resourceType : "",
+    resourceName: onCreateMode ? "" : data ? data.resourceName : "",
+    url: onCreateMode ? "" : data ? data.url : ""
   });
 
-  const { organisation, position, experience, startDate, endDate } = localData;
+  const { resourceName, url, resourceType } = localData;
 
   useEffect(() => {
     if (!unsaved) return;
@@ -74,27 +72,18 @@ export const WorkExperienceDialog = ({
   };
 
   const validationPassed = () => {
-    if (!organisation) {
-      setError("Missing Data: Please provide a company name/organisation name");
+    if (!resourceName) {
+      setError("Missing Data: Please provide a resource name");
       return false;
     }
 
-    if (!position) {
-      setError("Missing Data: Please provide a position title or role name");
+    if (!resourceType) {
+      setError("Missing Data: Please provide a resource type");
       return false;
     }
 
-    if (!experience) {
-      setError("Missing Data: Please provide a description of your experience");
-      return false;
-    }
-
-    if (!startDate) {
-      setError("Missing Data: Please provide a qualification start date");
-      return false;
-    }
-    if (!endDate) {
-      setError("Missing Data: Please provide a qualification end date");
+    if (!url) {
+      setError("Missing Data: Please provide a resource URL");
       return false;
     }
 
@@ -118,7 +107,7 @@ export const WorkExperienceDialog = ({
           <YesNoDialog
             warningText="You have unsaved changes. Are you sure you want to proceed?"
             onNo={() => {
-              const container = document.getElementById("staffExperienceDialogContainer");
+              const container = document.getElementById("ResourcesDialogContainer");
               if (container) {
                 container.style.overflow = "";
               }
@@ -126,7 +115,7 @@ export const WorkExperienceDialog = ({
             }}
             onYes={() => {
               handleUnload("remove");
-              const container = document.getElementById("staffExperienceDialogContainer");
+              const container = document.getElementById("ResourcesDialogContainer");
               if (container) {
                 container.style.overflow = "";
               }
@@ -135,7 +124,7 @@ export const WorkExperienceDialog = ({
           />
         )}
         <div className="flex justify-between items-center">
-          <h2>{onCreateMode ? "New" : onEditMode ? "Edit" : "View"} Work Experience</h2>
+          <h2>{onCreateMode ? "New" : onEditMode ? "Edit" : "View"} Resources</h2>
           <div className="flex justify-between items-center gap-5">
             {!onViewMode ? (
               <LoaderButton
@@ -160,7 +149,7 @@ export const WorkExperienceDialog = ({
                 if (!unsaved) {
                   onClose(true);
                 } else {
-                  const container = document.getElementById("staffExperienceDialogContainer");
+                  const container = document.getElementById("ResourcesDialogContainer");
                   if (container) {
                     container.style.overflow = "hidden";
                   }
@@ -173,52 +162,33 @@ export const WorkExperienceDialog = ({
         </div>
         <div className="flex gap-3 flex-col">
           <InputComponent
-            title="Organisation *"
+            title="Resource Name *"
             disabled={onViewMode}
             autocomplete="on"
-            placeholder="Organisation Name *"
+            placeholder="Resource Name *"
             required
-            name="organisation"
-            value={organisation}
+            name="resourceName"
+            value={resourceName}
             onChange={handleInputChange}
           />
           <InputComponent
-            title="Position *"
+            title="Resource Type *"
             disabled={onViewMode}
             autocomplete="on"
-            placeholder="Position *"
+            placeholder="Resource Type *"
             required
-            name="position"
-            value={position}
+            name="resourceType"
+            value={resourceType}
             onChange={handleInputChange}
           />
           <InputComponent
-            title="Start Date *"
+            title="Resource URL *"
             disabled={onViewMode}
-            placeholder="Start Date *"
-            type="date"
+            autocomplete="on"
+            placeholder="Resource URL *"
             required
-            name="startDate"
-            value={startDate}
-            onChange={handleInputChange}
-          />
-          <InputComponent
-            title="End Date *"
-            disabled={onViewMode}
-            placeholder="End Date *"
-            type="date"
-            required
-            name="endDate"
-            value={endDate}
-            onChange={handleInputChange}
-          />
-          <TextAreaComponent
-            title="Experience Description (Responsibilities, Achievements etc) *"
-            disabled={onViewMode}
-            placeholder="Work Experience Description *"
-            required
-            name="experience"
-            value={experience}
+            name="url"
+            value={url}
             onChange={handleInputChange}
           />
         </div>

@@ -182,8 +182,12 @@ const layout = ({ children }: { children: ReactNode }) => {
     "/main/curriculum/level/manager": "Curriculum",
     "/main/curriculum/subject/basesubject": "Curriculum",
     "/main/curriculum/subject/basesubject/manager": "Curriculum",
+    "/main/curriculum/subject": "Curriculum",
+    "/main/curriculum/subject/teacher": "Curriculum",
     "/main/curriculum/academicsession/period": "Curriculum",
     "/main/curriculum/academicsession/academicYear": "Curriculum",
+    "/main/curriculum/learningplan/topic": "Curriculum",
+    "/main/curriculum/learningplan/syllabus": "Curriculum",
     "/main/enrollment": "Enrollment",
     "/main/attendance": "Attendance",
     "/main/attendance/persession": "Attendance",
@@ -205,6 +209,7 @@ const layout = ({ children }: { children: ReactNode }) => {
     Billing: "/main/admin/billing",
     Student: "/main/student/profile",
     "Academic Session": "/main/curriculum/academicsession",
+    "Learning Plan": "/main/curriculum/learningplan",
     Programme: "/main/curriculum/programme",
     Course: "/main/curriculum/course",
     Level: "/main/curriculum/level",
@@ -255,7 +260,7 @@ const layout = ({ children }: { children: ReactNode }) => {
   const profileDialog = (
     <div
       ref={wrapperDivRef}
-      className="flex flex-col border border-borderColor w-[290px] max-h-[80vh] min-h-[40vh] px-4 py-4 gap-5 rounded-lg shadow-md absolute bottom-2 z-30 bg-backgroundColor-2"
+      className="flex flex-col border border-borderColor w-[290px] max-h-[80vh] min-h-[40vh] px-4 py-4 gap-5 rounded-lg shadow-md absolute bottom-2 z-30 bg-backgroundColor-2 ml-2"
     >
       {error && (
         <ErrorDiv

@@ -21,7 +21,6 @@ import {
   ConfirmActionByInputDialog,
   CustomFilterComponent
 } from "@/lib/customComponents/general/compLibrary2";
-import { UserDialogComponent } from "@/lib/customComponents/admin/userDialogComp";
 
 import {
   dataRowCellStyle,
@@ -31,6 +30,7 @@ import {
   sortableTableHeadCellStyle,
   tableCellStyle,
   tableContainerStyle,
+  tableHeadCellStyle,
   tableHeaderStyle,
   tableRowStyle,
   tableTopStyle
@@ -38,21 +38,21 @@ import {
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { MdAdd, MdContentCopy } from "react-icons/md";
+import { SubjectTeacherDialogComponent } from "@/lib/customComponents/curriculum/subjectTeacherDialogComp";
 
-const Users = () => {
+const SubjectTeacher = () => {
   const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
-  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/admin/users");
+  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/curriculum/subject/teacher");
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
-  const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openEditUserDialog, setOpenEditUserDialog] = useState(false);
-  const [openNewUserDialog, setOpenNewUserDialog] = useState(false);
-  const [openViewUserDialog, setOpenViewUserDialog] = useState(false);
+  const [openEditSubjectTeacherDialog, setOpenEditSubjectTeacherDialog] = useState(false);
+  const [openNewSubjectTeacherDialog, setOpenNewSubjectTeacherDialog] = useState(false);
+  const [openViewSubjectTeacherDialog, setOpenViewSubjectTeacherDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
-  const [onOpenUserDialogData, setOnOpenUserDialogData] = useState<any>({});
+  const [onOpenSubjectTeacherDialogData, setOnOpenSubjectTeacherDialogData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
@@ -67,80 +67,80 @@ const Users = () => {
   const [queryParams, setQueryParams] = useState({});
 
   const {
-    data: staffProfiles,
-    isFetching: isFetchingStaffProfiles,
-    error: staffProfilesError,
-    isError: isStaffProfilesError
-  } = useReusableQuery("staffProfiles", "View Staff Profiles", "alyeqeenschoolapp/api/staff/allprofile");
+    data: staffContracts,
+    isFetching: isFetchingStaffContracts,
+    error: staffContractsError,
+    isError: isStaffContractsError
+  } = useReusableQuery("staffContracts", "View Staff Contracts", "alyeqeenschoolapp/api/staff/allcontract");
 
   const {
-    data: roles,
-    isFetching: isFetchingroles,
-    error: rolesError,
-    isError: isrolesError
-  } = useReusableQuery("roles", "View Roles", "alyeqeenschoolapp/api/admin/roles");
+    data: subjects,
+    isFetching: isFetchingsubjects,
+    error: subjectsError,
+    isError: issubjectsError
+  } = useReusableQuery("subjects", "View Subjects", "alyeqeenschoolapp/api/curriculum/allsubjects");
 
   const {
-    data: users,
-    isFetching: isFetchingusers,
-    error: usersError,
-    isError: isUsersError,
+    data: subjectTeachers,
+    isFetching: isFetchingsubjectTeachers,
+    error: subjectTeachersError,
+    isError: isSubjectTeachersError,
     fetchNextPage,
     fetchPreviousPage
   } = useReusableInfiniteQuery(
-    "users",
+    "subjectteachers",
     queryParams,
     Number(limit) || 10,
-    "View Users",
-    "alyeqeenschoolapp/api/admin/users"
+    "View Subject Teachers",
+    "alyeqeenschoolapp/api/curriculum/subject/teachers"
   );
 
   useEffect(() => {
-    if (!staffProfiles) return;
+    if (!staffContracts) return;
     setError("");
-  }, [staffProfiles, isFetchingStaffProfiles]);
+  }, [staffContracts, isFetchingStaffContracts]);
 
   useEffect(() => {
-    if (!isStaffProfilesError) return;
-    if (staffProfilesError) {
-      setError(staffProfilesError.message);
+    if (!isStaffContractsError) return;
+    if (staffContractsError) {
+      setError(staffContractsError.message);
     }
-  }, [staffProfilesError, isStaffProfilesError]);
+  }, [staffContractsError, isStaffContractsError]);
 
   useEffect(() => {
-    if (!roles) return;
+    if (!subjects) return;
     setError("");
-  }, [roles, isFetchingroles]);
+  }, [subjects, isFetchingsubjects]);
 
   useEffect(() => {
-    if (!isrolesError) return;
-    if (rolesError) {
-      setError(rolesError.message);
+    if (!issubjectsError) return;
+    if (subjectsError) {
+      setError(subjectsError.message);
     }
-  }, [rolesError, isrolesError]);
+  }, [subjectsError, issubjectsError]);
 
   useEffect(() => {
-    if (!users) return;
+    if (!subjectTeachers) return;
     setError("");
-    const currentPage: any = users.pages[pageIndex];
+    const currentPage: any = subjectTeachers.pages[pageIndex];
     if (currentPage === undefined) return;
-    setLocalData(currentPage.users);
+    setLocalData(currentPage.subjectTeachers);
     const { totalCount, chunkCount, hasNext } = currentPage;
     setPaginationData({ totalCount, chunkCount, hasNext });
-  }, [users, isFetchingusers]);
+  }, [subjectTeachers, isFetchingsubjectTeachers]);
 
   useEffect(() => {
-    if (!isUsersError) return;
-    if (usersError) {
-      setError(usersError.message);
+    if (!isSubjectTeachersError) return;
+    if (subjectTeachersError) {
+      setError(subjectTeachersError.message);
     }
-  }, [usersError, isUsersError]);
+  }, [subjectTeachersError, isSubjectTeachersError]);
 
   const renderNextPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { users, ...rest } = foundPage;
-      setLocalData(users);
+      const { subjectTeachers, ...rest } = foundPage;
+      setLocalData(subjectTeachers);
       setPaginationData(rest);
     } else {
       fetchNextPage();
@@ -150,8 +150,8 @@ const Users = () => {
   const renderPreviousPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { users, ...rest } = foundPage;
-      setLocalData(users);
+      const { subjectTeachers, ...rest } = foundPage;
+      setLocalData(subjectTeachers);
       setPaginationData(rest);
     } else {
       fetchPreviousPage();
@@ -164,7 +164,7 @@ const Users = () => {
         <LoaderDiv
           type="spinnerText"
           borderColor="foregroundColor"
-          text="Loading User Data..."
+          text="Loading Subject Teacher Data..."
           textColor="foregroundColor"
           dimension="h-10 w-10"
         />
@@ -172,7 +172,7 @@ const Users = () => {
     );
   }
 
-  if (!roles || !staffProfiles) {
+  if (isFetchingsubjects) {
     return (
       <div className="flex items-center justify-center mt-10">
         <LoaderDiv
@@ -230,75 +230,58 @@ const Users = () => {
     <div className="px-4 py-6 w-full">
       {/* data table section */}
       <>
-        {openEditUserDialog && (
-          <UserDialogComponent
+        {openEditSubjectTeacherDialog && (
+          <SubjectTeacherDialogComponent
             type="edit"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditUserDialog(!open);
+              setOpenEditSubjectTeacherDialog(!open);
               return {};
             }}
-            onSave={(notSave) => {
+            onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditUserDialog(!notSave);
+              setOpenEditSubjectTeacherDialog(!notSave);
               return {};
             }}
-            staffProfiles={staffProfiles}
-            data={onOpenUserDialogData}
-            roles={roles
-              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-              .map(({ _id, roleName, tabAccess }: any) => ({
-                _id,
-                name: roleName,
-                tabAccess,
-                searchText: _id + roleName
-              }))}
+            data={onOpenSubjectTeacherDialogData}
+            subjects={subjects ? subjects : []}
+            staffContracts={staffContracts ? staffContracts : []}
           />
         )}
 
-        {openViewUserDialog && (
-          <UserDialogComponent
+        {openViewSubjectTeacherDialog && (
+          <SubjectTeacherDialogComponent
             type="view"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewUserDialog(!open);
+              setOpenViewSubjectTeacherDialog(!open);
               return {};
             }}
-            onSave={(notSave) => {
+            onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewUserDialog(!notSave);
+              setOpenViewSubjectTeacherDialog(!notSave);
               return {};
             }}
-            data={onOpenUserDialogData}
-            staffProfiles={staffProfiles}
-            roles={roles
-              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-              .map((roleDocument: any) => ({
-                ...roleDocument,
-                searchText: roleDocument._id + roleDocument.roleName
-              }))}
+            data={onOpenSubjectTeacherDialogData}
+            subjects={subjects ? subjects : []}
+            staffContracts={staffContracts ? staffContracts : []}
           />
         )}
-        {openNewUserDialog && (
-          <UserDialogComponent
+        {openNewSubjectTeacherDialog && (
+          <SubjectTeacherDialogComponent
             type="new"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewUserDialog(!open);
+              setOpenNewSubjectTeacherDialog(!open);
               return {};
             }}
-            onSave={(notSave) => {
+            onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewUserDialog(!notSave);
+              setOpenNewSubjectTeacherDialog(!notSave);
               return {};
             }}
-            staffProfiles={staffProfiles}
-            roles={roles
-              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-              .map((roleDocument: any) => ({
-                ...roleDocument,
-                searchText: roleDocument._id + roleDocument.roleName
-              }))}
+            subjects={subjects ? subjects : []}
+            staffContracts={staffContracts ? staffContracts : []}
           />
         )}
         {openDisallowedDeleteDialog && (
@@ -334,7 +317,7 @@ const Users = () => {
               setOpenConfirmDelete(false);
               document.body.style.overflow = "";
             }}
-            warningText="Please confirm the ID of the user/account you want to delete"
+            warningText="Please confirm the ID of the subject Teacher you want to delete"
           />
         )}
         {/* data table div */}
@@ -343,11 +326,11 @@ const Users = () => {
             {/* title */}
             <div className="flex flex-col">
               <CustomHeading variation="sectionHeader">
-                Users
-                {/* <UserRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
+                Subject Teacher
+                {/* <SubjectTeacherRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
               </CustomHeading>
               <CustomHeading variation="head5light">
-                Use this section to create and manage users and their access
+                Manage and assign subject teachers to specific subjects
               </CustomHeading>
             </div>
 
@@ -357,28 +340,28 @@ const Users = () => {
             <div>
               <button
                 onClick={() => {
-                  if (hasActionAccess("Create User")) {
+                  if (hasActionAccess("Create Subject Teacher")) {
                     document.body.style.overflow = "hidden";
-                    setOpenNewUserDialog(true);
+                    setOpenNewSubjectTeacherDialog(true);
                   } else {
-                    setError("You do not have Create User Access - Please contact your admin");
+                    setError("You do not have Create Subject Teacher Access - Please contact your admin");
                   }
                 }}
-                disabled={!hasActionAccess("Create User")}
+                disabled={!hasActionAccess("Create Subject Teacher")}
                 className={defaultButtonStyle}
               >
-                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New User
+                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Subject Teacher
               </button>
             </div>
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
-              placeholder="Search role (User Name, Email, Status)"
+              placeholder="Search role (Subject Teacher Name, Subject Teacher Custom ID)"
               filters={[
                 {
-                  displayText: "Account Status",
-                  fieldName: "accountStatus",
-                  options: ["All", "Active", "Locked"]
+                  displayText: "Status",
+                  fieldName: "status",
+                  options: ["All", "Active", "Inactive"]
                 }
               ]}
               onQuery={(query: any) => {
@@ -432,7 +415,7 @@ const Users = () => {
                 onClick={() => {
                   const prevPage = pageIndex - 1;
                   setPageIndex(prevPage);
-                  renderPreviousPage(prevPage, users.pages);
+                  renderPreviousPage(prevPage, subjectTeachers.pages);
                 }}
                 disabled={pageIndex === 0}
               />
@@ -444,7 +427,7 @@ const Users = () => {
                 onClick={() => {
                   const nextPage = pageIndex + 1;
                   setPageIndex(nextPage);
-                  renderNextPage(nextPage, users.pages);
+                  renderNextPage(nextPage, subjectTeachers.pages);
                 }}
                 disabled={!paginationData.hasNext}
               />
@@ -457,17 +440,26 @@ const Users = () => {
             <table className="relative w-full">
               <thead className="sticky top-0 z-10 border-b border-borderColor-2">
                 <tr className={tableHeaderStyle}>
-                  <th className="text-center w-[110px] font-semibold p-2 whitespace-nowrap">User Id</th>
-                  {(["User Name", "User Role", "User Email", "Account Status", "Created At"] as const).map((header) => (
+                  {(
+                    [
+                      "Subject Teacher ID",
+                      "Teacher Name",
+                      "Subject Full Title",
+                      "Management Status",
+                      "Managed From",
+                      "Managed Until"
+                    ] as const
+                  ).map((header) => (
                     <th
                       key={header}
                       onClick={() => {
                         const key_Name = {
-                          "User Name": "accountName",
-                          "User Role": "role",
-                          "User Email": "accountEmail",
-                          "Account Status": "accountStatus",
-                          "Created At": "createdAt"
+                          "Subject Teacher ID": "_id",
+                          "Teacher Name": "subjectTeacherFullName",
+                          "Subject Full Title": "subjectFullTitle",
+                          "Management Status": "status",
+                          "Managed From": "managedFrom",
+                          "Managed Until": "managedUntil"
                         };
                         const sortKey = key_Name[header];
                         handleSort(sortKey);
@@ -477,26 +469,26 @@ const Users = () => {
                       {header} <LuArrowUpDown className="inline-block ml-1" />
                     </th>
                   ))}
-                  <th className={tableHeaderStyle}>Actions</th>
+                  <th className={tableHeadCellStyle}>Actions</th>
                 </tr>
               </thead>
 
               {/* table data */}
               <tbody className="mt-3 bg-backgroundColor">
-                {isFetchingusers ? (
+                {isFetchingsubjectTeachers ? (
                   <tr>
                     <td colSpan={8}>
                       <div className="flex items-center justify-center p-10">
                         <LoaderDiv
                           type="spinnerText"
-                          text="Loading Users..."
+                          text="Loading Subject Teachers..."
                           textColor="foregroundColor"
                           dimension="h-10 w-10"
                         />
                       </div>
                     </td>
                   </tr>
-                ) : (localData.length < 1 && !isFetchingusers) || !users ? (
+                ) : (localData.length < 1 && !isFetchingsubjectTeachers) || !subjectTeachers ? (
                   <tr>
                     <td colSpan={8} className="text-center py-4">
                       No data available
@@ -505,113 +497,87 @@ const Users = () => {
                 ) : (
                   localData.map((doc: any, index: any) => {
                     const {
-                      _id: accountId,
-                      staffId,
-                      accountName,
-                      accountEmail,
-                      accountType,
-                      accountStatus,
-                      roleId,
-                      accountPassword,
-                      createdAt
+                      _id: subjectTeacherId,
+                      subjectFullTitle,
+                      subjectTeacherFullName,
+                      managedFrom,
+                      managedUntil,
+                      status
                     } = doc;
 
-                    const tabs = roleId
-                      ? roleId.tabAccess
-                          ?.map((tab: any) => tab.tab)
-                          .slice(0, 5)
-                          .join(", ")
-                      : "Unknown Role";
                     return (
                       <tr
-                        key={accountId}
+                        key={subjectTeacherId}
                         onClick={() => {
-                          if (hasActionAccess("View User")) {
+                          if (hasActionAccess("View Subject Teachers")) {
                             document.body.style.overflow = "hidden";
-                            setOnOpenUserDialogData(doc);
-                            setOpenViewUserDialog(true);
+                            setOnOpenSubjectTeacherDialogData(doc);
+                            setOpenViewSubjectTeacherDialog(true);
                           } else {
-                            setError("You do not have View User Access - Please contact your admin");
+                            setError("You do not have View Subject Teacher Access - Please contact your admin");
                           }
                         }}
                         className={tableRowStyle}
                       >
                         <td className="w-[110px] whitespace-nowrap text-center">
-                          {accountId.slice(15)}
+                          {subjectTeacherId.slice(15)}
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(accountId);
+                              await navigator.clipboard.writeText(subjectTeacherId);
                             }}
                           />
                         </td>
                         <td className={tableCellStyle}>
-                          {accountName}{" "}
+                          {subjectTeacherFullName}
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(accountName);
+                              await navigator.clipboard.writeText(subjectTeacherFullName);
                             }}
                           />
-                        </td>
-                        <td className={tableCellStyle}>{roleId ? roleId?.roleName.slice(0, 15) : "Unknown Role"}</td>
+                        </td>{" "}
                         <td className={tableCellStyle}>
-                          {accountEmail}{" "}
+                          {subjectFullTitle}
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(accountEmail);
+                              await navigator.clipboard.writeText(subjectFullTitle);
                             }}
                           />
                         </td>
-                        <td className={tableCellStyle}>{accountStatus}</td>
-                        <td className={tableCellStyle}>{formatDate(createdAt)}</td>
-
+                        <td className={tableCellStyle}>{status}</td>
+                        <td className={tableCellStyle}>{formatDate(managedFrom)}</td>
+                        <td className={tableCellStyle}>{formatDate(managedUntil)}</td>
                         <td className="text-center flex items-center justify-center h-15">
                           <ActionButtons
                             onEdit={(e) => {
-                              if (hasActionAccess("Edit User")) {
+                              if (hasActionAccess("Edit Subject Teacher")) {
                                 document.body.style.overflow = "hidden";
-
-                                setOnOpenUserDialogData(doc);
-                                setOpenEditUserDialog(true);
+                                setOnOpenSubjectTeacherDialogData(doc);
+                                setOpenEditSubjectTeacherDialog(true);
                               } else {
-                                setError("You do not have Edit User Access - Please contact your admin");
+                                setError("You do not have Edit Subject Teacher Access - Please contact your admin");
                               }
                             }}
-                            disableDelete={roleId.absoluteAdmin}
-                            hideDelete={roleId.absoluteAdmin}
                             onDelete={(e) => {
-                              if (roleId.absoluteAdmin) {
-                                setError(
-                                  "Disallowed Action: Default Absolute Admin / organisation account Cannot be deleted"
-                                );
-                                setOpenDisallowedDeleteDialog(true);
+                              if (hasActionAccess("Delete Subject Teacher")) {
+                                document.body.style.overflow = "hidden";
+                                setOpenConfirmDelete(true);
+                                setConfirmWithText(subjectTeacherId);
+                                setConfirmWithReturnObj({
+                                  subjectTeacherId
+                                });
                               } else {
-                                if (hasActionAccess("Delete User")) {
-                                  document.body.style.overflow = "hidden";
-                                  setOpenConfirmDelete(true);
-                                  setConfirmWithText(accountId);
-                                  setConfirmWithReturnObj({
-                                    accountIdToDelete: accountId,
-                                    accountType,
-                                    staffId,
-                                    userName: accountName,
-                                    userEmail: accountEmail,
-                                    userStatus: accountStatus,
-                                    roleId
-                                  });
-                                } else {
-                                  setError(
-                                    "Unauthorised Action: You do not have Delete User Access - Please contact your admin"
-                                  );
-                                }
+                                setError(
+                                  "Unauthorised Action: You do not have Delete Subject Teacher Access - Please contact your admin"
+                                );
                               }
                             }}
                           />
@@ -629,4 +595,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default SubjectTeacher;

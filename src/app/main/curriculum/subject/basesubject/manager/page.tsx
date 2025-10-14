@@ -513,7 +513,7 @@ const BaseSubjectManager = () => {
                           {baseSubjectManagerId.slice(15)}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(baseSubjectManagerId);
@@ -525,7 +525,7 @@ const BaseSubjectManager = () => {
                           {baseSubjectManagerFullName}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(baseSubjectManagerFullName);

@@ -33,9 +33,9 @@ import {
   tableTopStyle
 } from "@/lib/generalStyles";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
-import StaffProfileDialogComponent from "../../../lib/customComponents/staff/staffProfileDIalogComp";
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import { UserRoundPen } from "lucide-react";
+import StaffProfileDialogComponent from "@/lib/customComponents/staff/staffProfileDIalogComp";
 
 const StaffProfile = () => {
   const { hasActionAccess, useReusableInfiniteQuery } = reusableQueries();
@@ -470,7 +470,7 @@ const StaffProfile = () => {
                             {staffCustomId.slice(0, 10)}
                             <MdContentCopy
                               title="copy id"
-                              className="ml-2 inline-block text-[19px] text-foregroundColor-2  hover:text-foregroundColor-50 hover:cursor-pointer"
+                              className="ml-2 inline-block text-[19px] text-foregroundColor-2  hover:text-borderColor-3 hover:cursor-pointer"
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 await navigator.clipboard.writeText(staffCustomId);

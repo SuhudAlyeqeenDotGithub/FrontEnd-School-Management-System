@@ -136,7 +136,7 @@ export const LevelManagerDialogComponent = ({
         onSave(true);
       }
     } catch (error: any) {
-      setError(error.message || error.response?.data.message || "Error creating levelManager");
+      setError(error.message || error.response?.data.message || "Error creating level manager");
     }
   };
 
@@ -154,7 +154,7 @@ export const LevelManagerDialogComponent = ({
             onSave(true);
           }
         } catch (error: any) {
-          setError(error.message || error.response?.data.message || "Error creating levelManager");
+          setError(error.message || error.response?.data.message || "Error creating level manager");
         }
       }
     }
@@ -195,7 +195,7 @@ export const LevelManagerDialogComponent = ({
             {onEditMode && (
               <LoaderButton
                 buttonText="Save"
-                loadingButtonText="Saving LevelManager..."
+                loadingButtonText="Saving Level Manager..."
                 disabled={!unsaved}
                 isLoading={updateMutation.isPending}
                 onClick={handleUpdateLevelManager}
@@ -203,8 +203,8 @@ export const LevelManagerDialogComponent = ({
             )}
             {onViewMode && (
               <button
-                disabled={!hasActionAccess("Edit LevelManager Profile")}
-                hidden={!hasActionAccess("Edit LevelManager Profile")}
+                disabled={!hasActionAccess("Edit Level Manager")}
+                hidden={!hasActionAccess("Edit Level Manager")}
                 onClick={() => setOnEditMode(true)}
                 className={defaultButtonStyle}
               >

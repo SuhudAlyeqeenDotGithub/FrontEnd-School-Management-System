@@ -130,7 +130,7 @@ export const ProgrammeManagerDialogComponent = ({
     return true;
   };
 
-  // function to handle all programmeManager programmeManager object data update
+  // function to handle all programme manager programme manager object data update
   const handleUpdateProgrammeManager = async () => {
     try {
       const response = await updateMutation.mutateAsync(localData);
@@ -138,11 +138,11 @@ export const ProgrammeManagerDialogComponent = ({
         onSave(true);
       }
     } catch (error: any) {
-      setError(error.message || error.response?.data.message || "Error creating programmeManager");
+      setError(error.message || error.response?.data.message || "Error creating programme manager");
     }
   };
 
-  // function to handle programmeManager creation
+  // function to handle programme manager creation
   const handleCreateProgrammeManager = async () => {
     if (validationPassed()) {
       setError("");
@@ -156,7 +156,7 @@ export const ProgrammeManagerDialogComponent = ({
             onSave(true);
           }
         } catch (error: any) {
-          setError(error.message || error.response?.data.message || "Error creating programmeManager");
+          setError(error.message || error.response?.data.message || "Error creating programme manager");
         }
       }
     }
@@ -200,7 +200,7 @@ export const ProgrammeManagerDialogComponent = ({
             {onEditMode && (
               <LoaderButton
                 buttonText="Save"
-                loadingButtonText="Saving ProgrammeManager..."
+                loadingButtonText="Saving Programme Manager..."
                 disabled={!unsaved}
                 isLoading={updateMutation.isPending}
                 onClick={handleUpdateProgrammeManager}
@@ -208,8 +208,8 @@ export const ProgrammeManagerDialogComponent = ({
             )}
             {onViewMode && (
               <button
-                disabled={!hasActionAccess("Edit ProgrammeManager Profile")}
-                hidden={!hasActionAccess("Edit ProgrammeManager Profile")}
+                disabled={!hasActionAccess("Edit Programme Manager")}
+                hidden={!hasActionAccess("Edit Programme Manager")}
                 onClick={() => setOnEditMode(true)}
                 className={defaultButtonStyle}
               >

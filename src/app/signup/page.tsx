@@ -138,6 +138,7 @@ const signUpPage = () => {
             <div className="flex gap-3 w-full">
               <div className="w-[65%]">
                 <InputComponent
+                  autocomplete="on"
                   title="Organisation Name *"
                   placeholder="Organisation Name *"
                   name="organisationName"
@@ -149,8 +150,9 @@ const signUpPage = () => {
 
               <div className="w-[35%]">
                 <InputComponent
+                  autocomplete="on"
                   title="Organisation Initial"
-                  placeholder="e.g. ORG or 3 letter short name"
+                  placeholder="ORG or 3 letter short name"
                   name="organisationInitial"
                   value={organisationInitial}
                   required={true}
@@ -160,6 +162,7 @@ const signUpPage = () => {
             </div>
             <div className="flex gap-3 w-full">
               <InputComponent
+                autocomplete="on"
                 type="email"
                 title="Organisation Email - (admin) *"
                 placeholder="Organisation Email - (admin) *"
@@ -169,6 +172,7 @@ const signUpPage = () => {
                 onChange={handleInputChange}
               />
               <InputComponent
+                autocomplete="on"
                 title="Organisation Phone - (+447840272035) *"
                 placeholder="Organisation Phone - (+447840272035) *"
                 name="organisationPhone"

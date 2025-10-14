@@ -22,21 +22,20 @@ import {
 import { YesNoDialog } from "../general/compLibrary";
 import { defaultButtonStyle, tabGroupButtonStyle } from "@/lib/generalStyles";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
-import { MdAdd } from "react-icons/md";
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import { SearchableDropDownInput } from "../general/compLibrary2";
 
-export const BaseSubjectManagerDialogComponent = ({
+export const SubjectTeacherDialogComponent = ({
   type,
   data,
   onClose,
   onSave,
-  baseSubjects,
+  subjects,
   staffContracts
 }: {
   type: "new" | "edit" | "view";
   data?: any;
-  baseSubjects: any[];
+  subjects: any[];
   staffContracts: any[];
   onClose: (close: boolean) => void;
   onSave: (save: boolean) => void;
@@ -44,8 +43,8 @@ export const BaseSubjectManagerDialogComponent = ({
   const { handleUnload } = useNavigationHandler();
   const { hasActionAccess } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
-  const updateMutation = tanMutateAny("put", "alyeqeenschoolapp/api/curriculum/basesubject/manager");
-  const createMutation = tanMutateAny("post", "alyeqeenschoolapp/api/curriculum/basesubject/manager");
+  const updateMutation = tanMutateAny("put", "alyeqeenschoolapp/api/curriculum/subject/teacher");
+  const createMutation = tanMutateAny("post", "alyeqeenschoolapp/api/curriculum/subject/teacher");
   const [unsaved, setUnsaved] = useState(false);
   const [error, setError] = useState("");
   const [onEditMode, setOnEditMode] = useState(type === "edit");
@@ -55,12 +54,12 @@ export const BaseSubjectManagerDialogComponent = ({
 
   const [localData, setLocalData] = useState<any>({
     _id: onCreateMode ? "" : data._id,
-    baseSubjectId: onCreateMode ? "" : data.baseSubjectId,
-    baseSubjectName: onCreateMode ? "" : data.baseSubjectName,
-    baseSubjectCustomId: onCreateMode ? "" : data.baseSubjectCustomId,
-    baseSubjectManagerStaffId: onCreateMode ? "" : data.baseSubjectManagerStaffId,
-    baseSubjectManagerCustomStaffId: onCreateMode ? "" : data.baseSubjectManagerCustomStaffId,
-    baseSubjectManagerFullName: onCreateMode ? "" : data.baseSubjectManagerFullName,
+    subjectId: onCreateMode ? "" : data.subjectId,
+    subjectFullTitle: onCreateMode ? "" : data.subjectFullTitle,
+    subjectCustomId: onCreateMode ? "" : data.subjectCustomId,
+    subjectTeacherStaffId: onCreateMode ? "" : data.subjectTeacherStaffId,
+    subjectTeacherCustomStaffId: onCreateMode ? "" : data.subjectTeacherCustomStaffId,
+    subjectTeacherFullName: onCreateMode ? "" : data.subjectTeacherFullName,
     managedFrom: onCreateMode ? "" : data.managedFrom,
     managedUntil: onCreateMode ? "" : data.managedUntil,
     status: onCreateMode ? "" : data.status
@@ -97,18 +96,16 @@ export const BaseSubjectManagerDialogComponent = ({
   }, [onEditMode]);
 
   const {
-    baseSubjectId,
-    baseSubjectName,
-    baseSubjectCustomId,
-    baseSubjectManagerStaffId,
-    baseSubjectManagerCustomStaffId,
-    baseSubjectManagerFullName,
+    subjectId,
+    subjectFullTitle,
+    subjectCustomId,
+    subjectTeacherStaffId,
+    subjectTeacherCustomStaffId,
+    subjectTeacherFullName,
     managedFrom,
     managedUntil,
     status
   } = localData;
-
-  console.log("localData", localData);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setUnsaved(true);
@@ -129,20 +126,20 @@ export const BaseSubjectManagerDialogComponent = ({
     return true;
   };
 
-  // function to handle all baseSubjectManager baseSubjectManager object data update
-  const handleUpdateBaseSubjectManager = async () => {
+  // function to handle all subjectTeacher subjectTeacher object data update
+  const handleUpdateSubjectTeacher = async () => {
     try {
       const response = await updateMutation.mutateAsync(localData);
       if (response?.data) {
         onSave(true);
       }
     } catch (error: any) {
-      setError(error.message || error.response?.data.message || "Error creating base subject manager");
+      setError(error.message || error.response?.data.message || "Error creating subjectTeacher");
     }
   };
 
-  // function to handle baseSubjectManager creation
-  const handleCreateBaseSubjectManager = async () => {
+  // function to handle subjectTeacher creation
+  const handleCreateSubjectTeacher = async () => {
     if (validationPassed()) {
       setError("");
 
@@ -155,7 +152,7 @@ export const BaseSubjectManagerDialogComponent = ({
             onSave(true);
           }
         } catch (error: any) {
-          setError(error.message || error.response?.data.message || "Error creating base subject manager");
+          setError(error.message || error.response?.data.message || "Error creating subjectTeacher");
         }
       }
     }
@@ -163,15 +160,12 @@ export const BaseSubjectManagerDialogComponent = ({
 
   return (
     <div className="fixed flex z-20 items-center justify-center inset-0 bg-foregroundColor-transparent">
-      <ContainerComponent
-        id="baseSubjectManagerDialogContainer"
-        style="w-[50%] h-[80%] gap-5 overflow-auto flex flex-col"
-      >
+      <ContainerComponent id="subjectTeacherDialogContainer" style="w-[50%] h-[60%] gap-5 overflow-auto flex flex-col">
         {openUnsavedDialog && (
           <YesNoDialog
             warningText="You have unsaved changes. Are you sure you want to proceed?"
             onNo={() => {
-              const container = document.getElementById("baseSubjectManagerDialogContainer");
+              const container = document.getElementById("subjectTeacherDialogContainer");
               if (container) {
                 container.style.overflow = "";
               }
@@ -185,30 +179,30 @@ export const BaseSubjectManagerDialogComponent = ({
         )}
         {/* top div */}
         <div className="flex justify-between items-center">
-          <h2>{onCreateMode ? "Create" : onViewMode ? "View" : "Edit"} Base Subject Manager</h2>
+          <h2>{onCreateMode ? "Create" : onViewMode ? "View" : "Edit"} Subject Teacher</h2>
           <div className="flex justify-between items-center gap-5">
             {onCreateMode && (
               <LoaderButton
                 buttonText="Create"
-                loadingButtonText="Creating Base Subject Manager..."
+                loadingButtonText="Creating Subject Teacher..."
                 disabled={!unsaved}
                 isLoading={createMutation.isPending}
-                onClick={handleCreateBaseSubjectManager}
+                onClick={handleCreateSubjectTeacher}
               />
             )}
             {onEditMode && (
               <LoaderButton
                 buttonText="Save"
-                loadingButtonText="Saving Base Subject Manager..."
+                loadingButtonText="Saving Subject Teacher..."
                 disabled={!unsaved}
                 isLoading={updateMutation.isPending}
-                onClick={handleUpdateBaseSubjectManager}
+                onClick={handleUpdateSubjectTeacher}
               />
             )}
             {onViewMode && (
               <button
-                disabled={!hasActionAccess("Edit Base Subject Manager")}
-                hidden={!hasActionAccess("Edit Base Subject Manager")}
+                disabled={!hasActionAccess("Edit Subject Teacher Profile")}
+                hidden={!hasActionAccess("Edit Subject Teacher Profile")}
                 onClick={() => setOnEditMode(true)}
                 className={defaultButtonStyle}
               >
@@ -220,7 +214,7 @@ export const BaseSubjectManagerDialogComponent = ({
                 if (!unsaved) {
                   onClose(true);
                 }
-                const container = document.getElementById("baseSubjectManagerDialogContainer");
+                const container = document.getElementById("subjectTeacherDialogContainer");
                 if (container) {
                   container.style.overflow = "hidden";
                 }
@@ -243,22 +237,21 @@ export const BaseSubjectManagerDialogComponent = ({
               {error}
             </ErrorDiv>
           )}
-
           <div className="grid grid-cols-2 gap-3 w-full">
             <SearchableDropDownInput
-              defaultText={`|${baseSubjectCustomId}`}
+              defaultText={`|${subjectCustomId}`}
               disabled={onViewMode}
-              title="Base Subject Custom Id *"
-              placeholder="Search Base Subject *"
-              data={baseSubjects}
-              displayKeys={["_id", "baseSubjectCustomId", "baseSubjectName"]}
+              title="Subject Custom Id *"
+              placeholder="Search Subject *"
+              data={subjects}
+              displayKeys={["_id", "subjectCustomId", "subjectFullTitle"]}
               onSelected={(selectedData, save) => {
                 if (save) {
                   setLocalData((prev: any) => ({
                     ...prev,
-                    baseSubjectCustomId: selectedData[1],
-                    baseSubjectId: selectedData[0],
-                    baseSubjectName: selectedData[2]
+                    subjectCustomId: selectedData[1],
+                    subjectId: selectedData[0],
+                    subjectFullTitle: selectedData[2]
                   }));
                   setUnsaved(true);
                 }
@@ -270,9 +263,9 @@ export const BaseSubjectManagerDialogComponent = ({
               }}
             />
             <SearchableDropDownInput
-              defaultText={`|${baseSubjectManagerCustomStaffId}`}
+              defaultText={`|${subjectTeacherCustomStaffId}`}
               disabled={onViewMode}
-              title="Manager Staff Id *"
+              title="Teacher Staff Id *"
               placeholder="Search Staff *"
               data={staffContracts}
               displayKeys={["_id", "staffCustomId", "staffFullName"]}
@@ -281,9 +274,9 @@ export const BaseSubjectManagerDialogComponent = ({
                   const staffContract = staffContracts.find((contract: any) => contract._id === selectedData[0]);
                   setLocalData((prev: any) => ({
                     ...prev,
-                    baseSubjectManagerCustomStaffId: staffContract?.staffCustomId,
-                    baseSubjectManagerStaffId: staffContract?.staffId,
-                    baseSubjectManagerFullName: staffContract?.staffFullName
+                    subjectTeacherCustomStaffId: staffContract?.staffCustomId,
+                    subjectTeacherStaffId: staffContract?.staffId,
+                    subjectTeacherFullName: staffContract?.staffFullName
                   }));
                   setUnsaved(true);
                 }
@@ -296,22 +289,38 @@ export const BaseSubjectManagerDialogComponent = ({
             />
             <InputComponent
               disabled={true}
-              title="Base Subject Name *"
-              placeholder="Base Subject Name * (Auto-fill)"
-              required
-              name="baseSubjectName"
-              value={baseSubjectName}
+              title="Subject Teacher Full Name *"
+              autocomplete="on"
+              placeholder="Subject Teacher Full Name * (Auto-fill)"
+              name="subjectTeacherFullName"
+              value={subjectTeacherFullName}
               onChange={handleInputChange}
+            />{" "}
+            <SelectInputComponent
+              disabled={onViewMode}
+              title="Status *"
+              placeholder="Status *"
+              name="status"
+              value={status}
+              onChange={handleInputChange}
+              options={[
+                { value: "Active", label: "Active" },
+                { value: "Inactive", label: "Inactive" }
+              ]}
             />
+          </div>{" "}
+          <div className="w-full">
             <InputComponent
               disabled={true}
-              title="Base Subject Manager Full Name *"
-              autocomplete="on"
-              placeholder="Base Subject Manager Full Name * (Auto-fill)"
-              name="baseSubjectManagerFullName"
-              value={baseSubjectManagerFullName}
+              title="Subject Full Title *"
+              placeholder="Subject Full Title * (Auto-fill)"
+              required
+              name="subjectFullTitle"
+              value={subjectFullTitle}
               onChange={handleInputChange}
             />
+          </div>
+          <div className="grid grid-cols-2 gap-3 w-full">
             <InputComponent
               disabled={onViewMode}
               title="Managed From"
@@ -329,18 +338,6 @@ export const BaseSubjectManagerDialogComponent = ({
               name="managedUntil"
               value={managedUntil}
               onChange={handleInputChange}
-            />
-            <SelectInputComponent
-              disabled={onViewMode}
-              title="Status *"
-              placeholder="Status *"
-              name="status"
-              value={status}
-              onChange={handleInputChange}
-              options={[
-                { value: "Active", label: "Active" },
-                { value: "Inactive", label: "Inactive" }
-              ]}
             />
           </div>
         </div>

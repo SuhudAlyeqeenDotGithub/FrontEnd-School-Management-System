@@ -1,7 +1,7 @@
 "use client";
 import { checkDataType } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActionButtons,
   CustomHeading,
@@ -12,8 +12,6 @@ import {
   PreviousButton
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
-import { FaSearch } from "react-icons/fa";
-import { CgTrash } from "react-icons/cg";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 
 import {
@@ -21,16 +19,16 @@ import {
   ConfirmActionByInputDialog,
   CustomFilterComponent
 } from "@/lib/customComponents/general/compLibrary2";
-import { UserDialogComponent } from "@/lib/customComponents/admin/userDialogComp";
+import { TopicDialogComponent } from "@/lib/customComponents/curriculum/topicDialogComp";
 
 import {
-  dataRowCellStyle,
   defaultButtonStyle,
   ghostbuttonStyle,
   paginationContainerStyle,
   sortableTableHeadCellStyle,
   tableCellStyle,
   tableContainerStyle,
+  tableHeadCellStyle,
   tableHeaderStyle,
   tableRowStyle,
   tableTopStyle
@@ -39,20 +37,19 @@ import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { MdAdd, MdContentCopy } from "react-icons/md";
 
-const Users = () => {
-  const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
+const Topics = () => {
+  const { useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
-  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/admin/users");
+  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/curriculum/topic");
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
-  const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openEditUserDialog, setOpenEditUserDialog] = useState(false);
-  const [openNewUserDialog, setOpenNewUserDialog] = useState(false);
-  const [openViewUserDialog, setOpenViewUserDialog] = useState(false);
+  const [openEditTopicDialog, setOpenEditTopicDialog] = useState(false);
+  const [openNewTopicDialog, setOpenNewTopicDialog] = useState(false);
+  const [openViewTopicDialog, setOpenViewTopicDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
-  const [onOpenUserDialogData, setOnOpenUserDialogData] = useState<any>({});
+  const [onOpenTopicDialogData, setOnOpenTopicDialogData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
@@ -67,80 +64,42 @@ const Users = () => {
   const [queryParams, setQueryParams] = useState({});
 
   const {
-    data: staffProfiles,
-    isFetching: isFetchingStaffProfiles,
-    error: staffProfilesError,
-    isError: isStaffProfilesError
-  } = useReusableQuery("staffProfiles", "View Staff Profiles", "alyeqeenschoolapp/api/staff/allprofile");
-
-  const {
-    data: roles,
-    isFetching: isFetchingroles,
-    error: rolesError,
-    isError: isrolesError
-  } = useReusableQuery("roles", "View Roles", "alyeqeenschoolapp/api/admin/roles");
-
-  const {
-    data: users,
-    isFetching: isFetchingusers,
-    error: usersError,
-    isError: isUsersError,
+    data: topics,
+    isFetching: isFetchingtopics,
+    error: topicsError,
+    isError: isTopicsError,
     fetchNextPage,
     fetchPreviousPage
   } = useReusableInfiniteQuery(
-    "users",
+    "topics",
     queryParams,
     Number(limit) || 10,
-    "View Users",
-    "alyeqeenschoolapp/api/admin/users"
+    "View Topics",
+    "alyeqeenschoolapp/api/curriculum/topics"
   );
 
   useEffect(() => {
-    if (!staffProfiles) return;
+    if (!topics) return;
     setError("");
-  }, [staffProfiles, isFetchingStaffProfiles]);
-
-  useEffect(() => {
-    if (!isStaffProfilesError) return;
-    if (staffProfilesError) {
-      setError(staffProfilesError.message);
-    }
-  }, [staffProfilesError, isStaffProfilesError]);
-
-  useEffect(() => {
-    if (!roles) return;
-    setError("");
-  }, [roles, isFetchingroles]);
-
-  useEffect(() => {
-    if (!isrolesError) return;
-    if (rolesError) {
-      setError(rolesError.message);
-    }
-  }, [rolesError, isrolesError]);
-
-  useEffect(() => {
-    if (!users) return;
-    setError("");
-    const currentPage: any = users.pages[pageIndex];
+    const currentPage: any = topics.pages[pageIndex];
     if (currentPage === undefined) return;
-    setLocalData(currentPage.users);
+    setLocalData(currentPage.topics);
     const { totalCount, chunkCount, hasNext } = currentPage;
     setPaginationData({ totalCount, chunkCount, hasNext });
-  }, [users, isFetchingusers]);
+  }, [topics, isFetchingtopics]);
 
   useEffect(() => {
-    if (!isUsersError) return;
-    if (usersError) {
-      setError(usersError.message);
+    if (!isTopicsError) return;
+    if (topicsError) {
+      setError(topicsError.message);
     }
-  }, [usersError, isUsersError]);
+  }, [topicsError, isTopicsError]);
 
   const renderNextPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { users, ...rest } = foundPage;
-      setLocalData(users);
+      const { topics, ...rest } = foundPage;
+      setLocalData(topics);
       setPaginationData(rest);
     } else {
       fetchNextPage();
@@ -150,8 +109,8 @@ const Users = () => {
   const renderPreviousPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { users, ...rest } = foundPage;
-      setLocalData(users);
+      const { topics, ...rest } = foundPage;
+      setLocalData(topics);
       setPaginationData(rest);
     } else {
       fetchPreviousPage();
@@ -164,21 +123,7 @@ const Users = () => {
         <LoaderDiv
           type="spinnerText"
           borderColor="foregroundColor"
-          text="Loading User Data..."
-          textColor="foregroundColor"
-          dimension="h-10 w-10"
-        />
-      </div>
-    );
-  }
-
-  if (!roles || !staffProfiles) {
-    return (
-      <div className="flex items-center justify-center mt-10">
-        <LoaderDiv
-          type="spinnerText"
-          borderColor="foregroundColor"
-          text="Loading Required Data..."
+          text="Loading Topic Data..."
           textColor="foregroundColor"
           dimension="h-10 w-10"
         />
@@ -230,75 +175,52 @@ const Users = () => {
     <div className="px-4 py-6 w-full">
       {/* data table section */}
       <>
-        {openEditUserDialog && (
-          <UserDialogComponent
+        {openEditTopicDialog && (
+          <TopicDialogComponent
             type="edit"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditUserDialog(!open);
+              setOpenEditTopicDialog(!open);
               return {};
             }}
-            onSave={(notSave) => {
+            onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditUserDialog(!notSave);
+              setOpenEditTopicDialog(!notSave);
               return {};
             }}
-            staffProfiles={staffProfiles}
-            data={onOpenUserDialogData}
-            roles={roles
-              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-              .map(({ _id, roleName, tabAccess }: any) => ({
-                _id,
-                name: roleName,
-                tabAccess,
-                searchText: _id + roleName
-              }))}
+            data={onOpenTopicDialogData}
           />
         )}
 
-        {openViewUserDialog && (
-          <UserDialogComponent
+        {openViewTopicDialog && (
+          <TopicDialogComponent
             type="view"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewUserDialog(!open);
+              setOpenViewTopicDialog(!open);
               return {};
             }}
-            onSave={(notSave) => {
+            onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewUserDialog(!notSave);
+              setOpenViewTopicDialog(!notSave);
               return {};
             }}
-            data={onOpenUserDialogData}
-            staffProfiles={staffProfiles}
-            roles={roles
-              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-              .map((roleDocument: any) => ({
-                ...roleDocument,
-                searchText: roleDocument._id + roleDocument.roleName
-              }))}
+            data={onOpenTopicDialogData}
           />
         )}
-        {openNewUserDialog && (
-          <UserDialogComponent
+        {openNewTopicDialog && (
+          <TopicDialogComponent
             type="new"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewUserDialog(!open);
+              setOpenNewTopicDialog(!open);
               return {};
             }}
-            onSave={(notSave) => {
+            onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewUserDialog(!notSave);
+              setOpenNewTopicDialog(!notSave);
               return {};
             }}
-            staffProfiles={staffProfiles}
-            roles={roles
-              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-              .map((roleDocument: any) => ({
-                ...roleDocument,
-                searchText: roleDocument._id + roleDocument.roleName
-              }))}
           />
         )}
         {openDisallowedDeleteDialog && (
@@ -334,7 +256,7 @@ const Users = () => {
               setOpenConfirmDelete(false);
               document.body.style.overflow = "";
             }}
-            warningText="Please confirm the ID of the user/account you want to delete"
+            warningText="Please confirm the ID of the topic you want to delete"
           />
         )}
         {/* data table div */}
@@ -343,12 +265,11 @@ const Users = () => {
             {/* title */}
             <div className="flex flex-col">
               <CustomHeading variation="sectionHeader">
-                Users
-                {/* <UserRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
+                Topics
+                {/* <TopicRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
               </CustomHeading>
-              <CustomHeading variation="head5light">
-                Use this section to create and manage users and their access
-              </CustomHeading>
+              <CustomHeading variation="head5">Manage units under subjects, set objectives and resources</CustomHeading>
+              <CustomHeading variation="head6light">Algebra, Geometry, Calculus, Probability etc</CustomHeading>
             </div>
 
             <span onClick={() => setOpenFilterDiv(!openFilterDiv)} className={ghostbuttonStyle}>
@@ -357,28 +278,28 @@ const Users = () => {
             <div>
               <button
                 onClick={() => {
-                  if (hasActionAccess("Create User")) {
+                  if (hasActionAccess("Create Topic")) {
                     document.body.style.overflow = "hidden";
-                    setOpenNewUserDialog(true);
+                    setOpenNewTopicDialog(true);
                   } else {
-                    setError("You do not have Create User Access - Please contact your admin");
+                    setError("You do not have Create Topic Access - Please contact your admin");
                   }
                 }}
-                disabled={!hasActionAccess("Create User")}
+                disabled={!hasActionAccess("Create Topic")}
                 className={defaultButtonStyle}
               >
-                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New User
+                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Topic
               </button>
             </div>
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
-              placeholder="Search role (User Name, Email, Status)"
+              placeholder="Search role (Topic Name, Topic Custom ID)"
               filters={[
                 {
-                  displayText: "Account Status",
-                  fieldName: "accountStatus",
-                  options: ["All", "Active", "Locked"]
+                  displayText: "Status",
+                  fieldName: "status",
+                  options: ["All", "Active", "Inactive"]
                 }
               ]}
               onQuery={(query: any) => {
@@ -432,7 +353,7 @@ const Users = () => {
                 onClick={() => {
                   const prevPage = pageIndex - 1;
                   setPageIndex(prevPage);
-                  renderPreviousPage(prevPage, users.pages);
+                  renderPreviousPage(prevPage, topics.pages);
                 }}
                 disabled={pageIndex === 0}
               />
@@ -444,7 +365,7 @@ const Users = () => {
                 onClick={() => {
                   const nextPage = pageIndex + 1;
                   setPageIndex(nextPage);
-                  renderNextPage(nextPage, users.pages);
+                  renderNextPage(nextPage, topics.pages);
                 }}
                 disabled={!paginationData.hasNext}
               />
@@ -457,17 +378,18 @@ const Users = () => {
             <table className="relative w-full">
               <thead className="sticky top-0 z-10 border-b border-borderColor-2">
                 <tr className={tableHeaderStyle}>
-                  <th className="text-center w-[110px] font-semibold p-2 whitespace-nowrap">User Id</th>
-                  {(["User Name", "User Role", "User Email", "Account Status", "Created At"] as const).map((header) => (
+                  {(
+                    ["Topic Custom ID", "Topic Name", "Status", "Offering Start Date", "Offering End Date"] as const
+                  ).map((header) => (
                     <th
                       key={header}
                       onClick={() => {
                         const key_Name = {
-                          "User Name": "accountName",
-                          "User Role": "role",
-                          "User Email": "accountEmail",
-                          "Account Status": "accountStatus",
-                          "Created At": "createdAt"
+                          "Topic Name": "topic",
+                          "Topic Custom ID": "topicCustomId",
+                          Status: "status",
+                          "Offering Start Date": "offeringStartDate",
+                          "Offering End Date": "offeringEndDate"
                         };
                         const sortKey = key_Name[header];
                         handleSort(sortKey);
@@ -477,26 +399,26 @@ const Users = () => {
                       {header} <LuArrowUpDown className="inline-block ml-1" />
                     </th>
                   ))}
-                  <th className={tableHeaderStyle}>Actions</th>
+                  <th className={tableHeadCellStyle}>Actions</th>
                 </tr>
               </thead>
 
               {/* table data */}
               <tbody className="mt-3 bg-backgroundColor">
-                {isFetchingusers ? (
+                {isFetchingtopics ? (
                   <tr>
                     <td colSpan={8}>
                       <div className="flex items-center justify-center p-10">
                         <LoaderDiv
                           type="spinnerText"
-                          text="Loading Users..."
+                          text="Loading Topics..."
                           textColor="foregroundColor"
                           dimension="h-10 w-10"
                         />
                       </div>
                     </td>
                   </tr>
-                ) : (localData.length < 1 && !isFetchingusers) || !users ? (
+                ) : (localData.length < 1 && !isFetchingtopics) || !topics ? (
                   <tr>
                     <td colSpan={8} className="text-center py-4">
                       No data available
@@ -505,113 +427,79 @@ const Users = () => {
                 ) : (
                   localData.map((doc: any, index: any) => {
                     const {
-                      _id: accountId,
-                      staffId,
-                      accountName,
-                      accountEmail,
-                      accountType,
-                      accountStatus,
-                      roleId,
-                      accountPassword,
-                      createdAt
+                      _id: topicId,
+                      topicCustomId,
+                      topic,
+                      offeringStartDate,
+                      offeringEndDate,
+                      status,
+                      topicDuration
                     } = doc;
 
-                    const tabs = roleId
-                      ? roleId.tabAccess
-                          ?.map((tab: any) => tab.tab)
-                          .slice(0, 5)
-                          .join(", ")
-                      : "Unknown Role";
                     return (
                       <tr
-                        key={accountId}
+                        key={topicId}
                         onClick={() => {
-                          if (hasActionAccess("View User")) {
+                          if (hasActionAccess("View Topics")) {
                             document.body.style.overflow = "hidden";
-                            setOnOpenUserDialogData(doc);
-                            setOpenViewUserDialog(true);
+                            setOnOpenTopicDialogData(doc);
+                            setOpenViewTopicDialog(true);
                           } else {
-                            setError("You do not have View User Access - Please contact your admin");
+                            setError("You do not have View Topic Access - Please contact your admin");
                           }
                         }}
                         className={tableRowStyle}
                       >
                         <td className="w-[110px] whitespace-nowrap text-center">
-                          {accountId.slice(15)}
+                          {topicCustomId}
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(accountId);
+                              await navigator.clipboard.writeText(topicCustomId);
                             }}
                           />
                         </td>
                         <td className={tableCellStyle}>
-                          {accountName}{" "}
+                          {topic}
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(accountName);
+                              await navigator.clipboard.writeText(topic);
                             }}
                           />
                         </td>
-                        <td className={tableCellStyle}>{roleId ? roleId?.roleName.slice(0, 15) : "Unknown Role"}</td>
-                        <td className={tableCellStyle}>
-                          {accountEmail}{" "}
-                          <MdContentCopy
-                            title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              await navigator.clipboard.writeText(accountEmail);
-                            }}
-                          />
-                        </td>
-                        <td className={tableCellStyle}>{accountStatus}</td>
-                        <td className={tableCellStyle}>{formatDate(createdAt)}</td>
+
+                        <td className={tableCellStyle}>{status}</td>
+                        <td className={tableCellStyle}>{formatDate(offeringStartDate)}</td>
+                        <td className={tableCellStyle}>{formatDate(offeringEndDate)}</td>
 
                         <td className="text-center flex items-center justify-center h-15">
                           <ActionButtons
                             onEdit={(e) => {
-                              if (hasActionAccess("Edit User")) {
+                              if (hasActionAccess("Edit Topic")) {
                                 document.body.style.overflow = "hidden";
-
-                                setOnOpenUserDialogData(doc);
-                                setOpenEditUserDialog(true);
+                                setOnOpenTopicDialogData(doc);
+                                setOpenEditTopicDialog(true);
                               } else {
-                                setError("You do not have Edit User Access - Please contact your admin");
+                                setError("You do not have Edit Topic Access - Please contact your admin");
                               }
                             }}
-                            disableDelete={roleId.absoluteAdmin}
-                            hideDelete={roleId.absoluteAdmin}
                             onDelete={(e) => {
-                              if (roleId.absoluteAdmin) {
-                                setError(
-                                  "Disallowed Action: Default Absolute Admin / organisation account Cannot be deleted"
-                                );
-                                setOpenDisallowedDeleteDialog(true);
+                              if (hasActionAccess("Delete Topic")) {
+                                document.body.style.overflow = "hidden";
+                                setOpenConfirmDelete(true);
+                                setConfirmWithText(topicCustomId);
+                                setConfirmWithReturnObj({
+                                  topicCustomId
+                                });
                               } else {
-                                if (hasActionAccess("Delete User")) {
-                                  document.body.style.overflow = "hidden";
-                                  setOpenConfirmDelete(true);
-                                  setConfirmWithText(accountId);
-                                  setConfirmWithReturnObj({
-                                    accountIdToDelete: accountId,
-                                    accountType,
-                                    staffId,
-                                    userName: accountName,
-                                    userEmail: accountEmail,
-                                    userStatus: accountStatus,
-                                    roleId
-                                  });
-                                } else {
-                                  setError(
-                                    "Unauthorised Action: You do not have Delete User Access - Please contact your admin"
-                                  );
-                                }
+                                setError(
+                                  "Unauthorised Action: You do not have Delete Topic Access - Please contact your admin"
+                                );
                               }
                             }}
                           />
@@ -629,4 +517,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default Topics;

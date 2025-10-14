@@ -927,7 +927,7 @@ const StaffProfileDialogComponent = ({
                 return (
                   <div
                     key={_id}
-                    className="flex flex-col w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
+                    className="flex flex-col gap-2 w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
                     onClick={() => {
                       setOnOpenQualificationDialogData(qualification);
                       setViewQualificationDialog(true);
@@ -1000,7 +1000,7 @@ const StaffProfileDialogComponent = ({
                 return (
                   <div
                     key={_id}
-                    className="flex flex-col w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
+                    className="flex flex-col gap-2 w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
                     onClick={() => {
                       setOnOpenWorkExperienceDialogData(experienceObj);
                       setViewWorkExperienceDialog(true);
@@ -1065,7 +1065,7 @@ const StaffProfileDialogComponent = ({
                 return (
                   <div
                     key={_id}
-                    className="flex flex-col w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
+                    className="flex flex-col gap-2 w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
                     onClick={() => {
                       setOnOpenIdentificationDialogData(identification);
                       setViewIdentificationDialog(true);

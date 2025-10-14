@@ -2,11 +2,9 @@
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-import { getUsers } from "@/redux/features/admin/users/usersThunks";
 import { useQueryClient } from "@tanstack/react-query";
 import { BASE_API_URL } from "../shortFunctions";
 import axios from "axios";
-import StaffProfile from "@/app/main/staff/page";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 
 const useWebSocketHandler = (onError?: (error: string) => void) => {
@@ -619,6 +617,95 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
         }
       }
 
+      // handle staff contract changes
+      if ((hasActionAccess("View Student Enrollments") || userIsAbsoluteAdmin) && collection === "studentenrollments") {
+        const changedRecordId = fullDocument._id;
+        const userStudentId = accountData.studentId?._id;
+
+        if (!userIsAbsoluteAdmin && changedRecordId === userStudentId) return;
+        const queriesData = queryClient.getQueriesData({ queryKey: ["studentenrollments"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (contract: any) => {
+                return [fullDocument, ...contract];
+              });
+            } else {
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { studentEnrollments: firstPageStudentEnrollments } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [
+                        { ...firstPage, studentEnrollments: [fullDocument, ...firstPageStudentEnrollments] },
+                        ...queryPages.slice(1)
+                      ]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (contracts: any) => {
+                return contracts.map((contract: any) => (contract._id === fullDocument._id ? fullDocument : contract));
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    studentEnrollments: page.studentEnrollments.map((contract: any) =>
+                      contract._id === fullDocument._id ? fullDocument : contract
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (contracts: any) => {
+                return contracts.filter((contract: any) => contract._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    studentEnrollments: page.studentEnrollments.filter(
+                      (contract: any) => contract._id !== fullDocument._id
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
+
       // handle programmes changes
       if ((hasActionAccess("View Programmes") || userIsAbsoluteAdmin) && collection === "programmes") {
         const queriesData = queryClient.getQueriesData({ queryKey: ["programmes"] });
@@ -1051,12 +1138,12 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
       }
 
       // handle level managers changes
-      if ((hasActionAccess("View Levels Managers") || userIsAbsoluteAdmin) && collection === "levelmanagers") {
+      if ((hasActionAccess("View Level Managers") || userIsAbsoluteAdmin) && collection === "levelmanagers") {
         const changedRecordId = fullDocument.levelManagerStaffId;
         const userStaffId = accountData.staffId?._id;
 
         if (!userIsAbsoluteAdmin && changedRecordId === userStaffId) return;
-        const queriesData = queryClient.getQueriesData({ queryKey: ["levelManagers"] });
+        const queriesData = queryClient.getQueriesData({ queryKey: ["levelmanagers"] });
         if (queriesData.length === 0) return;
 
         if (changeOperation === "insert") {
@@ -1144,7 +1231,7 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
         }
       }
 
-      // handle baseSubjects changes
+      // handle base Subjects changes
       if ((hasActionAccess("View Base Subjects") || userIsAbsoluteAdmin) && collection === "basesubjects") {
         const queriesData = queryClient.getQueriesData({ queryKey: ["basesubjects"] });
         if (queriesData.length === 0) return;
@@ -1318,6 +1405,340 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
                     baseSubjectManagers: page.baseSubjectManagers.filter(
                       (baseSubjectManager: any) => baseSubjectManager._id !== fullDocument._id
                     )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
+
+      // handle subjects changes
+      if ((hasActionAccess("View Subjects") || userIsAbsoluteAdmin) && collection === "subjects") {
+        const queriesData = queryClient.getQueriesData({ queryKey: ["subjects"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (subjects: any) => {
+                return [fullDocument, ...subjects];
+              });
+            } else {
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { subjects: firstPageSubjects } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [{ ...firstPage, subjects: [fullDocument, ...firstPageSubjects] }, ...queryPages.slice(1)]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (subjects: any) => {
+                return subjects.map((subject: any) => (subject._id === fullDocument._id ? fullDocument : subject));
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    subjects: page.subjects.map((subject: any) =>
+                      subject._id === fullDocument._id ? fullDocument : subject
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (subjects: any) => {
+                return subjects.filter((subject: any) => subject._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    subjects: page.subjects.filter((subject: any) => subject._id !== fullDocument._id)
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
+
+      // handle subject teachers changes
+      if ((hasActionAccess("View Subject Teachers") || userIsAbsoluteAdmin) && collection === "subjectteachers") {
+        const changedRecordId = fullDocument.subjectTeacherStaffId;
+        const userStaffId = accountData.staffId?._id;
+
+        if (!userIsAbsoluteAdmin && changedRecordId === userStaffId) return;
+        const queriesData = queryClient.getQueriesData({ queryKey: ["subjectteachers"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              console.log("Inserting into singly cache", fullDocument);
+              queryClient.setQueryData(queryKey, (subjectTeachers: any) => {
+                0;
+                return [fullDocument, ...subjectTeachers];
+              });
+            } else {
+              console.log("Inserting into paginated cache", fullDocument);
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { subjectTeachers: firstPageSubjectTeachers } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [
+                        { ...firstPage, subjectTeachers: [fullDocument, ...firstPageSubjectTeachers] },
+                        ...queryPages.slice(1)
+                      ]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (subjectTeachers: any) => {
+                return subjectTeachers.map((subjectTeacher: any) =>
+                  subjectTeacher._id === fullDocument._id ? fullDocument : subjectTeacher
+                );
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    subjectTeachers: page.subjectTeachers.map((subjectTeacher: any) =>
+                      subjectTeacher._id === fullDocument._id ? fullDocument : subjectTeacher
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (subjectTeachers: any) => {
+                return subjectTeachers.filter((subjectTeacher: any) => subjectTeacher._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    subjectTeachers: page.subjectTeachers.filter(
+                      (subjectTeacher: any) => subjectTeacher._id !== fullDocument._id
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
+      // handle topics changes
+      if ((hasActionAccess("View Topics") || userIsAbsoluteAdmin) && collection === "topics") {
+        const queriesData = queryClient.getQueriesData({ queryKey: ["topics"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (topics: any) => {
+                return [fullDocument, ...topics];
+              });
+            } else {
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { topics: firstPageTopics } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [{ ...firstPage, topics: [fullDocument, ...firstPageTopics] }, ...queryPages.slice(1)]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (topics: any) => {
+                return topics.map((topic: any) => (topic._id === fullDocument._id ? fullDocument : topic));
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    topics: page.topics.map((topic: any) => (topic._id === fullDocument._id ? fullDocument : topic))
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (topics: any) => {
+                return topics.filter((topic: any) => topic._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    topics: page.topics.filter((topic: any) => topic._id !== fullDocument._id)
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
+
+      // handle syllabuses changes
+      if ((hasActionAccess("View Syllabuses") || userIsAbsoluteAdmin) && collection === "syllabuses") {
+        const queriesData = queryClient.getQueriesData({ queryKey: ["syllabuses"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (syllabuses: any) => {
+                return [fullDocument, ...syllabuses];
+              });
+            } else {
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { syllabuses: firstPageSyllabuses } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [
+                        { ...firstPage, syllabuses: [fullDocument, ...firstPageSyllabuses] },
+                        ...queryPages.slice(1)
+                      ]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (syllabuses: any) => {
+                return syllabuses.map((syllabus: any) => (syllabus._id === fullDocument._id ? fullDocument : syllabus));
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    syllabuses: page.syllabuses.map((syllabus: any) =>
+                      syllabus._id === fullDocument._id ? fullDocument : syllabus
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (syllabuses: any) => {
+                return syllabuses.filter((syllabus: any) => syllabus._id !== fullDocument._id);
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    syllabuses: page.syllabuses.filter((syllabus: any) => syllabus._id !== fullDocument._id)
                   }))
                 };
 

@@ -280,7 +280,7 @@ const EditAcademicYearComponent = ({
           <InputComponent
             title="Academic Year *"
             autocomplete="on"
-            placeholder=" e.g. (Academic Year 2023-2024)"
+            placeholder=" (Academic Year 2023-2024)"
             required
             name="academicYear"
             value={academicYear}
@@ -315,7 +315,8 @@ const EditAcademicYearComponent = ({
             <button
               onClick={() => {
                 setOpenNewPeriodDialog(true);
-              }} className={defaultButtonStyle}
+              }}
+              className={defaultButtonStyle}
             >
               Add Period
             </button>

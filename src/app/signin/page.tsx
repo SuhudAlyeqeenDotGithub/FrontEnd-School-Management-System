@@ -81,6 +81,7 @@ const signInPage = () => {
             <InputComponent
               type="email"
               title="Account Email *"
+              autocomplete="on"
               placeholder="Account Email *"
               name="email"
               value={email}

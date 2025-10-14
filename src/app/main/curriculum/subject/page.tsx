@@ -36,22 +36,22 @@ import {
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { MdAdd, MdContentCopy } from "react-icons/md";
-import { LevelDialogComponent } from "@/lib/customComponents/curriculum/levelDialogComp";
+import { SubjectDialogComponent } from "@/lib/customComponents/curriculum/subjectDialogComp";
 
-const Levels = () => {
+const Subjects = () => {
   const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
-  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/curriculum/level");
+  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/curriculum/subject");
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openEditLevelDialog, setOpenEditLevelDialog] = useState(false);
-  const [openNewLevelDialog, setOpenNewLevelDialog] = useState(false);
-  const [openViewLevelDialog, setOpenViewLevelDialog] = useState(false);
+  const [openEditSubjectDialog, setOpenEditSubjectDialog] = useState(false);
+  const [openNewSubjectDialog, setOpenNewSubjectDialog] = useState(false);
+  const [openViewSubjectDialog, setOpenViewSubjectDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
-  const [onOpenLevelDialogData, setOnOpenLevelDialogData] = useState<any>({});
+  const [onOpenSubjectDialogData, setOnOpenSubjectDialogData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
@@ -76,15 +76,29 @@ const Levels = () => {
     data: levels,
     isFetching: isFetchinglevels,
     error: levelsError,
-    isError: isLevelsError,
+    isError: islevelsError
+  } = useReusableQuery("levels", "View Levels", "alyeqeenschoolapp/api/curriculum/alllevels");
+
+  const {
+    data: baseSubjects,
+    isFetching: isFetchingbaseSubjects,
+    error: baseSubjectsError,
+    isError: isbaseSubjectsError
+  } = useReusableQuery("baseSubjects", "View Base Subjects", "alyeqeenschoolapp/api/curriculum/allbaseSubjects");
+
+  const {
+    data: subjects,
+    isFetching: isFetchingsubjects,
+    error: subjectsError,
+    isError: isSubjectsError,
     fetchNextPage,
     fetchPreviousPage
   } = useReusableInfiniteQuery(
-    "levels",
+    "subjects",
     queryParams,
     Number(limit) || 10,
-    "View Levels",
-    "alyeqeenschoolapp/api/curriculum/levels"
+    "View Subjects",
+    "alyeqeenschoolapp/api/curriculum/subjects"
   );
 
   useEffect(() => {
@@ -102,25 +116,49 @@ const Levels = () => {
   useEffect(() => {
     if (!levels) return;
     setError("");
-    const currentPage: any = levels.pages[pageIndex];
-    if (currentPage === undefined) return;
-    setLocalData(currentPage.levels);
-    const { totalCount, chunkCount, hasNext } = currentPage;
-    setPaginationData({ totalCount, chunkCount, hasNext });
   }, [levels, isFetchinglevels]);
 
   useEffect(() => {
-    if (!isLevelsError) return;
+    if (!islevelsError) return;
     if (levelsError) {
       setError(levelsError.message);
     }
-  }, [levelsError, isLevelsError]);
+  }, [levelsError, islevelsError]);
+
+  useEffect(() => {
+    if (!baseSubjects) return;
+    setError("");
+  }, [baseSubjects, isFetchingbaseSubjects]);
+
+  useEffect(() => {
+    if (!isbaseSubjectsError) return;
+    if (baseSubjectsError) {
+      setError(baseSubjectsError.message);
+    }
+  }, [baseSubjectsError, isbaseSubjectsError]);
+
+  useEffect(() => {
+    if (!subjects) return;
+    setError("");
+    const currentPage: any = subjects.pages[pageIndex];
+    if (currentPage === undefined) return;
+    setLocalData(currentPage.subjects);
+    const { totalCount, chunkCount, hasNext } = currentPage;
+    setPaginationData({ totalCount, chunkCount, hasNext });
+  }, [subjects, isFetchingsubjects]);
+
+  useEffect(() => {
+    if (!isSubjectsError) return;
+    if (subjectsError) {
+      setError(subjectsError.message);
+    }
+  }, [subjectsError, isSubjectsError]);
 
   const renderNextPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { levels, ...rest } = foundPage;
-      setLocalData(levels);
+      const { subjects, ...rest } = foundPage;
+      setLocalData(subjects);
       setPaginationData(rest);
     } else {
       fetchNextPage();
@@ -130,8 +168,8 @@ const Levels = () => {
   const renderPreviousPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { levels, ...rest } = foundPage;
-      setLocalData(levels);
+      const { subjects, ...rest } = foundPage;
+      setLocalData(subjects);
       setPaginationData(rest);
     } else {
       fetchPreviousPage();
@@ -144,7 +182,7 @@ const Levels = () => {
         <LoaderDiv
           type="spinnerText"
           borderColor="foregroundColor"
-          text="Loading Level Data..."
+          text="Loading Subject Data..."
           textColor="foregroundColor"
           dimension="h-10 w-10"
         />
@@ -152,7 +190,7 @@ const Levels = () => {
     );
   }
 
-  if (isFetchingcourses) {
+  if (isFetchingcourses || isFetchinglevels || isFetchingbaseSubjects) {
     return (
       <div className="flex items-center justify-center mt-10">
         <LoaderDiv
@@ -210,55 +248,61 @@ const Levels = () => {
     <div className="px-4 py-6 w-full">
       {/* data table section */}
       <>
-        {openEditLevelDialog && (
-          <LevelDialogComponent
+        {openEditSubjectDialog && (
+          <SubjectDialogComponent
             type="edit"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditLevelDialog(!open);
+              setOpenEditSubjectDialog(!open);
               return {};
             }}
             onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditLevelDialog(!notSave);
+              setOpenEditSubjectDialog(!notSave);
               return {};
             }}
             courses={courses ? courses : []}
-            data={onOpenLevelDialogData}
+            levels={levels ? levels : []}
+            baseSubjects={baseSubjects ? baseSubjects : []}
+            data={onOpenSubjectDialogData}
           />
         )}
 
-        {openViewLevelDialog && (
-          <LevelDialogComponent
+        {openViewSubjectDialog && (
+          <SubjectDialogComponent
             type="view"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewLevelDialog(!open);
+              setOpenViewSubjectDialog(!open);
               return {};
             }}
             onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewLevelDialog(!notSave);
+              setOpenViewSubjectDialog(!notSave);
               return {};
             }}
             courses={courses ? courses : []}
-            data={onOpenLevelDialogData}
+            levels={levels ? levels : []}
+            baseSubjects={baseSubjects ? baseSubjects : []}
+            data={onOpenSubjectDialogData}
           />
         )}
-        {openNewLevelDialog && (
-          <LevelDialogComponent
+        {openNewSubjectDialog && (
+          <SubjectDialogComponent
             type="new"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewLevelDialog(!open);
+              setOpenNewSubjectDialog(!open);
               return {};
             }}
             onSave={(notSave: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewLevelDialog(!notSave);
+              setOpenNewSubjectDialog(!notSave);
               return {};
             }}
             courses={courses ? courses : []}
+            levels={levels ? levels : []}
+            baseSubjects={baseSubjects ? baseSubjects : []}
           />
         )}
         {openDisallowedDeleteDialog && (
@@ -294,7 +338,7 @@ const Levels = () => {
               setOpenConfirmDelete(false);
               document.body.style.overflow = "";
             }}
-            warningText="Please confirm the ID of the level/account you want to delete"
+            warningText="Please confirm the ID of the subject you want to delete"
           />
         )}
         {/* data table div */}
@@ -303,12 +347,12 @@ const Levels = () => {
             {/* title */}
             <div className="flex flex-col">
               <CustomHeading variation="sectionHeader">
-                Levels
-                {/* <LevelRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
+                Subjects
+                {/* <SubjectRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
               </CustomHeading>
-              <CustomHeading variation="head5">Defines the specific year or stage within a course</CustomHeading>
+              <CustomHeading variation="head5">The subject as it exists in a specific course and level</CustomHeading>
               <CustomHeading variation="head6light">
-                e.g. Level 1, SSS1, JSS1, Nursery 1, Primary 1, 100 Level etc.
+                Mathematics - Level 1, Civic Education - JSS1, Chemistry - SSS2, Physics - SSS3, Biology - Level 5 etc.
               </CustomHeading>
             </div>
 
@@ -318,23 +362,23 @@ const Levels = () => {
             <div>
               <button
                 onClick={() => {
-                  if (hasActionAccess("Create Level")) {
+                  if (hasActionAccess("Create Subject")) {
                     document.body.style.overflow = "hidden";
-                    setOpenNewLevelDialog(true);
+                    setOpenNewSubjectDialog(true);
                   } else {
-                    setError("You do not have Create Level Access - Please contact your admin");
+                    setError("You do not have Create Subject Access - Please contact your admin");
                   }
                 }}
-                disabled={!hasActionAccess("Create Level")}
+                disabled={!hasActionAccess("Create Subject")}
                 className={defaultButtonStyle}
               >
-                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Level
+                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Subject
               </button>
             </div>
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
-              placeholder="Search role (Level Name, Level Custom ID, Level Full Title)"
+              placeholder="Search role (Subject Name, Subject Custom ID, Subject Full Title)"
               filters={[
                 {
                   displayText: "Status",
@@ -393,7 +437,7 @@ const Levels = () => {
                 onClick={() => {
                   const prevPage = pageIndex - 1;
                   setPageIndex(prevPage);
-                  renderPreviousPage(prevPage, levels.pages);
+                  renderPreviousPage(prevPage, subjects.pages);
                 }}
                 disabled={pageIndex === 0}
               />
@@ -405,7 +449,7 @@ const Levels = () => {
                 onClick={() => {
                   const nextPage = pageIndex + 1;
                   setPageIndex(nextPage);
-                  renderNextPage(nextPage, levels.pages);
+                  renderNextPage(nextPage, subjects.pages);
                 }}
                 disabled={!paginationData.hasNext}
               />
@@ -418,16 +462,26 @@ const Levels = () => {
             <table className="relative w-full">
               <thead className="sticky top-0 z-10 border-b border-borderColor-2">
                 <tr className={tableHeaderStyle}>
-                  {(["Level Custom ID", "Level", "Level Full Title", "Status", "Duration"] as const).map((header) => (
+                  {(
+                    [
+                      "Subject Custom ID",
+                      "Subject",
+                      "Subject Prefix",
+                      "Status",
+                      "Offering Start Date",
+                      "Offering End Date"
+                    ] as const
+                  ).map((header) => (
                     <th
                       key={header}
                       onClick={() => {
                         const key_Name = {
-                          Level: "level",
-                          "Level Custom ID": "levelCustomId",
-                          "Level Full Title": "levelFullTitle",
+                          Subject: "subject",
+                          "Subject Custom ID": "subjectCustomId",
+                          "Subject Prefix": "subjectFullTitle",
                           Status: "status",
-                          Duration: "levelDuration"
+                          "Offering Start Date": "offeringStartDate",
+                          "Offering End Date": "offeringEndDate"
                         };
                         const sortKey = key_Name[header];
                         handleSort(sortKey);
@@ -443,20 +497,20 @@ const Levels = () => {
 
               {/* table data */}
               <tbody className="mt-3 bg-backgroundColor">
-                {isFetchinglevels ? (
+                {isFetchingsubjects ? (
                   <tr>
                     <td colSpan={8}>
                       <div className="flex items-center justify-center p-10">
                         <LoaderDiv
                           type="spinnerText"
-                          text="Loading Levels..."
+                          text="Loading Subjects..."
                           textColor="foregroundColor"
                           dimension="h-10 w-10"
                         />
                       </div>
                     </td>
                   </tr>
-                ) : (localData.length < 1 && !isFetchinglevels) || !levels ? (
+                ) : (localData.length < 1 && !isFetchingsubjects) || !subjects ? (
                   <tr>
                     <td colSpan={8} className="text-center py-4">
                       No data available
@@ -465,89 +519,91 @@ const Levels = () => {
                 ) : (
                   localData.map((doc: any, index: any) => {
                     const {
-                      _id: levelId,
-                      levelCustomId,
-                      level,
+                      _id: subjectId,
+                      subjectCustomId,
+                      subject,
                       offeringStartDate,
                       offeringEndDate,
                       status,
-                      levelFullTitle,
-                      levelDuration
+                      courseFullTitle,
+                      baseSubjectName,
+                      subjectFullTitle
                     } = doc;
 
                     return (
                       <tr
-                        key={levelId}
+                        key={subjectId}
                         onClick={() => {
-                          if (hasActionAccess("View Levels")) {
+                          if (hasActionAccess("View Subjects")) {
                             document.body.style.overflow = "hidden";
-                            setOnOpenLevelDialogData(doc);
-                            setOpenViewLevelDialog(true);
+                            setOnOpenSubjectDialogData(doc);
+                            setOpenViewSubjectDialog(true);
                           } else {
-                            setError("You do not have View Level Access - Please contact your admin");
+                            setError("You do not have View Subject Access - Please contact your admin");
                           }
                         }}
                         className={tableRowStyle}
                       >
                         <td className="w-[110px] whitespace-nowrap text-center">
-                          {levelCustomId}
+                          {subjectCustomId}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(levelCustomId);
+                              await navigator.clipboard.writeText(subjectCustomId);
                             }}
                           />
                         </td>
                         <td className={tableCellStyle}>
-                          {level}
+                          {subject}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(level);
+                              await navigator.clipboard.writeText(subject);
                             }}
                           />
                         </td>
                         <td className={tableCellStyle}>
-                          {levelFullTitle}
+                          {`${courseFullTitle} - ${baseSubjectName}`}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(levelFullTitle);
+                              await navigator.clipboard.writeText(subjectFullTitle);
                             }}
                           />
                         </td>
 
                         <td className={tableCellStyle}>{status}</td>
-                        <td className={tableCellStyle}>{levelDuration}</td>
+                        <td className={tableCellStyle}>{formatDate(offeringStartDate)}</td>
+                        <td className={tableCellStyle}>{formatDate(offeringEndDate)}</td>
 
                         <td className="text-center flex items-center justify-center h-15">
                           <ActionButtons
                             onEdit={(e) => {
-                              if (hasActionAccess("Edit Level")) {
+                              if (hasActionAccess("Edit Subject")) {
                                 document.body.style.overflow = "hidden";
-                                setOnOpenLevelDialogData(doc);
-                                setOpenEditLevelDialog(true);
+                                setOnOpenSubjectDialogData(doc);
+                                setOpenEditSubjectDialog(true);
                               } else {
-                                setError("You do not have Edit Level Access - Please contact your admin");
+                                setError("You do not have Edit Subject Access - Please contact your admin");
                               }
                             }}
                             onDelete={(e) => {
-                              if (hasActionAccess("Delete Level")) {
+                              if (hasActionAccess("Delete Subject")) {
                                 document.body.style.overflow = "hidden";
                                 setOpenConfirmDelete(true);
-                                setConfirmWithText(levelCustomId);
+                                setConfirmWithText(subjectCustomId);
                                 setConfirmWithReturnObj({
-                                  levelCustomId
+                                  subjectCustomId
                                 });
                               } else {
                                 setError(
-                                  "Unauthorised Action: You do not have Delete Level Access - Please contact your admin"
+                                  "Unauthorised Action: You do not have Delete Subject Access - Please contact your admin"
                                 );
                               }
                             }}
@@ -566,4 +622,4 @@ const Levels = () => {
   );
 };
 
-export default Levels;
+export default Subjects;

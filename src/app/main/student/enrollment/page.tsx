@@ -29,20 +29,20 @@ import {
 } from "@/lib/generalStyles";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
-import StaffContractDialog from "@/lib/customComponents/staff/staffContractDialogComp";
+import StudentEnrollmentDialog from "@/lib/customComponents/student/studentEnrollmentDialogComp";
 
-const StaffContracts = () => {
+const StudentEnrollments = () => {
   const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
-  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/staff/contract");
+  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/student/enrollment");
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
   const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openEditStaffContractDialog, setOpenEditStaffContractDialog] = useState(false);
-  const [openNewStaffContractDialog, setOpenNewStaffContractDialog] = useState(false);
-  const [openViewStaffContractDialog, setOpenViewStaffContractDialog] = useState(false);
-  const [onOpenStaffContractData, setOnOpenEditStaffContractData] = useState<any>({});
+  const [openEditStudentEnrollmentDialog, setOpenEditStudentEnrollmentDialog] = useState(false);
+  const [openNewStudentEnrollmentDialog, setOpenNewStudentEnrollmentDialog] = useState(false);
+  const [openViewStudentEnrollmentDialog, setOpenViewStudentEnrollmentDialog] = useState(false);
+  const [onOpenStudentEnrollmentData, setOnOpenEditStudentEnrollmentData] = useState<any>({});
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [confirmWithText, setConfirmWithText] = useState("");
   const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
@@ -57,11 +57,11 @@ const StaffContracts = () => {
   const [queryParams, setQueryParams] = useState({});
 
   const {
-    data: staffProfiles,
-    isFetching: isFetchingStaffProfiles,
+    data: studentProfiles,
+    isFetching: isFetchingStudentProfiles,
     error: queryError,
-    isError: isStaffProfilesError
-  } = useReusableQuery("staffProfiles", "View Staff Profiles", "alyeqeenschoolapp/api/staff/allprofile");
+    isError: isStudentProfilesError
+  } = useReusableQuery("studentProfiles", "View Student Profiles", "alyeqeenschoolapp/api/student/allprofile");
 
   const {
     data: academicYears,
@@ -72,31 +72,68 @@ const StaffContracts = () => {
   } = useReusableQuery("academicYears", "View Academic Years", `alyeqeenschoolapp/api/academicsession/academicYear`);
 
   const {
-    data: staffContracts,
-    isFetching: isFetchingStaffContracts,
-    error: staffContractsQueryError,
-    isError: isStaffContractsError,
+    data: courses,
+    isFetching: isFetchingcourses,
+    error: coursesError,
+    isError: iscoursesError
+  } = useReusableQuery("courses", "View Courses", "alyeqeenschoolapp/api/curriculum/allcourses");
+
+  const {
+    data: levels,
+    isFetching: isFetchinglevels,
+    error: levelsError,
+    isError: islevelsError
+  } = useReusableQuery("levels", "View Levels", "alyeqeenschoolapp/api/curriculum/alllevels");
+  const {
+    data: studentEnrollments,
+    isFetching: isFetchingStudentEnrollments,
+    error: studentEnrollmentsQueryError,
+    isError: isStudentEnrollmentsError,
     fetchNextPage,
     fetchPreviousPage
   } = useReusableInfiniteQuery(
-    "staffContracts",
+    "studentenrollments",
     queryParams,
     Number(limit) || 10,
-    "View Staff Contracts",
-    "alyeqeenschoolapp/api/staff/contract"
+    "View Student Enrollments",
+    "alyeqeenschoolapp/api/student/enrollment"
   );
 
   useEffect(() => {
-    if (!staffProfiles) return;
+    if (!courses) return;
     setError("");
-  }, [staffProfiles, isFetchingStaffProfiles]);
+  }, [courses, isFetchingcourses]);
 
   useEffect(() => {
-    if (!isStaffProfilesError) return;
+    if (!iscoursesError) return;
+    if (coursesError) {
+      setError(coursesError.message);
+    }
+  }, [coursesError, iscoursesError]);
+
+  useEffect(() => {
+    if (!levels) return;
+    setError("");
+  }, [levels, isFetchinglevels]);
+
+  useEffect(() => {
+    if (!islevelsError) return;
+    if (levelsError) {
+      setError(levelsError.message);
+    }
+  }, [levelsError, islevelsError]);
+
+  useEffect(() => {
+    if (!studentProfiles) return;
+    setError("");
+  }, [studentProfiles, isFetchingStudentProfiles]);
+
+  useEffect(() => {
+    if (!isStudentProfilesError) return;
     if (queryError) {
       setError(queryError.message);
     }
-  }, [queryError, isStaffProfilesError]);
+  }, [queryError, isStudentProfilesError]);
 
   useEffect(() => {
     if (!academicYears) return;
@@ -111,27 +148,27 @@ const StaffContracts = () => {
   }, [academicYearsError, isAcademicYearsError]);
 
   useEffect(() => {
-    if (!staffContracts) return;
+    if (!studentEnrollments) return;
     setError("");
-    const currentPage: any = staffContracts.pages[pageIndex];
+    const currentPage: any = studentEnrollments.pages[pageIndex];
     if (currentPage === undefined) return;
-    setLocalData(currentPage.staffContracts);
+    setLocalData(currentPage.studentEnrollments);
     const { totalCount, chunkCount, hasNext } = currentPage;
     setPaginationData({ totalCount, chunkCount, hasNext });
-  }, [staffContracts, isFetchingStaffContracts]);
+  }, [studentEnrollments, isFetchingStudentEnrollments]);
 
   useEffect(() => {
-    if (!isStaffContractsError) return;
-    if (staffContractsQueryError) {
-      setError(staffContractsQueryError.message);
+    if (!isStudentEnrollmentsError) return;
+    if (studentEnrollmentsQueryError) {
+      setError(studentEnrollmentsQueryError.message);
     }
-  }, [staffContractsQueryError, isStaffContractsError]);
+  }, [studentEnrollmentsQueryError, isStudentEnrollmentsError]);
 
   const renderNextPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { staffContracts, ...rest } = foundPage;
-      setLocalData(staffContracts);
+      const { studentEnrollments, ...rest } = foundPage;
+      setLocalData(studentEnrollments);
       setPaginationData(rest);
     } else {
       fetchNextPage();
@@ -141,8 +178,8 @@ const StaffContracts = () => {
   const renderPreviousPage = (pageIndex: number, pages: any) => {
     const foundPage = pages[pageIndex];
     if (foundPage !== undefined) {
-      const { staffContracts, ...rest } = foundPage;
-      setLocalData(staffContracts);
+      const { studentEnrollments, ...rest } = foundPage;
+      setLocalData(studentEnrollments);
       setPaginationData(rest);
     } else {
       fetchPreviousPage();
@@ -163,7 +200,13 @@ const StaffContracts = () => {
     );
   }
 
-  if (academicYearsIsFetching || isFetchingStaffProfiles || isFetchingStaffContracts) {
+  if (
+    academicYearsIsFetching ||
+    isFetchingStudentProfiles ||
+    isFetchingStudentEnrollments ||
+    isFetchingcourses ||
+    isFetchinglevels
+  ) {
     return (
       <div className="flex items-center justify-center mt-10">
         <LoaderDiv
@@ -228,57 +271,63 @@ const StaffContracts = () => {
 
       {/* data table section */}
       <>
-        {openEditStaffContractDialog && (
-          <StaffContractDialog
+        {openEditStudentEnrollmentDialog && (
+          <StudentEnrollmentDialog
             type="edit"
-            data={onOpenStaffContractData}
+            data={onOpenStudentEnrollmentData}
             academicYears={academicYears}
-            staff={staffProfiles}
+            students={studentProfiles}
+            courses={courses}
+            levels={levels}
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenEditStaffContractDialog(!open);
+              setOpenEditStudentEnrollmentDialog(!open);
               return {};
             }}
             onSave={(notSave) => {
               document.body.style.overflow = "";
-              setOpenEditStaffContractDialog(!notSave);
+              setOpenEditStudentEnrollmentDialog(!notSave);
               return {};
             }}
           />
         )}
 
-        {openViewStaffContractDialog && (
-          <StaffContractDialog
+        {openViewStudentEnrollmentDialog && (
+          <StudentEnrollmentDialog
             type="view"
-            data={onOpenStaffContractData}
+            data={onOpenStudentEnrollmentData}
             academicYears={academicYears}
-            staff={staffProfiles}
+            students={studentProfiles}
+            courses={courses}
+            levels={levels}
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenViewStaffContractDialog(!open);
+              setOpenViewStudentEnrollmentDialog(!open);
               return {};
             }}
             onSave={(notSave) => {
               document.body.style.overflow = "";
-              setOpenViewStaffContractDialog(!notSave);
+              setOpenViewStudentEnrollmentDialog(!notSave);
               return {};
             }}
           />
         )}
 
-        {openNewStaffContractDialog && (
-          <StaffContractDialog
+        {openNewStudentEnrollmentDialog && (
+          <StudentEnrollmentDialog
             type="new"
             academicYears={academicYears}
-            staff={staffProfiles}
+            students={studentProfiles}
+            courses={courses}
+            levels={levels}
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
-              setOpenNewStaffContractDialog(!open);
+              setOpenNewStudentEnrollmentDialog(!open);
               return {};
             }}
             onSave={(notSave) => {
               document.body.style.overflow = "";
-              setOpenNewStaffContractDialog(!notSave);
+              setOpenNewStudentEnrollmentDialog(!notSave);
               return {};
             }}
           />
@@ -298,7 +347,7 @@ const StaffContracts = () => {
               if (confirmed) {
                 try {
                   await deleteMutation.mutateAsync({
-                    staffContractIDToDelete: returnObject.contractId
+                    studentEnrollmentIDToDelete: returnObject.enrollmentId
                   });
                 } catch (err: any) {
                   setError(err.message);
@@ -307,7 +356,7 @@ const StaffContracts = () => {
                 document.body.style.overflow = "";
               }
             }}
-            warningText="Please confirm the ID of the staff contract you want to delete"
+            warningText="Please confirm the ID of the student enrollment you want to delete"
           />
         )}
         {/* data table div */}
@@ -317,10 +366,10 @@ const StaffContracts = () => {
             {/* title */}
             <div className="flex flex-col">
               <CustomHeading variation="sectionHeader">
-                Staff Contract
+                Student Enrollment
                 {/* <UserRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
               </CustomHeading>
-              <CustomHeading variation="head5light">Create and manage staff contracts</CustomHeading>
+              <CustomHeading variation="head5light">Create and manage student enrollments</CustomHeading>
             </div>
 
             <span onClick={() => setOpenFilterDiv(!openFilterDiv)} className={ghostbuttonStyle}>
@@ -329,23 +378,23 @@ const StaffContracts = () => {
             <div>
               <button
                 onClick={() => {
-                  if (hasActionAccess("Create Staff Contract")) {
+                  if (hasActionAccess("Create Student Enrollment")) {
                     document.body.style.overflow = "hidden";
-                    setOpenNewStaffContractDialog(true);
+                    setOpenNewStudentEnrollmentDialog(true);
                   } else {
-                    setError("You do not have Create Staff Contract Access - Please contact your admin");
+                    setError("You do not have Create Student Enrollment Access - Please contact your admin");
                   }
                 }}
-                disabled={!hasActionAccess("Create Staff Contract")}
+                disabled={!hasActionAccess("Create Student Enrollment")}
                 className={defaultButtonStyle}
               >
-                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Staff Contract
+                <MdAdd className="inline-block text-[20px] mb-1 mr-2" /> New Student Enrollment
               </button>
             </div>
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
-              placeholder="Search Staff Custom ID, Staff Names, Contract Dates, Job Title, Contract Type/Status"
+              placeholder="Search Student Custom ID, Student Names, Enrollment Dates, Job Title, Enrollment Type/Status"
               filters={[
                 {
                   displayText: "Academic Year",
@@ -356,14 +405,14 @@ const StaffContracts = () => {
                   ]
                 },
                 {
-                  displayText: "Contract Type",
-                  fieldName: "contractType",
-                  options: ["All", "Full-time", "Part-time", "Casual", "Internship", "Fixed-term"]
+                  displayText: "Enrollment Type",
+                  fieldName: "enrollmentType",
+                  options: ["All", "New", "Re-enrolled", "Transfer", "Returned"]
                 },
                 {
-                  displayText: "Contract Status",
-                  fieldName: "contractStatus",
-                  options: ["All", "Active", "Closed"]
+                  displayText: "Enrollment Status",
+                  fieldName: "enrollmentStatus",
+                  options: ["All", "Active", "Completed", "Withdrawn"]
                 }
               ]}
               onQuery={(query: any) => {
@@ -404,7 +453,7 @@ const StaffContracts = () => {
                 onClick={() => {
                   const prevPage = pageIndex - 1;
                   setPageIndex(prevPage);
-                  renderPreviousPage(prevPage, staffContracts.pages);
+                  renderPreviousPage(prevPage, studentEnrollments.pages);
                 }}
                 disabled={pageIndex === 0}
               />
@@ -416,7 +465,7 @@ const StaffContracts = () => {
                 onClick={() => {
                   const nextPage = pageIndex + 1;
                   setPageIndex(nextPage);
-                  renderNextPage(nextPage, staffContracts.pages);
+                  renderNextPage(nextPage, studentEnrollments.pages);
                 }}
                 disabled={!paginationData.hasNext}
               />
@@ -427,27 +476,26 @@ const StaffContracts = () => {
             <table className="relative w-full">
               <thead className="sticky top-0 z-10 border-b border-borderColor-2">
                 <tr className={tableHeaderStyle}>
-                  <th className="text-center w-[110px] font-semibold p-2 whitespace-nowrap">Contract Id</th>
                   {(
                     [
-                      "Staff Custom ID",
+                      "Enrollment Custom ID",
+                      "Student",
                       "Academic Year",
-                      "Staff Full Name",
-                      "Job Title",
-                      "Start Date",
-                      "Contact Status"
+                      "Enrolled On",
+                      "Enrollment Details",
+                      "Dates"
                     ] as const
                   ).map((header) => (
                     <th
                       key={header}
                       onClick={() => {
                         const key_Name = {
+                          "Enrollment Custom ID": "enrollmentCustomId",
+                          Student: "studentFullName",
                           "Academic Year": "academicYear",
-                          "Staff Custom ID": "staffCustomId",
-                          "Staff Full Name": "staffFullName",
-                          "Job Title": "jobTitle",
-                          "Start Date": "contractStartDate",
-                          "Contact Status": "contractStatus"
+                          "Enrolled On": "courseFullTitle",
+                          "Enrollment Details": "enrollmentType",
+                          Dates: "enrollmentDate"
                         };
                         const sortKey = key_Name[header];
                         handleSort(sortKey);
@@ -462,20 +510,20 @@ const StaffContracts = () => {
               </thead>
 
               <tbody className="mt-3 bg-backgroundColor">
-                {isFetchingStaffContracts ? (
+                {isFetchingStudentEnrollments ? (
                   <tr>
                     <td colSpan={8}>
                       <div className="flex items-center justify-center p-10">
                         <LoaderDiv
                           type="spinnerText"
-                          text="Loading Staff Contracts..."
+                          text="Loading Student Enrollments..."
                           textColor="foregroundColor"
                           dimension="h-10 w-10"
                         />
                       </div>
                     </td>
                   </tr>
-                ) : (localData.length < 1 && !isFetchingStaffContracts) || !staffContracts ? (
+                ) : (localData.length < 1 && !isFetchingStudentEnrollments) || !studentEnrollments ? (
                   <tr>
                     <td colSpan={8} className="text-center py-4">
                       No data available
@@ -484,76 +532,105 @@ const StaffContracts = () => {
                 ) : (
                   localData.map((doc: any, index: any) => {
                     const {
-                      _id: contractId,
                       academicYear,
-                      staffCustomId,
-                      staffFullName,
-                      jobTitle,
-                      contractStartDate,
-                      contractStatus
+                      studentCustomId,
+                      enrollmentCustomId,
+                      studentFullName,
+                      courseFullTitle,
+                      level,
+                      enrollmentStatus,
+                      enrollmentDate,
+                      enrollmentExpiresOn,
+                      enrollmentType
                     } = doc;
 
                     return (
                       <tr
-                        key={contractId}
+                        key={enrollmentCustomId}
                         onClick={() => {
-                          if (hasActionAccess("View Staff Contract")) {
+                          if (hasActionAccess("View Student Enrollment")) {
                             document.body.style.overflow = "hidden";
-                            setOpenViewStaffContractDialog(true);
-                            setOnOpenEditStaffContractData(doc);
+                            setOpenViewStudentEnrollmentDialog(true);
+                            setOnOpenEditStudentEnrollmentData(doc);
                           } else {
                             setError("You do not have Edit User Access - Please contact your admin");
                           }
                         }}
-                        className={tableRowStyle}
+                        className="hover:bg-backgroundColor-2 hover:cursor-pointer border-y border-borderColor-2 h-18"
                       >
-                        <td className="w-[110px] whitespace-nowrap text-center">
-                          CID
+                        <td className="w-[200px] text-center whitespace-nowrap h-18 font-medium">
+                          {enrollmentCustomId}
                           <MdContentCopy
                             title="copy id"
                             className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              await navigator.clipboard.writeText(contractId);
+                              await navigator.clipboard.writeText(enrollmentCustomId);
                             }}
                           />
                         </td>
-                        <td className="w-[200px] text-center whitespace-nowrap">
-                          {staffCustomId.slice(0, 10)}
-                          <MdContentCopy
-                            title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              await navigator.clipboard.writeText(staffCustomId);
-                            }}
-                          />
+                        <td className="w-[200px] text-center whitespace-nowrap h-18">
+                          <div className="flex flex-col justify-items-start">
+                            {" "}
+                            <span className="font-medium">{studentFullName.slice(0, 20)}</span>
+                            <span className="text-[14px] text-foregroundColor-2">{studentCustomId.slice(0, 10)}</span>
+                          </div>
+                        </td>{" "}
+                        <td className="w-[200px] text-center whitespace-nowrap h-18 font-medium">
+                          {academicYear.slice(14)}
+                        </td>{" "}
+                        <td className="w-[200px] text-center whitespace-nowrap h-18">
+                          <div className="flex flex-col justify-items-start">
+                            <span className="font-medium"> {courseFullTitle}</span>
+                            <span className="text-[14px] text-foregroundColor-2">{level.slice(0, 10)}</span>
+                          </div>
                         </td>
-                        <td className={tableCellStyle}>{academicYear.slice(14)}</td>
-                        <td className={tableCellStyle}>{staffFullName.slice(0, 20)}</td>
-                        <td className={tableCellStyle}>{jobTitle.slice(0, 20)}</td>
-                        <td className={tableCellStyle}>{formatDate(contractStartDate)}</td>
-                        <td className={tableCellStyle}>{contractStatus}</td>
+                        <td className="w-[200px] text-center whitespace-nowrap h-18">
+                          <div className="flex flex-col justify-items-start">
+                            <div>
+                              <span className="text-[14px] font-medium">Type: </span>
+                              <span className="text-[14px] text-foregroundColor-2">{enrollmentType}</span>
+                            </div>
+                            <div>
+                              <span className="text-[14px] font-medium">Status: </span>
+                              <span className="text-[14px] text-foregroundColor-2">{enrollmentStatus}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="w-[200px] text-center whitespace-nowrap h-18">
+                          <div className="flex flex-col justify-items-start">
+                            <div>
+                              <span className="text-[14px] font-medium">Enrolled On: </span>
+                              <span className="text-[14px] text-foregroundColor-2">{formatDate(enrollmentDate)}</span>
+                            </div>
+                            <div>
+                              <span className="text-[14px] font-medium">Expires On: </span>
+                              <span className="text-[14px] text-foregroundColor-2">
+                                {formatDate(enrollmentExpiresOn)}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
                         <td className="text-center flex items-center justify-center h-15">
                           <ActionButtons
                             onEdit={(e) => {
-                              if (hasActionAccess("Edit Staff Contract")) {
+                              if (hasActionAccess("Edit Student Enrollment")) {
                                 document.body.style.overflow = "hidden";
-                                setOpenEditStaffContractDialog(true);
-                                setOnOpenEditStaffContractData(doc);
+                                setOpenEditStudentEnrollmentDialog(true);
+                                setOnOpenEditStudentEnrollmentData(doc);
                               } else {
                                 setError("You do not have Edit User Access - Please contact your admin");
                               }
                             }}
                             onDelete={(e) => {
-                              if (hasActionAccess("Delete Staff Contract")) {
+                              if (hasActionAccess("Delete Student Enrollment")) {
                                 document.body.style.overflow = "hidden";
-                                setConfirmWithText(contractId);
-                                setConfirmWithReturnObj({ contractId });
+                                setConfirmWithText(enrollmentCustomId);
+                                setConfirmWithReturnObj({ enrollmentId: doc._id });
                                 setOpenConfirmDelete(true);
                               } else {
                                 setError(
-                                  "Unauthorised Action: You do not have Delete Staff Access - Please contact your admin"
+                                  "Unauthorised Action: You do not have Delete Student Access - Please contact your admin"
                                 );
                               }
                             }}
@@ -573,4 +650,4 @@ const StaffContracts = () => {
   );
 };
 
-export default StaffContracts;
+export default StudentEnrollments;

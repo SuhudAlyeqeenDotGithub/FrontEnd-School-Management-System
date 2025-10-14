@@ -22,7 +22,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
     },
     {
       icon: UserRoundSearch,
-      title: "Subject Manager",
+      title: "Subject Teacher",
       url: "/main/curriculum/subject/teacher"
     }
   ];

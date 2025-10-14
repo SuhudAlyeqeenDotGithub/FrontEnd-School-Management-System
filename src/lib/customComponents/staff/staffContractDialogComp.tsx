@@ -468,7 +468,7 @@ const StaffContractDialog = ({
             </ErrorDiv>
           )}
           {/* text and image div */}
-          <div className="grid grid-cols-2 gap-3 w-full">
+          <div className="grid grid-cols-3 gap-3 w-full">
             <InputComponent
               disabled={onViewMode}
               title="Contract Custom ID *"
@@ -614,7 +614,7 @@ const StaffContractDialog = ({
         <div className="flex flex-col gap-3 border border-borderColor p-4 rounded-md shadow-md bg-backgroundColor-2">
           <h2 className="mb-2">Optional Details</h2>
           {/* text and image div */}
-          <div className="grid grid-cols-2 gap-3 w-full">
+          <div className="grid grid-cols-3 gap-3 w-full">
             <SearchableDropDownInput
               defaultText={`|${reportingManagerCustomId}`}
               disabled={onViewMode}
@@ -712,7 +712,7 @@ const StaffContractDialog = ({
                 return (
                   <div
                     key={_id}
-                    className="flex flex-col w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
+                    className="flex flex-col gap-2 w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
                     onClick={() => {
                       setOnOpenWorkingScheduleDialogData(workingSchedule);
                       setViewWorkingScheduleDialog(true);
@@ -779,7 +779,7 @@ const StaffContractDialog = ({
                 return (
                   <div
                     key={_id}
-                    className="flex flex-col w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
+                    className="flex flex-col gap-2 w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
                     onClick={() => {
                       setOnOpenResponsibilityDialogData(responsibilityV);
                       setViewResponsibilityDialog(true);
@@ -843,7 +843,7 @@ const StaffContractDialog = ({
                 return (
                   <div
                     key={_id}
-                    className="flex flex-col w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
+                    className="flex flex-col gap-2 w-[300px] hover:cursor-pointer bg-backgroundColor hover:bg-backgroundColor-3 border border-borderColor-2 rounded-lg shadow p-4"
                     onClick={() => {
                       setOnOpenAllowanceDialogData(allowanceV);
                       setViewAllowanceDialog(true);

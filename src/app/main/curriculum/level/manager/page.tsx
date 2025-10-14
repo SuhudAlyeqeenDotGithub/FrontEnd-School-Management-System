@@ -89,7 +89,7 @@ const LevelManager = () => {
     fetchNextPage,
     fetchPreviousPage
   } = useReusableInfiniteQuery(
-    "levelManagers",
+    "levelmanagers",
     queryParams,
     Number(limit) || 10,
     "View Level Managers",
@@ -522,7 +522,7 @@ const LevelManager = () => {
                           {levelManagerId.slice(15)}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(levelManagerId);
@@ -533,7 +533,7 @@ const LevelManager = () => {
                           {levelFullTitle}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(levelFullTitle);
@@ -545,7 +545,7 @@ const LevelManager = () => {
                           {levelManagerFullName}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(levelManagerFullName);

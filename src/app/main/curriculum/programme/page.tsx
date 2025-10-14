@@ -274,8 +274,7 @@ const Programmes = () => {
               </CustomHeading>
               <CustomHeading variation="head5">Education Stage or Qualification Type</CustomHeading>
               <CustomHeading variation="head6light">
-                Defines the overall stage e.g. GCSE, BTEC, Bachelor’s, Foundational Education, Junior Secondary
-                Education
+                Defines the overall stage GCSE, BTEC, Bachelor’s, Foundational Education, Junior Secondary Education
               </CustomHeading>
             </div>
 
@@ -469,7 +468,7 @@ const Programmes = () => {
                           {programmeCustomId}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(programmeCustomId);
@@ -480,7 +479,7 @@ const Programmes = () => {
                           {programmeName}
                           <MdContentCopy
                             title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-foregroundColor-50 hover:cursor-pointer"
+                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                             onClick={async (e) => {
                               e.stopPropagation();
                               await navigator.clipboard.writeText(programmeName);
