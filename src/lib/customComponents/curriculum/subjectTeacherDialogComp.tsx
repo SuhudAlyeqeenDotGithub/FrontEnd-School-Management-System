@@ -59,6 +59,7 @@ export const SubjectTeacherDialogComponent = ({
     subjectCustomId: onCreateMode ? "" : data.subjectCustomId,
     subjectTeacherStaffId: onCreateMode ? "" : data.subjectTeacherStaffId,
     subjectTeacherCustomStaffId: onCreateMode ? "" : data.subjectTeacherCustomStaffId,
+    staffType: onCreateMode ? "" : data.staffType,
     subjectTeacherFullName: onCreateMode ? "" : data.subjectTeacherFullName,
     managedFrom: onCreateMode ? "" : data.managedFrom,
     managedUntil: onCreateMode ? "" : data.managedUntil,
@@ -102,6 +103,7 @@ export const SubjectTeacherDialogComponent = ({
     subjectTeacherStaffId,
     subjectTeacherCustomStaffId,
     subjectTeacherFullName,
+    staffType,
     managedFrom,
     managedUntil,
     status
@@ -201,8 +203,8 @@ export const SubjectTeacherDialogComponent = ({
             )}
             {onViewMode && (
               <button
-                disabled={!hasActionAccess("Edit Subject Teacher Profile")}
-                hidden={!hasActionAccess("Edit Subject Teacher Profile")}
+                disabled={!hasActionAccess("Edit Subject Teacher")}
+                hidden={!hasActionAccess("Edit Subject Teacher")}
                 onClick={() => setOnEditMode(true)}
                 className={defaultButtonStyle}
               >
@@ -298,7 +300,19 @@ export const SubjectTeacherDialogComponent = ({
             />{" "}
             <SelectInputComponent
               disabled={onViewMode}
-              title="Status *"
+              title="Staff Type *"
+              placeholder="Staff Type *"
+              name="staffType"
+              value={staffType}
+              onChange={handleInputChange}
+              options={[
+                { value: "Main", label: "Main" },
+                { value: "Assistant", label: "Assistant" }
+              ]}
+            />
+            <SelectInputComponent
+              disabled={onViewMode}
+              title="Management Status *"
               placeholder="Status *"
               name="status"
               value={status}

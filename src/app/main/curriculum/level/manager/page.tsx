@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
@@ -98,7 +99,6 @@ const LevelManager = () => {
 
   useEffect(() => {
     if (!staffContracts) return;
-    setError("");
   }, [staffContracts, isFetchingStaffContracts]);
 
   useEffect(() => {
@@ -110,7 +110,6 @@ const LevelManager = () => {
 
   useEffect(() => {
     if (!levels) return;
-    setError("");
   }, [levels, isFetchinglevels]);
 
   useEffect(() => {
@@ -122,7 +121,6 @@ const LevelManager = () => {
 
   useEffect(() => {
     if (!levelManagers) return;
-    setError("");
     const currentPage: any = levelManagers.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.levelManagers);
@@ -355,6 +353,7 @@ const LevelManager = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search role (Level Manager Name, Level Manager Custom ID)"
               filters={[
                 {
@@ -445,6 +444,8 @@ const LevelManager = () => {
                       "Level Full Title",
                       "Manager Name",
                       "Management Status",
+                      "Management Type",
+
                       "Managed From",
                       "Managed Until"
                     ] as const
@@ -457,6 +458,7 @@ const LevelManager = () => {
                           "Manager Name": "levelManagerFullName",
                           "Level Full Title": "levelFullTitle",
                           "Management Status": "status",
+                          "Management Type": "staffType",
                           "Managed From": "managedFrom",
                           "Managed Until": "managedUntil"
                         };
@@ -501,7 +503,8 @@ const LevelManager = () => {
                       levelManagerFullName,
                       managedFrom,
                       managedUntil,
-                      status
+                      status,
+                      staffType
                     } = doc;
 
                     return (
@@ -552,7 +555,10 @@ const LevelManager = () => {
                             }}
                           />
                         </td>
-                        <td className={tableCellStyle}>{status}</td>
+                        <td className={tableCellStyle}>{staffType}</td>
+                        <td className={tableCellStyle}>
+                          <StatusFormatter text={status} />
+                        </td>
                         <td className={tableCellStyle}>{formatDate(managedFrom)}</td>
                         <td className={tableCellStyle}>{formatDate(managedUntil)}</td>
                         <td className="text-center flex items-center justify-center h-15">

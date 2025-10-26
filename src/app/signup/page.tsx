@@ -110,11 +110,16 @@ const signUpPage = () => {
   };
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-backgroundColor-3">
-      <div className="flex flex-col items-center justify-center w-2/3 gap-2">
-        <CustomHeading>Al-Yeqeen School Management App</CustomHeading>
-        <div className="flex flex-col gap-2 border border-border px-8 py-4 bg-backgroundColor rounded-lg shadow justify-center items-center w-3/4">
+      <div className=" flex flex-col items-center">
+        <div className="h-9 w-21">
+          <img src="/suhudlogo.png" className="h-full w-full" alt="Suhud Logo" />
+        </div>
+        <p className="text-[16px] text-[#0097a7]  font-medium">School Management System</p>
+      </div>
+      <div className="flex flex-col gap-2 border border-borderColor px-6 py-4 bg-backgroundColor rounded-lg shadow justify-center items-center w-[45%] mt-3 overflow-auto">
+        <div className="flex flex-col items-center justify-center w-full gap-2 ">
           <CustomHeading variation="head2">Sign Up</CustomHeading>
-          <CustomHeading variation="head4light">Please provide your organisation details</CustomHeading>
+          <CustomHeading variation="head6light">Please provide your organisation details</CustomHeading>
           {error && (
             <ErrorDiv
               onClose={(close) => {
@@ -126,7 +131,7 @@ const signUpPage = () => {
               {error}
             </ErrorDiv>
           )}
-          <form className="flex flex-col gap-4 mt-5 w-full items-center" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-3 mt-2 w-full items-center " onSubmit={handleSubmit}>
             <InputComponent
               title="Verification Code *"
               placeholder="Verification Code you received earlier *"
@@ -201,15 +206,16 @@ const signUpPage = () => {
                 onChange={handleInputChange}
               />
             </div>
-            <div className="flex gap-5 w-full items-center">
+            <div className="flex gap-3 w-full items-center mb-2">
               <input type="checkbox" onChange={() => setShowPassword(!showPassword)} className="w-4 h-4" />
-              <span className="text-foregroundColor-70 text-sm hover:text-foregroundColor-90 hover:underline cursor-pointer">
+              <span className="text-foregroundColor text-sm hover:text-foregroundColor-2 hover:underline cursor-pointer pt-1">
                 {showPassword ? "Hide Passwords" : "Show Passwords"}
               </span>
             </div>
             <LoaderButton
               type="submit"
               buttonText="Sign Up"
+              buttonStyle="w-[90%] px-4 py-3 rounded-md bg-foregroundColor hover:bg-foregroundColor-2 hover:cursor-pointer text-backgroundColor shadow-xs whitespace-nowrap disabled:bg-backgroundColor-4 disabled:text-foregroundColor-2 disabled:cursor-not-allowed"
               loadingButtonText="Signing Up..."
               disabled={
                 !organisationName ||
@@ -221,12 +227,20 @@ const signUpPage = () => {
               isLoading={isLoading}
             />
           </form>
-          <Link href="/signin" className="hover:text-foregroundColor-70 hover:underline hover:cursor-pointer">
-            Have an account? Sign In
-          </Link>{" "}
-          <Link href="/verifyNewAccount" className="hover:text-foregroundColor-70 hover:underline hover:cursor-pointer">
-            Get verification code to verify your email
-          </Link>
+          <div className="flex flex-col gap-1 items-center mt-2">
+            <Link
+              href="/signin"
+              className="text-foregroundColor text-[15px] hover:text-foregroundColor-2 hover:underline hover:cursor-pointer"
+            >
+              Have an account? Sign In
+            </Link>{" "}
+            <Link
+              href="/verifyNewAccount"
+              className="text-foregroundColor text-[15px] hover:text-foregroundColor-2 hover:underline hover:cursor-pointer font-medium animate-bounce"
+            >
+              Get verification code to verify your email
+            </Link>
+          </div>
         </div>
       </div>
     </div>

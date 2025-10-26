@@ -126,89 +126,105 @@ const signInPage = () => {
   };
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-backgroundColor-3">
-      <div className="flex flex-col items-center justify-center w-2/3 gap-5">
-        <CustomHeading>Al-Yeqeen School Management App</CustomHeading>
-        <div className="flex flex-col gap-5 border border-border p-8 bg-backgroundColor rounded-lg shadow justify-center items-center w-3/4">
+      <div className=" flex flex-col items-center">
+        <div className="h-9 w-21">
+          <img src="/suhudlogo.png" className="h-full w-full" alt="Suhud Logo" />
+        </div>
+        <p className="text-[16px] text-[#0097a7]  font-medium">School Management System</p>
+      </div>
+      <div className="flex flex-col gap-2 border border-borderColor px-6 py-4 bg-backgroundColor rounded-lg shadow justify-center items-center w-[45%] mt-3 overflow-auto">
+        <div className="flex flex-col w-full items-center justify-center">
           <CustomHeading variation="head2">Verify Email</CustomHeading>
-          {error && (
-            <ErrorDiv
-              onClose={(close) => {
-                if (close) {
-                  setError("");
-                }
-              }}
-            >
-              {error}
-            </ErrorDiv>
-          )}
-          {success && <SuccessDiv>{success}</SuccessDiv>}
-
-          {openEmailEntryDialog && (
-            <div className="flex flex-col gap-4  w-full items-center">
-              <div className="flex flex-col gap-4 w-full items-center">
-                <CustomHeading variation="head4light">Please provide your organisation details</CustomHeading>
-                <InputComponent
-                  title="Organisation Name *"
-                  placeholder="Organisation Name *"
-                  name="organisationName"
-                  value={organisationName}
-                  required={true}
-                  onChange={handleInputChange}
-                />
-
-                <InputComponent
-                  title="Organisation Email *"
-                  placeholder="Organisation Email *"
-                  name="organisationEmail"
-                  value={organisationEmail}
-                  required={true}
-                  onChange={handleInputChange}
-                />
-
-                <LoaderButton
-                  type="submit"
-                  buttonText="Get Verification Code"
-                  loadingButtonText="Sending Email..."
-                  disabled={!organisationName || !organisationEmail}
-                  isLoading={sendingEmail}
-                  onClick={getVerificationCode}
-                />
-              </div>
-            </div>
-          )}
-
-          {openCodeEntryDialog && (
-            <div className="flex flex-col gap-4 mt-5 w-full items-center">
-              <CustomHeading variation="head4light">
-                Please enter the verification code sent to your email
-              </CustomHeading>
+          <CustomHeading variation="head6light">
+            Receive a verification to sign up - Please provide your organisation details
+          </CustomHeading>
+        </div>{" "}
+        {error && (
+          <ErrorDiv
+            onClose={(close) => {
+              if (close) {
+                setError("");
+              }
+            }}
+          >
+            {error}
+          </ErrorDiv>
+        )}
+        {success && <SuccessDiv>{success}</SuccessDiv>}
+        {openEmailEntryDialog && (
+          <div className="flex flex-col gap-3 mt-5 w-full items-center">
+            <div className="flex flex-col gap-4 w-full items-center">
               <InputComponent
-                title="Enter Verification Code *"
-                placeholder="Verification Code *"
-                name="verificationCode"
-                value={verificationCode}
+                title="Organisation Name *"
+                autocomplete="on"
+                placeholder="Organisation Name *"
+                name="organisationName"
+                value={organisationName}
                 required={true}
-                onChange={(e) => setVerificationCode(e.target.value.trim())}
+                onChange={handleInputChange}
+              />
+
+              <InputComponent
+                title="Organisation Email *"
+                placeholder="Organisation Email *"
+                autocomplete="on"
+                name="organisationEmail"
+                value={organisationEmail}
+                required={true}
+                onChange={handleInputChange}
               />
 
               <LoaderButton
                 type="submit"
-                buttonText="Verify Code"
-                loadingButtonText="Verifying Code..."
-                disabled={!verificationCode}
-                isLoading={verifyingCode}
-                onClick={verifyCode}
+                buttonText="Get Verification Code"
+                loadingButtonText="Sending Email..."
+                disabled={!organisationName || !organisationEmail}
+                isLoading={sendingEmail}
+                onClick={getVerificationCode}
               />
-
-              <p
-                onClick={() => setOpenEmailEntryDialog(true)}
-                className="hover:text-foregroundColor-70 hover:underline hover:cursor-pointer"
-              >
-                Get verification code to verify your email
-              </p>
             </div>
-          )}
-          <Link href="/signup" className="hover:text-foregroundColor-70 hover:underline hover:cursor-pointer">
+          </div>
+        )}
+        {openCodeEntryDialog && (
+          <div className="flex flex-col gap-4 mt-5 w-full items-center">
+            <CustomHeading variation="head5light">Please enter the verification code sent to your email</CustomHeading>
+            <InputComponent
+              title="Enter Verification Code *"
+              placeholder="Verification Code *"
+              name="verificationCode"
+              value={verificationCode}
+              required={true}
+              onChange={(e) => setVerificationCode(e.target.value.trim())}
+            />
+
+            <LoaderButton
+              type="submit"
+              buttonText="Verify Code"
+              loadingButtonText="Verifying Code..."
+              disabled={!verificationCode}
+              isLoading={verifyingCode}
+              onClick={verifyCode}
+            />
+
+            <p
+              onClick={() => setOpenEmailEntryDialog(true)}
+              className="text-foregroundColor text-[15px] hover:text-foregroundColor-2 hover:underline hover:cursor-pointer font-medium animate-bounce mt-2"
+            >
+              Have not code ? Get verification code to verify your email
+            </p>
+          </div>
+        )}
+        <div className="flex flex-col gap-1 items-center mt-2">
+          <Link
+            href="/signin"
+            className="text-foregroundColor text-[15px] hover:text-foregroundColor-2 hover:underline hover:cursor-pointer"
+          >
+            Have an account? Sign In
+          </Link>{" "}
+          <Link
+            href="/signup"
+            className="text-foregroundColor text-[15px] hover:text-foregroundColor-2 hover:underline hover:cursor-pointer font-medium animate-bounce mt-2"
+          >
             Verified Email Already? Sign Up
           </Link>
         </div>

@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
@@ -103,7 +104,6 @@ const Subjects = () => {
 
   useEffect(() => {
     if (!courses) return;
-    setError("");
   }, [courses, isFetchingcourses]);
 
   useEffect(() => {
@@ -115,7 +115,6 @@ const Subjects = () => {
 
   useEffect(() => {
     if (!levels) return;
-    setError("");
   }, [levels, isFetchinglevels]);
 
   useEffect(() => {
@@ -127,7 +126,6 @@ const Subjects = () => {
 
   useEffect(() => {
     if (!baseSubjects) return;
-    setError("");
   }, [baseSubjects, isFetchingbaseSubjects]);
 
   useEffect(() => {
@@ -139,7 +137,6 @@ const Subjects = () => {
 
   useEffect(() => {
     if (!subjects) return;
-    setError("");
     const currentPage: any = subjects.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.subjects);
@@ -378,6 +375,7 @@ const Subjects = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search role (Subject Name, Subject Custom ID, Subject Full Title)"
               filters={[
                 {
@@ -578,7 +576,9 @@ const Subjects = () => {
                           />
                         </td>
 
-                        <td className={tableCellStyle}>{status}</td>
+                        <td className={tableCellStyle}>
+                          <StatusFormatter text={status} />
+                        </td>
                         <td className={tableCellStyle}>{formatDate(offeringStartDate)}</td>
                         <td className={tableCellStyle}>{formatDate(offeringEndDate)}</td>
 

@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
@@ -80,7 +81,6 @@ const Topics = () => {
 
   useEffect(() => {
     if (!topics) return;
-    setError("");
     const currentPage: any = topics.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.topics);
@@ -294,6 +294,7 @@ const Topics = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search role (Topic Name, Topic Custom ID)"
               filters={[
                 {
@@ -473,7 +474,9 @@ const Topics = () => {
                           />
                         </td>
 
-                        <td className={tableCellStyle}>{status}</td>
+                        <td className={tableCellStyle}>
+                          <StatusFormatter text={status} />
+                        </td>
                         <td className={tableCellStyle}>{formatDate(offeringStartDate)}</td>
                         <td className={tableCellStyle}>{formatDate(offeringEndDate)}</td>
 

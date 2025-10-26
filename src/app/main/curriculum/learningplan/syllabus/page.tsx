@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
@@ -94,7 +95,6 @@ const Syllabuses = () => {
 
   useEffect(() => {
     if (!topics) return;
-    setError("");
   }, [topics, isFetchingtopics]);
 
   useEffect(() => {
@@ -106,7 +106,6 @@ const Syllabuses = () => {
 
   useEffect(() => {
     if (!subjects) return;
-    setError("");
   }, [subjects, isFetchingsubjects]);
 
   useEffect(() => {
@@ -118,7 +117,6 @@ const Syllabuses = () => {
 
   useEffect(() => {
     if (!syllabuses) return;
-    setError("");
     const currentPage: any = syllabuses.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.syllabuses);
@@ -346,6 +344,7 @@ const Syllabuses = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search role (Syllabus Name, Syllabus Custom ID)"
               filters={[
                 {
@@ -531,7 +530,9 @@ const Syllabuses = () => {
                           />
                         </td>
 
-                        <td className={tableCellStyle}>{status}</td>
+                        <td className={tableCellStyle}>
+                          <StatusFormatter text={status} />
+                        </td>
                         <td className={tableCellStyle}>{formatDate(offeringStartDate)}</td>
                         <td className={tableCellStyle}>{formatDate(offeringEndDate)}</td>
 

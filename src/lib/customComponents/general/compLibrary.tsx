@@ -38,7 +38,7 @@ export const InputComponent = ({
         name={name}
         value={value}
         required={required}
-        className="h-[42px] bg-backgroundColor border border-borderColor shadow-xs rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full placeholder:text-sm text-foregroundColor-2"
+        className="h-[42px] bg-backgroundColor border border-borderColor shadow-xs rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full placeholder:text-sm text-foregroundColor"
         onChange={onChange}
         onFocus={onFocus}
       />
@@ -59,7 +59,7 @@ export const TextAreaComponent = ({
 }: InputComponentType) => {
   return (
     <div className="flex flex-col gap-1 w-full">
-      <label htmlFor={name} className="block font-medium text-foregroundColor-2 mb-1 ml-1">
+      <label htmlFor={name} className="block font-medium text-foregroundColor mb-1 ml-1">
         {title}
       </label>
       <textarea
@@ -288,8 +288,26 @@ export const SearchComponent = ({
 }) => {
   return (
     <div className="flex w-[500px] h-[50px] items-center gap-2 relative">
-      <InputComponent placeholder={placeholder} name={name} value={value} onChange={onChange} />
-      <FaSearch className="text-foregroundColor size-5 absolute right-3" />
+      <input
+        placeholder={placeholder}
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="rounded-sm h-[43px] border border-borderColor p-2 pl-15 outline-none focus:border-b-3 focus:border-borderColor-3 w-full"
+      ></input>
+      <span className="absolute left-5 bg-backgroundColor">
+        <FaSearch className="text-foregroundColor-60 text-[19px] " />
+      </span>
+      <span
+        title="Clear"
+        hidden={!value}
+        className="absolute right-5 bg-backgroundColor hover:cursor-pointer"
+        onClick={() => {
+          onChange({ target: { name, value: "" } } as React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>);
+        }}
+      >
+        <IoClose className="text-foregroundColor-60 text-[20px] " />
+      </span>
     </div>
   );
 };
@@ -336,12 +354,29 @@ export const LoaderDiv = ({
   );
 };
 
+export const StatusFormatter = ({ text }: { text: string }) => {
+  const lowerText = text.toLowerCase().trim();
+  return (
+    <span
+      className={`
+    px-2 py-1 mx-3 rounded-full text-sm font-medium border border-borderColor
+    ${lowerText === "active" || lowerText === "completed" ? "text-green-700 bg-green-100" : ""}
+    ${lowerText === "in progress" ? "text-yellow-700 bg-yellow-100" : ""}
+    ${["inactive", "closed", "cancelled", "locked"].includes(lowerText) ? "text-red-700 bg-red-100" : ""}
+  `}
+    >
+      {text}
+    </span>
+  );
+};
+
 export const LoaderButton = ({
   type = "button",
   buttonText,
   loadingButtonText,
   disabled = false,
   isLoading,
+  buttonStyle,
   spinnerDimension = "w-6 h-6",
   onClick
 }: {
@@ -355,7 +390,12 @@ export const LoaderButton = ({
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }) => {
   return (
-    <button type={type} disabled={disabled} className={defaultButtonStyle} onClick={onClick}>
+    <button
+      type={type}
+      disabled={disabled}
+      className={buttonStyle ? buttonStyle : defaultButtonStyle}
+      onClick={onClick}
+    >
       <span className="flex justify-center gap-5 items-center">
         {isLoading ? (
           <LoaderDiv
@@ -471,7 +511,7 @@ export const SubTabNav = ({
   }[];
 }) => {
   return (
-    <div className="flex gap-2 border-b border-borderColor bg-backgroundColor py-1 px-3 h-[70px] items-center sticky top-0 z-20">
+    <div className="flex gap-2 border-b border-borderColor bg-backgroundColor py-3 px-3 h-[72px] items-center sticky top-0 z-20">
       {tabs.map(({ icon, title, url }) => (
         <SubTabLink key={title} icon={icon} title={title} url={url} />
       ))}

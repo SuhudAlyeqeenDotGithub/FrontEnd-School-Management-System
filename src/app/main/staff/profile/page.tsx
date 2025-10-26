@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import {
@@ -84,7 +85,6 @@ const StaffProfile = () => {
 
   useEffect(() => {
     if (!staff) return;
-    setError("");
     const currentPage: any = staff.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.staffProfiles);
@@ -308,6 +308,7 @@ const StaffProfile = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search Staff (Custom ID, Names, Email, Gender, Nationality, Next of Kin)"
               filters={[
                 {

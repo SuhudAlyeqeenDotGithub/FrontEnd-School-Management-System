@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
@@ -84,7 +85,6 @@ const Programmes = () => {
 
   useEffect(() => {
     if (!programmes) return;
-    setError("");
     const currentPage: any = programmes.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.programmes);
@@ -300,6 +300,7 @@ const Programmes = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search role (Programme Name, Programme Custom ID)"
               filters={[
                 {
@@ -487,7 +488,9 @@ const Programmes = () => {
                           />
                         </td>
 
-                        <td className={tableCellStyle}>{status}</td>
+                        <td className={tableCellStyle}>
+                          <StatusFormatter text={status} />
+                        </td>
                         <td className={tableCellStyle}>{programmeDuration}</td>
 
                         <td className={tableCellStyle}>{formatDate(offeringStartDate)}</td>

@@ -60,6 +60,7 @@ export const LevelManagerDialogComponent = ({
     levelManagerStaffId: onCreateMode ? "" : data.levelManagerStaffId,
     levelManagerCustomStaffId: onCreateMode ? "" : data.levelManagerCustomStaffId,
     levelManagerFullName: onCreateMode ? "" : data.levelManagerFullName,
+    staffType: onCreateMode ? "" : data.staffType,
     managedFrom: onCreateMode ? "" : data.managedFrom,
     managedUntil: onCreateMode ? "" : data.managedUntil,
     status: onCreateMode ? "" : data.status
@@ -104,10 +105,9 @@ export const LevelManagerDialogComponent = ({
     levelManagerFullName,
     managedFrom,
     managedUntil,
+    staffType,
     status
   } = localData;
-
-  console.log("localData", localData);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setUnsaved(true);
@@ -308,6 +308,19 @@ export const LevelManagerDialogComponent = ({
               value={levelManagerFullName}
               onChange={handleInputChange}
             />
+
+            <SelectInputComponent
+              disabled={onViewMode}
+              title="Staff Type *"
+              placeholder="Staff Type *"
+              name="staffType"
+              value={staffType}
+              onChange={handleInputChange}
+              options={[
+                { value: "Main", label: "Main" },
+                { value: "Assistant", label: "Assistant" }
+              ]}
+            />
             <InputComponent
               disabled={onViewMode}
               title="Managed From"
@@ -328,7 +341,7 @@ export const LevelManagerDialogComponent = ({
             />
             <SelectInputComponent
               disabled={onViewMode}
-              title="Status *"
+              title="Management Status *"
               placeholder="Status *"
               name="status"
               value={status}

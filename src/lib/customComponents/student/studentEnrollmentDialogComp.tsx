@@ -8,7 +8,8 @@ import {
   SelectInputComponent,
   ActionButtons,
   YesNoDialog,
-  CustomHeading
+  CustomHeading,
+  TextAreaComponent
 } from "../general/compLibrary";
 import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
@@ -490,6 +491,16 @@ const StudentEnrollmentDialog = ({
                 { value: "Completed", label: "Completed" },
                 { value: "Withdrawn", label: "Withdrawn" }
               ]}
+            />
+          </div>{" "}
+          <div className="w-full">
+            <TextAreaComponent
+              disabled={onViewMode}
+              title="Notes"
+              placeholder="Notes"
+              name="notes"
+              value={notes}
+              onChange={handleInputChange}
             />
           </div>
         </div>{" "}

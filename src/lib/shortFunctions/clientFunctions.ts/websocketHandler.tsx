@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { BASE_API_URL } from "../shortFunctions";
 import axios from "axios";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
+import { handleApiRequest } from "@/axios/axiosClient";
 
 const useWebSocketHandler = (onError?: (error: string) => void) => {
   const socketRef = useRef<any>(null);
@@ -342,7 +343,6 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
       // handle academic year change stream
       if ((hasActionAccess("View Academic Years") || userIsAbsoluteAdmin) && collection === "academicyears") {
         if (!queryClient.getQueryData(["academicYears"])) return;
-        console.log("fullDocument", fullDocument);
         if (changeOperation === "insert") {
           queryClient.setQueryData(["academicYears"], (oldData: any) => {
             return [fullDocument, ...oldData];
@@ -803,13 +803,11 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
         if (changeOperation === "insert") {
           queriesData.forEach(([queryKey, data]: [any, any]) => {
             if (queryKey.length === 1) {
-              console.log("Inserting into singly cache", fullDocument);
               queryClient.setQueryData(queryKey, (programmeManagers: any) => {
                 0;
                 return [fullDocument, ...programmeManagers];
               });
             } else {
-              console.log("Inserting into paginated cache", fullDocument);
               const pages = data.pages;
 
               if (pages.length > 0) {
@@ -970,22 +968,19 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
         const changedRecordId = fullDocument.courseManagerStaffId;
         const userStaffId = accountData.staffId?._id;
 
-        if (!userIsAbsoluteAdmin && changedRecordId === userStaffId) return;
         const queriesData = queryClient.getQueriesData({ queryKey: ["courseManagers"] });
         if (queriesData.length === 0) return;
 
         if (changeOperation === "insert") {
           queriesData.forEach(([queryKey, data]: [any, any]) => {
             if (queryKey.length === 1) {
-              console.log("Inserting into singly cache", fullDocument);
               queryClient.setQueryData(queryKey, (courseManagers: any) => {
                 0;
                 return [fullDocument, ...courseManagers];
               });
             } else {
-              console.log("Inserting into paginated cache", fullDocument);
+              if (!userIsAbsoluteAdmin && changedRecordId === userStaffId) return;
               const pages = data.pages;
-
               if (pages.length > 0) {
                 const firstPage = pages[0];
                 if (firstPage !== undefined) {
@@ -1142,20 +1137,19 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
         const changedRecordId = fullDocument.levelManagerStaffId;
         const userStaffId = accountData.staffId?._id;
 
-        if (!userIsAbsoluteAdmin && changedRecordId === userStaffId) return;
         const queriesData = queryClient.getQueriesData({ queryKey: ["levelmanagers"] });
         if (queriesData.length === 0) return;
 
         if (changeOperation === "insert") {
           queriesData.forEach(([queryKey, data]: [any, any]) => {
             if (queryKey.length === 1) {
-              console.log("Inserting into singly cache", fullDocument);
               queryClient.setQueryData(queryKey, (levelManagers: any) => {
                 0;
                 return [fullDocument, ...levelManagers];
               });
             } else {
-              console.log("Inserting into paginated cache", fullDocument);
+              if (!userIsAbsoluteAdmin && changedRecordId === userStaffId) return;
+
               const pages = data.pages;
 
               if (pages.length > 0) {
@@ -1331,13 +1325,11 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
         if (changeOperation === "insert") {
           queriesData.forEach(([queryKey, data]: [any, any]) => {
             if (queryKey.length === 1) {
-              console.log("Inserting into singly cache", fullDocument);
               queryClient.setQueryData(queryKey, (baseSubjectManagers: any) => {
                 0;
                 return [fullDocument, ...baseSubjectManagers];
               });
             } else {
-              console.log("Inserting into paginated cache", fullDocument);
               const pages = data.pages;
 
               if (pages.length > 0) {
@@ -1507,13 +1499,11 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
         if (changeOperation === "insert") {
           queriesData.forEach(([queryKey, data]: [any, any]) => {
             if (queryKey.length === 1) {
-              console.log("Inserting into singly cache", fullDocument);
               queryClient.setQueryData(queryKey, (subjectTeachers: any) => {
                 0;
                 return [fullDocument, ...subjectTeachers];
               });
             } else {
-              console.log("Inserting into paginated cache", fullDocument);
               const pages = data.pages;
 
               if (pages.length > 0) {
@@ -1745,6 +1735,282 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
                 return returnArray;
               });
             }
+          });
+        }
+      }
+
+      // handle student day attendance
+      if (
+        (hasActionAccess("Edit Student Day Attendance (Admin Access)") ||
+          hasActionAccess("Edit Student Day Attendance (For Level | Course Managers)") ||
+          userIsAbsoluteAdmin) &&
+        collection === "studentdayattendancetemplates"
+      ) {
+        const courseManagerInCache = queryClient.getQueryData(["coursemanagers"]) as any[] | undefined;
+        const levelManagerInCache = queryClient.getQueryData(["levelmanagers"]) as any[] | undefined;
+        if (!courseManagerInCache || !levelManagerInCache) return;
+
+        const isCourseManager = courseManagerInCache.filter(
+          (cm: any) => cm.courseManagerStaffId === accountData?.staffId?._id
+        );
+
+        const isLevelManager = levelManagerInCache.filter(
+          (lm: any) => lm.levelManagerStaffId === accountData?.staffId?._id
+        );
+        const coursesManaged = isCourseManager.map((cm: any) => cm.courseId);
+        const levelsManaged = isLevelManager.map((lm: any) => lm.levelId);
+        const canView =
+          userIsAbsoluteAdmin ||
+          hasActionAccess("View Student Day Attendances (Admin Access)") ||
+          coursesManaged.includes(fullDocument.courseId) ||
+          levelsManaged.includes(fullDocument.levelId);
+        if (!canView) return;
+        const queriesData = queryClient.getQueriesData({ queryKey: ["studentdayattendances"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          let studentAttendances: any[] = [];
+          try {
+            const response = await handleApiRequest(
+              "post",
+              "alyeqeenschoolapp/api/student/attendance/dayattendancestore",
+              {
+                attendanceId: fullDocument._id
+              }
+            );
+
+            if (response?.data) {
+              studentAttendances = response?.data;
+            }
+          } catch (err: any) {
+            return;
+          }
+
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            const pages = data.pages;
+
+            if (pages.length > 0) {
+              const firstPage = pages[0];
+              if (firstPage !== undefined) {
+                const { studentDayAttendances: firstPageStudentdayattendances } = firstPage;
+                queryClient.setQueryData(queryKey, (queryData: any) => {
+                  const { pages: queryPages } = queryData;
+                  const returnArray = {
+                    ...queryData,
+                    pages: [
+                      {
+                        ...firstPage,
+                        studentDayAttendances: [
+                          { ...fullDocument, studentDayAttendances: studentAttendances },
+                          ...firstPageStudentdayattendances
+                        ]
+                      },
+                      ...queryPages.slice(1)
+                    ]
+                  };
+
+                  return returnArray;
+                });
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          let studentAttendances: any[] = [];
+          try {
+            const response = await handleApiRequest(
+              "post",
+              "alyeqeenschoolapp/api/student/attendance/dayattendancestore",
+              {
+                attendanceId: fullDocument._id
+              }
+            );
+
+            if (response?.data) {
+              studentAttendances = response?.data;
+            }
+          } catch (err: any) {
+            return;
+          }
+
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            queryClient.setQueryData(queryKey, (queryData: any) => {
+              const { pages: queryPages } = queryData;
+              const returnArray = {
+                ...queryData,
+                pages: queryPages.map((page: any) => ({
+                  ...page,
+                  studentDayAttendances: page.studentDayAttendances.map((studentdayattendance: any) =>
+                    studentdayattendance._id === fullDocument._id
+                      ? { ...fullDocument, studentDayAttendances: studentAttendances }
+                      : studentdayattendance
+                  )
+                }))
+              };
+
+              return returnArray;
+            });
+          });
+        }
+        if (changeOperation === "delete") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            queryClient.setQueryData(queryKey, (queryData: any) => {
+              const { pages: queryPages } = queryData;
+              const returnArray = {
+                ...queryData,
+                pages: queryPages.map((page: any) => ({
+                  ...page,
+                  studentDayAttendances: page.studentDayAttendances.filter(
+                    (studentdayattendance: any) => studentdayattendance._id !== fullDocument._id
+                  )
+                }))
+              };
+
+              return returnArray;
+            });
+          });
+        }
+      }
+
+      // handle student subject attendance
+      if (
+        (hasActionAccess("Edit Student Subject Attendance (Admin Access)") ||
+          hasActionAccess("Edit Student Subject Attendance (For Level | Course Managers | Subject Teachers)") ||
+          userIsAbsoluteAdmin) &&
+        collection === "studentsubjectattendancetemplates"
+      ) {
+        const courseManagerInCache = queryClient.getQueryData(["coursemanagers"]) as any[] | undefined;
+        const levelManagerInCache = queryClient.getQueryData(["levelmanagers"]) as any[] | undefined;
+        const subjectTeacherInCache = queryClient.getQueryData(["subjectteachers"]) as any[] | undefined;
+        if (!courseManagerInCache || !levelManagerInCache || !subjectTeacherInCache) return;
+
+        const isCourseManager = courseManagerInCache.filter(
+          (cm: any) => cm.courseManagerStaffId === accountData?.staffId?._id
+        );
+
+        const isLevelManager = levelManagerInCache.filter(
+          (lm: any) => lm.levelManagerStaffId === accountData?.staffId?._id
+        );
+
+        const isSubjectTeacher = subjectTeacherInCache.filter(
+          (st: any) => st.subjectTeacherStaffId === accountData?.staffId?._id
+        );
+        const coursesManaged = isCourseManager.map((cm: any) => cm.courseId);
+        const levelsManaged = isLevelManager.map((lm: any) => lm.levelId);
+        const subjectsManaged = isSubjectTeacher.map((st: any) => st.subjectId);
+
+        const canView =
+          userIsAbsoluteAdmin ||
+          hasActionAccess("View Student Subject Attendances (Admin Access)") ||
+          coursesManaged.includes(fullDocument.courseId) ||
+          levelsManaged.includes(fullDocument.levelId) ||
+          subjectsManaged.includes(fullDocument.subjectId);
+
+        if (!canView) return;
+        const queriesData = queryClient.getQueriesData({ queryKey: ["studentsubjectattendances"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "insert") {
+          let studentAttendances: any[] = [];
+          try {
+            const response = await handleApiRequest(
+              "post",
+              "alyeqeenschoolapp/api/student/attendance/subjectattendancestore",
+              {
+                attendanceId: fullDocument._id
+              }
+            );
+
+            if (response?.data) {
+              studentAttendances = response?.data;
+            }
+          } catch (err: any) {
+            return;
+          }
+
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            const pages = data.pages;
+
+            if (pages.length > 0) {
+              const firstPage = pages[0];
+              if (firstPage !== undefined) {
+                const { studentSubjectAttendances: firstPageStudentsubjectattendances } = firstPage;
+                queryClient.setQueryData(queryKey, (queryData: any) => {
+                  const { pages: queryPages } = queryData;
+                  const returnArray = {
+                    ...queryData,
+                    pages: [
+                      {
+                        ...firstPage,
+                        studentSubjectAttendances: [
+                          { ...fullDocument, studentSubjectAttendances: studentAttendances },
+                          ...firstPageStudentsubjectattendances
+                        ]
+                      },
+                      ...queryPages.slice(1)
+                    ]
+                  };
+
+                  return returnArray;
+                });
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          let studentAttendances: any[] = [];
+          try {
+            const response = await handleApiRequest(
+              "post",
+              "alyeqeenschoolapp/api/student/attendance/subjectattendancestore",
+              {
+                attendanceId: fullDocument._id
+              }
+            );
+
+            if (response?.data) {
+              studentAttendances = response?.data;
+            }
+          } catch (err: any) {
+            return;
+          }
+
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            queryClient.setQueryData(queryKey, (queryData: any) => {
+              const { pages: queryPages } = queryData;
+              const returnArray = {
+                ...queryData,
+                pages: queryPages.map((page: any) => ({
+                  ...page,
+                  studentSubjectAttendances: page.studentSubjectAttendances.map((studentsubjectattendance: any) =>
+                    studentsubjectattendance._id === fullDocument._id
+                      ? { ...fullDocument, studentSubjectAttendances: studentAttendances }
+                      : studentsubjectattendance
+                  )
+                }))
+              };
+
+              return returnArray;
+            });
+          });
+        }
+        if (changeOperation === "delete") {
+          console.log("deleting");
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            queryClient.setQueryData(queryKey, (queryData: any) => {
+              const { pages: queryPages } = queryData;
+              const returnArray = {
+                ...queryData,
+                pages: queryPages.map((page: any) => ({
+                  ...page,
+                  studentSubjectAttendances: page.studentSubjectAttendances.filter(
+                    (studentsubjectattendance: any) => studentsubjectattendance._id !== fullDocument._id
+                  )
+                }))
+              };
+
+              return returnArray;
+            });
           });
         }
       }

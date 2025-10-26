@@ -56,7 +56,6 @@ const RolesAccess = () => {
 
   useEffect(() => {
     if (!roles) return;
-    setError("");
 
     setLocalData(roles);
   }, [roles, isPending]);

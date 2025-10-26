@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
@@ -89,7 +90,6 @@ const Levels = () => {
 
   useEffect(() => {
     if (!courses) return;
-    setError("");
   }, [courses, isFetchingcourses]);
 
   useEffect(() => {
@@ -101,7 +101,6 @@ const Levels = () => {
 
   useEffect(() => {
     if (!levels) return;
-    setError("");
     const currentPage: any = levels.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.levels);
@@ -324,6 +323,7 @@ const Levels = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search role (Level Name, Level Custom ID, Level Full Title)"
               filters={[
                 {
@@ -513,7 +513,9 @@ const Levels = () => {
                           />
                         </td>
 
-                        <td className={tableCellStyle}>{status}</td>
+                        <td className={tableCellStyle}>
+                          <StatusFormatter text={status} />
+                        </td>
                         <td className={tableCellStyle}>{levelDuration}</td>
 
                         <td className="text-center flex items-center justify-center h-15">

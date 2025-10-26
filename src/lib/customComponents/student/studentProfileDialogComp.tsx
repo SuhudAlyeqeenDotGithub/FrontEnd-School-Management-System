@@ -170,7 +170,6 @@ export const StudentProfileDialogComponent = ({
     studentNextOfKinPhone,
     studentNextOfKinEmail,
     studentQualification,
-
     identification
   } = localData;
 

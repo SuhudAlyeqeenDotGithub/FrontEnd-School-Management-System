@@ -56,7 +56,6 @@ const AcademicYear = () => {
 
   useEffect(() => {
     if (!academicYears) return;
-    setError("");
     setLocalData(academicYears);
   }, [academicYears, academicYearsIsPending]);
 

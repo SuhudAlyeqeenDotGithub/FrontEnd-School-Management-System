@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
@@ -98,7 +99,6 @@ const CourseManager = () => {
 
   useEffect(() => {
     if (!staffContracts) return;
-    setError("");
   }, [staffContracts, isFetchingStaffContracts]);
 
   useEffect(() => {
@@ -110,7 +110,6 @@ const CourseManager = () => {
 
   useEffect(() => {
     if (!courses) return;
-    setError("");
   }, [courses, isFetchingcourses]);
 
   useEffect(() => {
@@ -122,7 +121,6 @@ const CourseManager = () => {
 
   useEffect(() => {
     if (!courseManagers) return;
-    setError("");
     const currentPage: any = courseManagers.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.courseManagers);
@@ -357,6 +355,7 @@ const CourseManager = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search role (Course Manager Name, Course Manager Custom ID)"
               filters={[
                 {
@@ -554,7 +553,9 @@ const CourseManager = () => {
                             }}
                           />
                         </td>
-                        <td className={tableCellStyle}>{status}</td>
+                        <td className={tableCellStyle}>
+                          <StatusFormatter text={status} />
+                        </td>
                         <td className={tableCellStyle}>{formatDate(managedFrom)}</td>
                         <td className={tableCellStyle}>{formatDate(managedUntil)}</td>
                         <td className="text-center flex items-center justify-center h-15">

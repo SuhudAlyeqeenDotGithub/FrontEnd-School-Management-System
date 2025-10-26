@@ -188,11 +188,10 @@ const layout = ({ children }: { children: ReactNode }) => {
     "/main/curriculum/academicsession/academicYear": "Curriculum",
     "/main/curriculum/learningplan/topic": "Curriculum",
     "/main/curriculum/learningplan/syllabus": "Curriculum",
-    "/main/enrollment": "Enrollment",
-    "/main/attendance": "Attendance",
-    "/main/attendance/persession": "Attendance",
-    "/main/attendance/perday": "Attendance",
-    "/main/attendance/event": "Attendance",
+    "/main/student/attendance": "Student",
+    "/main/student/attendance/day": "Student",
+    "/main/student/attendance/subject": "Student",
+    "/main/student/attendance/event": "Student",
     "/main/staff": "Staff",
     "/main/staff/contract": "Staff",
     "/main/staff/profile": "Staff",
@@ -216,9 +215,7 @@ const layout = ({ children }: { children: ReactNode }) => {
     Subject: "/main/curriculum/subject",
     Period: "/main/curriculum/academicsession/period",
     Enrollment: "/main/enrollment",
-    "Per Day Attendance": "/main/attendance/perday",
-    "Per Session Attendance": "/main/attendance/persession",
-    "Event Attendance": "/main/attendance/event",
+    "Student Attendance": "/main/student/attendance",
     "Staff Profile": "/main/staff/profile",
     "Staff Contract": "/main/staff/contract",
     "Student Profile": "/main/student/profile",
@@ -231,8 +228,8 @@ const layout = ({ children }: { children: ReactNode }) => {
     Administration: Settings,
     Course: BookOpen,
     Subject: LibraryBig,
-    Attendance: ClipboardCheck,
-    Assessment: FileText,
+    "Student Attendance": ClipboardCheck,
+    "Student Assessment": FileText,
     TimeTable: Timer,
     "Staff Profile": UserRoundPen,
     "Staff Contract": Signature,
@@ -251,10 +248,7 @@ const layout = ({ children }: { children: ReactNode }) => {
     "Roles & Permission": ShieldPlus,
     Billing: Receipt,
     "Activity Log": Activity,
-    Setting: Wrench,
-    "Per Day Attendance": CalendarClock,
-    "Per Subject Attendance": CalendarFold,
-    "Event Attendance": CalendarPlus
+    Setting: Wrench
   };
 
   const profileDialog = (
@@ -303,18 +297,17 @@ const layout = ({ children }: { children: ReactNode }) => {
       {/* sidebar */}
       <div
         hidden={!openSideBar}
-        className="flex flex-col pb-4 border-r border-borderColor w-[370px] bg-backgroundColor h-screen relative"
+        className="flex flex-col pb-4 border-r border-borderColor w-[350px] bg-backgroundColor h-screen relative"
       >
         {/* top side bar */}
 
-        <div className="flex flex-col items-center gap-5 p-3 bg-backgroundColor sticky top-0 z-20">
-          <div className="flex w-full justify-between">
-            <div className="w-full flex gap-5 items-center">
-              <Building className="h-8 w-8 text-indigo-600" />
-              <div>
-                <h2 className="font-bold">Al-Yeqeen</h2>
-                <p className="text-xs text-foregroundColor-2">School Management System</p>
+        <div className="flex flex-col bg-backgroundColor sticky top-0 z-20">
+          <div className="flex w-full justify-between items-center px-2 py-3">
+            <div className=" flex flex-col justify-center w-full h-full ml-2">
+              <div className="h-8 w-19">
+                <img src="/suhudlogo.png" className="h-full w-full" alt="Suhud Logo" />
               </div>
+              <p className="text-[13px] text-[#0097a7]  font-medium">School Management System</p>
             </div>
 
             {/* side bar toggle */}
@@ -442,10 +435,12 @@ const layout = ({ children }: { children: ReactNode }) => {
       >
         {/* top side bar */}
         <div className="sticky top-0 z-20">
-          <div className="flex flex-col items-center gap-5 p-3 bg-backgroundColor">
+          <div className="flex flex-col items-center justify-center gap-5 p-3 bg-backgroundColor">
             <div className="flex w-full justify-between">
-              <div className="w-full flex gap-5 items-center">
-                <Building className="h-8 w-8 text-indigo-600" />
+              <div className=" flex flex-col justify-center w-full h-full ml-2">
+                <div className="h-8 w-19">
+                  <img src="/suhudlogo.png" className="h-full w-full" alt="Suhud Logo" />
+                </div>
               </div>
               <div>
                 {openSideBar ? (

@@ -28,7 +28,7 @@ export const TabActionDialog = ({
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
   return (
     <div className="flex justify-center items-center absolute bg-foregroundColor-transparent inset-0">
-      <ContainerComponent style="w-[40%] h-[70%] gap-10 flex flex-col z-40 bg-backgroundColor overflow-auto">
+      <ContainerComponent style="w-[70%] h-[90%] gap-10 flex flex-col z-40 bg-backgroundColor overflow-auto">
         {openUnsavedDialog && (
           <YesNoDialog
             warningText="You have unsaved changes. Are you sure you want to proceed?"
@@ -91,11 +91,11 @@ export const TabActionDialog = ({
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 w-full pl-8">
+        <div className="grid grid-cols-2 gap-4 w-full place-items-center pl-3">
           {localActions.map((actionObj: any) => {
             const { action, permission } = actionObj;
             return (
-              <div className="grid grid-cols-2 gap-4 items-center" key={action}>
+              <div className="grid grid-cols-2 gap-4" key={action}>
                 <span className="w-full">{action}</span>
                 <CheckBoxComponent
                   name={action}

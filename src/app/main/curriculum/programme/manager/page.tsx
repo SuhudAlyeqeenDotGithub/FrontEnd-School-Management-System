@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
@@ -98,7 +99,6 @@ const ProgrammeManager = () => {
 
   useEffect(() => {
     if (!staffContracts) return;
-    setError("");
   }, [staffContracts, isFetchingStaffContracts]);
 
   useEffect(() => {
@@ -110,7 +110,6 @@ const ProgrammeManager = () => {
 
   useEffect(() => {
     if (!programmes) return;
-    setError("");
   }, [programmes, isFetchingprogrammes]);
 
   useEffect(() => {
@@ -122,7 +121,6 @@ const ProgrammeManager = () => {
 
   useEffect(() => {
     if (!programmeManagers) return;
-    setError("");
     const currentPage: any = programmeManagers.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.programmeManagers);
@@ -357,6 +355,7 @@ const ProgrammeManager = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search role (Programme Manager Name, Programme Manager Custom ID)"
               filters={[
                 {
@@ -543,7 +542,9 @@ const ProgrammeManager = () => {
                             }}
                           />
                         </td>
-                        <td className={tableCellStyle}>{status}</td>
+                        <td className={tableCellStyle}>
+                          <StatusFormatter text={status} />
+                        </td>
                         <td className={tableCellStyle}>{formatDate(managedFrom)}</td>
                         <td className={tableCellStyle}>{formatDate(managedUntil)}</td>
                         <td className="text-center flex items-center justify-center h-15">

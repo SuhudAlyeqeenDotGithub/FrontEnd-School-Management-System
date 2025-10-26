@@ -33,6 +33,10 @@ export const generateCustomId = (prefix?: string, neat = false, type: string = "
   return `${prefix ? prefix + "-" : ""}${nanoid()}`;
 };
 
+export const generateSearchText = (fields: any[]) => {
+  return fields.join("|");
+};
+
 export const handledDeleteImage = async (imageDestination?: string) => {
   // handle deleting current image on googlecloud
   try {

@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
@@ -97,7 +98,6 @@ const SubjectTeacher = () => {
 
   useEffect(() => {
     if (!staffContracts) return;
-    setError("");
   }, [staffContracts, isFetchingStaffContracts]);
 
   useEffect(() => {
@@ -109,7 +109,6 @@ const SubjectTeacher = () => {
 
   useEffect(() => {
     if (!subjects) return;
-    setError("");
   }, [subjects, isFetchingsubjects]);
 
   useEffect(() => {
@@ -121,7 +120,6 @@ const SubjectTeacher = () => {
 
   useEffect(() => {
     if (!subjectTeachers) return;
-    setError("");
     const currentPage: any = subjectTeachers.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.subjectTeachers);
@@ -225,6 +223,8 @@ const SubjectTeacher = () => {
     setLocalData(sortedData);
     setSortOrderTracker((prev: any) => ({ ...prev, [sortKey]: nextOrder }));
   };
+
+  console.log("error", error);
 
   return (
     <div className="px-4 py-6 w-full">
@@ -356,6 +356,7 @@ const SubjectTeacher = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search role (Subject Teacher Name, Subject Teacher Custom ID)"
               filters={[
                 {
@@ -445,7 +446,9 @@ const SubjectTeacher = () => {
                       "Subject Teacher ID",
                       "Teacher Name",
                       "Subject Full Title",
+                      "Management Type",
                       "Management Status",
+
                       "Managed From",
                       "Managed Until"
                     ] as const
@@ -457,6 +460,7 @@ const SubjectTeacher = () => {
                           "Subject Teacher ID": "_id",
                           "Teacher Name": "subjectTeacherFullName",
                           "Subject Full Title": "subjectFullTitle",
+                          "Management Type": "staffType",
                           "Management Status": "status",
                           "Managed From": "managedFrom",
                           "Managed Until": "managedUntil"
@@ -502,7 +506,8 @@ const SubjectTeacher = () => {
                       subjectTeacherFullName,
                       managedFrom,
                       managedUntil,
-                      status
+                      status,
+                      staffType
                     } = doc;
 
                     return (
@@ -551,8 +556,11 @@ const SubjectTeacher = () => {
                               await navigator.clipboard.writeText(subjectFullTitle);
                             }}
                           />
+                        </td>{" "}
+                        <td className={tableCellStyle}>{staffType}</td>
+                        <td className={tableCellStyle}>
+                          <StatusFormatter text={status} />
                         </td>
-                        <td className={tableCellStyle}>{status}</td>
                         <td className={tableCellStyle}>{formatDate(managedFrom)}</td>
                         <td className={tableCellStyle}>{formatDate(managedUntil)}</td>
                         <td className="text-center flex items-center justify-center h-15">

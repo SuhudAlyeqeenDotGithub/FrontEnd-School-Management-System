@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
@@ -101,7 +102,6 @@ const StudentEnrollments = () => {
 
   useEffect(() => {
     if (!courses) return;
-    setError("");
   }, [courses, isFetchingcourses]);
 
   useEffect(() => {
@@ -113,7 +113,6 @@ const StudentEnrollments = () => {
 
   useEffect(() => {
     if (!levels) return;
-    setError("");
   }, [levels, isFetchinglevels]);
 
   useEffect(() => {
@@ -125,7 +124,6 @@ const StudentEnrollments = () => {
 
   useEffect(() => {
     if (!studentProfiles) return;
-    setError("");
   }, [studentProfiles, isFetchingStudentProfiles]);
 
   useEffect(() => {
@@ -137,7 +135,6 @@ const StudentEnrollments = () => {
 
   useEffect(() => {
     if (!academicYears) return;
-    setError("");
   }, [academicYears, academicYearsIsFetching]);
 
   useEffect(() => {
@@ -149,7 +146,6 @@ const StudentEnrollments = () => {
 
   useEffect(() => {
     if (!studentEnrollments) return;
-    setError("");
     const currentPage: any = studentEnrollments.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.studentEnrollments);
@@ -394,6 +390,7 @@ const StudentEnrollments = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search Student Custom ID, Student Names, Enrollment Dates, Job Title, Enrollment Type/Status"
               filters={[
                 {

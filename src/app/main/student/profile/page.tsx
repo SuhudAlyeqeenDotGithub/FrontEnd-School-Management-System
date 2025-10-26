@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { CgTrash } from "react-icons/cg";
@@ -84,7 +85,6 @@ const StudentProfile = () => {
 
   useEffect(() => {
     if (!student) return;
-    setError("");
     const currentPage: any = student.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.studentProfiles);
@@ -308,6 +308,7 @@ const StudentProfile = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search Student (Custom ID, Names, Email, Gender, Nationality, Next of Kin)"
               filters={[
                 {

@@ -12,7 +12,7 @@ export const tanFetchAny = async (accountData: any, permittedActions: string[], 
     throw new Error(msg);
   }
 
-  if (!permittedActions.includes(action) && !accountData.roleId?.absoluteAdmin) {
+  if (!permittedActions.includes(action) && !accountData.roleId?.absoluteAdmin && action !== "") {
     const msg = `Unauthorized: You do not have access to ${action} - Please contact your admin`;
     throw new Error(msg);
   }

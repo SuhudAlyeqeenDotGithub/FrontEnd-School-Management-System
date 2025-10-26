@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
@@ -88,7 +89,6 @@ const StaffContracts = () => {
 
   useEffect(() => {
     if (!staffProfiles) return;
-    setError("");
   }, [staffProfiles, isFetchingStaffProfiles]);
 
   useEffect(() => {
@@ -100,7 +100,6 @@ const StaffContracts = () => {
 
   useEffect(() => {
     if (!academicYears) return;
-    setError("");
   }, [academicYears, academicYearsIsFetching]);
 
   useEffect(() => {
@@ -112,7 +111,6 @@ const StaffContracts = () => {
 
   useEffect(() => {
     if (!staffContracts) return;
-    setError("");
     const currentPage: any = staffContracts.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.staffContracts);
@@ -155,7 +153,7 @@ const StaffContracts = () => {
         <LoaderDiv
           type="spinnerText"
           borderColor="foregroundColor"
-          text="Loading User Data..."
+          text="Loading Staff Contract Data..."
           textColor="foregroundColor"
           dimension="h-10 w-10"
         />
@@ -318,7 +316,7 @@ const StaffContracts = () => {
             <div className="flex flex-col">
               <CustomHeading variation="sectionHeader">
                 Staff Contract
-                {/* <UserRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
+                {/* <Staff ContractRoundPen className="inline-block ml-4 size-8 mb-2" /> */}
               </CustomHeading>
               <CustomHeading variation="head5light">Create and manage staff contracts</CustomHeading>
             </div>
@@ -345,6 +343,7 @@ const StaffContracts = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search Staff Custom ID, Staff Names, Contract Dates, Job Title, Contract Type/Status"
               filters={[
                 {
@@ -427,27 +426,17 @@ const StaffContracts = () => {
             <table className="relative w-full">
               <thead className="sticky top-0 z-10 border-b border-borderColor-2">
                 <tr className={tableHeaderStyle}>
-                  <th className="text-center w-[110px] font-semibold p-2 whitespace-nowrap">Contract Id</th>
-                  {(
-                    [
-                      "Staff Custom ID",
-                      "Academic Year",
-                      "Staff Full Name",
-                      "Job Title",
-                      "Start Date",
-                      "Contact Status"
-                    ] as const
-                  ).map((header) => (
+                  <th className="text-center w-[200px] font-semibold p-2 whitespace-nowrap">Contract Ids</th>
+                  {(["Staff", "Academic Year", "Contract", "Dates", "Salary"] as const).map((header) => (
                     <th
                       key={header}
                       onClick={() => {
                         const key_Name = {
                           "Academic Year": "academicYear",
-                          "Staff Custom ID": "staffCustomId",
-                          "Staff Full Name": "staffFullName",
-                          "Job Title": "jobTitle",
-                          "Start Date": "contractStartDate",
-                          "Contact Status": "contractStatus"
+                          Staff: "staffFullName",
+                          Contract: "contractStartDate",
+                          Dates: "contractStatus",
+                          Salary: "salary"
                         };
                         const sortKey = key_Name[header];
                         handleSort(sortKey);
@@ -486,9 +475,14 @@ const StaffContracts = () => {
                     const {
                       _id: contractId,
                       academicYear,
+                      contractCustomId,
                       staffCustomId,
                       staffFullName,
                       jobTitle,
+                      contractSalary,
+                      payFrequency,
+                      contractEndDate,
+                      contractType,
                       contractStartDate,
                       contractStatus
                     } = doc;
@@ -497,44 +491,97 @@ const StaffContracts = () => {
                       <tr
                         key={contractId}
                         onClick={() => {
-                          if (hasActionAccess("View Staff Contract")) {
+                          if (hasActionAccess("View Staff Contracts")) {
                             document.body.style.overflow = "hidden";
                             setOpenViewStaffContractDialog(true);
                             setOnOpenEditStaffContractData(doc);
                           } else {
-                            setError("You do not have Edit User Access - Please contact your admin");
+                            setError("You do not have Edit Staff Contract Access - Please contact your admin");
                           }
                         }}
-                        className={tableRowStyle}
+                        className="hover:bg-backgroundColor-2 hover:cursor-pointer border-y border-borderColor-2 h-20 py-2"
                       >
-                        <td className="w-[110px] whitespace-nowrap text-center">
-                          CID
-                          <MdContentCopy
-                            title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              await navigator.clipboard.writeText(contractId);
-                            }}
-                          />
+                        <td className="w-[200px] text-center px-3 whitespace-nowrap">
+                          <div className="flex flex-col justify-center items-center gap-1">
+                            <span className="font-medium">
+                              CID
+                              <MdContentCopy
+                                title="copy id"
+                                className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  await navigator.clipboard.writeText(contractId);
+                                }}
+                              />
+                            </span>
+                            <span className="text-[14px] text-foregroundColor-2 font-medium">
+                              {contractCustomId.slice(0, 30)}
+                            </span>
+                          </div>
                         </td>
-                        <td className="w-[200px] text-center whitespace-nowrap">
-                          {staffCustomId.slice(0, 10)}
-                          <MdContentCopy
-                            title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              await navigator.clipboard.writeText(staffCustomId);
-                            }}
-                          />
+
+                        <td className="w-[270px] text-center px-3 whitespace-nowrap">
+                          <div className="flex flex-col justify-center items-center gap-1">
+                            <span className="font-medium">
+                              {staffCustomId.slice(0, 10)}
+                              <MdContentCopy
+                                title="copy id"
+                                className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  await navigator.clipboard.writeText(staffCustomId);
+                                }}
+                              />
+                            </span>
+                            <span className="text-[15px] text-foregroundColor-2 font-medium">
+                              {staffFullName.slice(0, 30)}
+                            </span>
+                          </div>
                         </td>
-                        <td className={tableCellStyle}>{academicYear.slice(14)}</td>
-                        <td className={tableCellStyle}>{staffFullName.slice(0, 20)}</td>
-                        <td className={tableCellStyle}>{jobTitle.slice(0, 20)}</td>
-                        <td className={tableCellStyle}>{formatDate(contractStartDate)}</td>
-                        <td className={tableCellStyle}>{contractStatus}</td>
-                        <td className="text-center flex items-center justify-center h-15">
+                        <td className={tableCellStyle}>{academicYear}</td>
+
+                        <td className={tableCellStyle}>
+                          <div className="flex flex-col justify-center items-center gap-2">
+                            <div>
+                              <span className="text-[14px] text-foregroundColor-2 font-medium">{contractType}</span>
+                            </div>
+                            <div>
+                              <StatusFormatter text={contractStatus} />
+                            </div>
+                          </div>
+                        </td>
+                        <td className={tableCellStyle}>
+                          <div className="flex flex-col justify-center items-center">
+                            <div>
+                              <span className="text-[14px] font-medium">Start: </span>
+                              <span className="text-[14px] text-foregroundColor-2">
+                                {formatDate(contractStartDate)}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-[14px] font-medium">End: </span>
+                              <span className="text-[14px] text-foregroundColor-2">{formatDate(contractEndDate)}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className={tableCellStyle}>
+                          <div className="flex flex-col justify-center items-center">
+                            <div>
+                              <span className="text-[14px] font-medium">Job Title: </span>
+                              <span className="text-[14px] text-foregroundColor-2">{jobTitle.slice(0, 20)}</span>
+                            </div>
+                            <div>
+                              <span className="text-[14px] font-medium">Pay Frequency: </span>
+                              <span className="text-[14px] text-foregroundColor-2">{payFrequency}</span>
+                            </div>
+                            <div>
+                              <span className="text-[14px] font-medium">Salary: </span>
+                              <span className="text-[14px] text-foregroundColor-2">{contractSalary}</span>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="text-center flex items-center justify-center h-20">
                           <ActionButtons
                             onEdit={(e) => {
                               if (hasActionAccess("Edit Staff Contract")) {
@@ -542,7 +589,7 @@ const StaffContracts = () => {
                                 setOpenEditStaffContractDialog(true);
                                 setOnOpenEditStaffContractData(doc);
                               } else {
-                                setError("You do not have Edit User Access - Please contact your admin");
+                                setError("You do not have Edit Staff Contract Access - Please contact your admin");
                               }
                             }}
                             onDelete={(e) => {

@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
@@ -89,7 +90,6 @@ const Courses = () => {
 
   useEffect(() => {
     if (!programmes) return;
-    setError("");
   }, [programmes, isFetchingprogrammes]);
 
   useEffect(() => {
@@ -101,7 +101,6 @@ const Courses = () => {
 
   useEffect(() => {
     if (!courses) return;
-    setError("");
     const currentPage: any = courses.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.courses);
@@ -336,6 +335,7 @@ const Courses = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search role (Course Name, Course Custom ID, Course Full Title)"
               filters={[
                 {
@@ -537,7 +537,9 @@ const Courses = () => {
                           />
                         </td>
 
-                        <td className={tableCellStyle}>{status}</td>
+                        <td className={tableCellStyle}>
+                          <StatusFormatter text={status} />
+                        </td>
                         <td className={tableCellStyle}>{courseDuration}</td>
 
                         <td className={tableCellStyle}>{formatDate(offeringStartDate)}</td>

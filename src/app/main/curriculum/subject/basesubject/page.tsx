@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
@@ -81,7 +82,6 @@ const BaseSubjects = () => {
 
   useEffect(() => {
     if (!baseSubjects) return;
-    setError("");
     const currentPage: any = baseSubjects.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.baseSubjects);
@@ -287,6 +287,7 @@ const BaseSubjects = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search role (Base Subject Name, Base Subject Custom ID, Base Subject Name)"
               filters={[
                 {
@@ -471,7 +472,9 @@ const BaseSubjects = () => {
                           />
                         </td>
 
-                        <td className={tableCellStyle}>{status}</td>
+                        <td className={tableCellStyle}>
+                          <StatusFormatter text={status} />
+                        </td>
                         <td className={tableCellStyle}>{formatDate(offeringStartDate)}</td>
                         <td className={tableCellStyle}>{formatDate(offeringEndDate)}</td>
 

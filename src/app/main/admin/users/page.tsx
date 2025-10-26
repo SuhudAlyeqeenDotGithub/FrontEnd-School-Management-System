@@ -9,7 +9,8 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton
+  PreviousButton,
+  StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
 import { FaSearch } from "react-icons/fa";
@@ -97,7 +98,6 @@ const Users = () => {
 
   useEffect(() => {
     if (!staffProfiles) return;
-    setError("");
   }, [staffProfiles, isFetchingStaffProfiles]);
 
   useEffect(() => {
@@ -109,7 +109,6 @@ const Users = () => {
 
   useEffect(() => {
     if (!roles) return;
-    setError("");
   }, [roles, isFetchingroles]);
 
   useEffect(() => {
@@ -121,7 +120,6 @@ const Users = () => {
 
   useEffect(() => {
     if (!users) return;
-    setError("");
     const currentPage: any = users.pages[pageIndex];
     if (currentPage === undefined) return;
     setLocalData(currentPage.users);
@@ -373,6 +371,7 @@ const Users = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              currentQuery={queryParams}
               placeholder="Search role (User Name, Email, Status)"
               filters={[
                 {
@@ -534,7 +533,7 @@ const Users = () => {
                             setError("You do not have View User Access - Please contact your admin");
                           }
                         }}
-                        className={tableRowStyle}
+                        className="hover:bg-backgroundColor-2 hover:cursor-pointer border-y border-borderColor-2 h-15 gap-7"
                       >
                         <td className="w-[110px] whitespace-nowrap text-center">
                           {accountId.slice(15)}
@@ -548,16 +547,25 @@ const Users = () => {
                           />
                         </td>
                         <td className={tableCellStyle}>
-                          {accountName}{" "}
-                          <MdContentCopy
-                            title="copy id"
-                            className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              await navigator.clipboard.writeText(accountName);
-                            }}
-                          />
+                          <div className="flex flex-col justify-center items-center">
+                            <span className="font-medium text-[14px] text-foregroundColor-2">
+                              {staffId ? staffId?.staffCustomId.slice(0, 15) : "Not a Staff"}
+                            </span>
+
+                            <span className=" font-medium">
+                              {accountName}
+                              <MdContentCopy
+                                title="copy id"
+                                className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  await navigator.clipboard.writeText(accountName);
+                                }}
+                              />
+                            </span>
+                          </div>
                         </td>
+
                         <td className={tableCellStyle}>{roleId ? roleId?.roleName.slice(0, 15) : "Unknown Role"}</td>
                         <td className={tableCellStyle}>
                           {accountEmail}{" "}
@@ -570,7 +578,9 @@ const Users = () => {
                             }}
                           />
                         </td>
-                        <td className={tableCellStyle}>{accountStatus}</td>
+                        <td className={tableCellStyle}>
+                          <StatusFormatter text={accountStatus} />
+                        </td>
                         <td className={tableCellStyle}>{formatDate(createdAt)}</td>
 
                         <td className="text-center flex items-center justify-center h-15">
