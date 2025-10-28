@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
-import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { useAppSelector } from "@/redux/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { BASE_API_URL } from "../shortFunctions";
 import axios from "axios";
@@ -108,6 +108,40 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
           queryClient.setQueryData(["roles"], (oldData: any) => {
             return oldData.filter((role: any) => role._id !== fullDocument._id);
           });
+        }
+      }
+
+      // handle activity log
+      if ((hasActionAccess("View Activity Logs") || userIsAbsoluteAdmin) && collection === "activitylogs") {
+        const queriesData = queryClient.getQueriesData({ queryKey: ["activitylogs"] });
+        if (queriesData.length === 0) return;
+        try {
+          const response = await handleApiRequest("get", "alyeqeenschoolapp/api/admin/lastactivitylog");
+          if (response?.data) {
+            queriesData.forEach(([queryKey, data]: [any, any]) => {
+              const pages = data.pages;
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { activityLogs: firstPageActivityLogs } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [
+                        { ...firstPage, activityLogs: [response?.data, ...firstPageActivityLogs] },
+                        ...queryPages.slice(1)
+                      ]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            });
+          }
+        } catch (error: any) {
+          throw new Error(error.response?.data.message || error.message || "Error fetching activity logs");
         }
       }
 

@@ -59,7 +59,8 @@ import {
   Sun,
   UserRoundCheck,
   User,
-  CalendarSync
+  CalendarSync,
+  CalendarRange
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
@@ -183,6 +184,8 @@ const layout = ({ children }: { children: ReactNode }) => {
     "/main/curriculum/subject/basesubject": "Curriculum",
     "/main/curriculum/subject/basesubject/manager": "Curriculum",
     "/main/curriculum/subject": "Curriculum",
+    "/main/curriculum/event": "Curriculum",
+    "/main/curriculum/event/manager": "Curriculum",
     "/main/curriculum/subject/teacher": "Curriculum",
     "/main/curriculum/academicsession/period": "Curriculum",
     "/main/curriculum/academicsession/academicYear": "Curriculum",
@@ -214,6 +217,7 @@ const layout = ({ children }: { children: ReactNode }) => {
     Level: "/main/curriculum/level",
     Subject: "/main/curriculum/subject",
     Period: "/main/curriculum/academicsession/period",
+    Event: "/main/curriculum/event",
     Enrollment: "/main/enrollment",
     "Student Attendance": "/main/student/attendance",
     "Staff Profile": "/main/staff/profile",
@@ -248,7 +252,8 @@ const layout = ({ children }: { children: ReactNode }) => {
     "Roles & Permission": ShieldPlus,
     Billing: Receipt,
     "Activity Log": Activity,
-    Setting: Wrench
+    Setting: Wrench,
+    Event: CalendarRange
   };
 
   const profileDialog = (

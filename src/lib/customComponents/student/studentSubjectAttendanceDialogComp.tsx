@@ -943,17 +943,27 @@ const StudentSubjectAttendanceDialog = ({
               />
             </div>
             <div>
-              {(onCreateMode && !isFetchingEnrolledStudent && studentSubjectAttendances.length === 0) ||
-                (studentSubjectAttendances.length === 0 && onEditMode && (
-                  <button
-                    onClick={handleLoadStudents}
-                    className={defaultButtonStyle}
-                    disabled={onViewMode}
-                    hidden={onViewMode}
-                  >
-                    <IconFormatter icon={UserRoundCheck} /> Load Students
-                  </button>
-                ))}
+              {studentSubjectAttendances.length === 0 && onEditMode && (
+                <button
+                  onClick={handleLoadStudents}
+                  className={defaultButtonStyle}
+                  disabled={onViewMode}
+                  hidden={onViewMode}
+                >
+                  <IconFormatter icon={UserRoundCheck} /> Load Students
+                </button>
+              )}
+
+              {onCreateMode && !isFetchingEnrolledStudent && studentSubjectAttendances.length === 0 && (
+                <button
+                  onClick={handleLoadStudents}
+                  className={defaultButtonStyle}
+                  disabled={onViewMode}
+                  hidden={onViewMode}
+                >
+                  <IconFormatter icon={UserRoundCheck} /> Load Students
+                </button>
+              )}
               {isFetchingEnrolledStudent && (
                 <LoaderButton
                   buttonText=""
