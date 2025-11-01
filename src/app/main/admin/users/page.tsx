@@ -156,6 +156,24 @@ const Users = () => {
     }
   };
 
+  if (!hasActionAccess("View Users")) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-center p-8">
+        <div className=" flex flex-col items-center mb-5">
+          <div className="h-10 w-22">
+            <img src="/suhudlogo.png" className="h-full w-full" alt="Suhud Logo" />
+          </div>
+          <p className="text-[18px] text-[#0097a7]  font-medium">School Management System</p>
+        </div>
+        <h1 className="text-4xl font-bold mb-4">Unauthorized Access</h1>
+        <p className="mb-6">Oops! You do not have access to this page - Contact your admin if you need access</p>
+        <a href="/main" className="text-[#0097a7]  underline">
+          Go back home
+        </a>
+      </div>
+    );
+  }
+
   if (!accountData) {
     return (
       <div className="flex items-center justify-center mt-10">
@@ -243,14 +261,23 @@ const Users = () => {
             }}
             staffProfiles={staffProfiles}
             data={onOpenUserDialogData}
-            roles={roles
-              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-              .map(({ _id, roleName, tabAccess }: any) => ({
-                _id,
-                name: roleName,
-                tabAccess,
-                searchText: _id + roleName
-              }))}
+            roles={
+              onOpenUserDialogData?.roleId?.absoluteAdmin
+                ? roles.map(({ _id, roleName, tabAccess }: any) => ({
+                    _id,
+                    name: roleName,
+                    tabAccess,
+                    searchText: _id + roleName
+                  }))
+                : roles
+                    .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
+                    .map(({ _id, roleName, tabAccess }: any) => ({
+                      _id,
+                      name: roleName,
+                      tabAccess,
+                      searchText: _id + roleName
+                    }))
+            }
           />
         )}
 
@@ -269,12 +296,23 @@ const Users = () => {
             }}
             data={onOpenUserDialogData}
             staffProfiles={staffProfiles}
-            roles={roles
-              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-              .map((roleDocument: any) => ({
-                ...roleDocument,
-                searchText: roleDocument._id + roleDocument.roleName
-              }))}
+            roles={
+              onOpenUserDialogData?.roleId?.absoluteAdmin
+                ? roles.map(({ _id, roleName, tabAccess }: any) => ({
+                    _id,
+                    name: roleName,
+                    tabAccess,
+                    searchText: _id + roleName
+                  }))
+                : roles
+                    .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
+                    .map(({ _id, roleName, tabAccess }: any) => ({
+                      _id,
+                      name: roleName,
+                      tabAccess,
+                      searchText: _id + roleName
+                    }))
+            }
           />
         )}
         {openNewUserDialog && (
@@ -291,12 +329,23 @@ const Users = () => {
               return {};
             }}
             staffProfiles={staffProfiles}
-            roles={roles
-              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-              .map((roleDocument: any) => ({
-                ...roleDocument,
-                searchText: roleDocument._id + roleDocument.roleName
-              }))}
+            roles={
+              onOpenUserDialogData?.roleId?.absoluteAdmin
+                ? roles.map(({ _id, roleName, tabAccess }: any) => ({
+                    _id,
+                    name: roleName,
+                    tabAccess,
+                    searchText: _id + roleName
+                  }))
+                : roles
+                    .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
+                    .map(({ _id, roleName, tabAccess }: any) => ({
+                      _id,
+                      name: roleName,
+                      tabAccess,
+                      searchText: _id + roleName
+                    }))
+            }
           />
         )}
         {openDisallowedDeleteDialog && (

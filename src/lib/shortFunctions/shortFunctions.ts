@@ -17,6 +17,12 @@ export const checkDataType = (value: any) => {
   }
 };
 
+export const safeText = (value: any, length?: number) => {
+  if (value === null || value === undefined) return "";
+  const str = String(value);
+  return length ? str.slice(0, length) : str;
+};
+
 export const formatDate = (dateStr: any) => {
   const date = new Date(dateStr);
   return date.toLocaleString("en-GB", { day: "numeric", month: "long", year: "numeric" });

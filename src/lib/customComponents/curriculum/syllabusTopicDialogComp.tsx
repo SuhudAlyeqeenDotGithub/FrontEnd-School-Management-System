@@ -14,7 +14,6 @@ import { YesNoDialog } from "../general/compLibrary";
 import { nanoid } from "@reduxjs/toolkit";
 import { defaultButtonStyle } from "@/lib/generalStyles";
 import { SearchableDropDownInput } from "../general/compLibrary2";
-import { LearningObjectivesDialog } from "./learningObjectiveDialogComp";
 
 export const SyllabusTopicsDialog = ({
   type = "new",

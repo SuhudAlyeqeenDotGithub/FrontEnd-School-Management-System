@@ -782,6 +782,16 @@ const StudentDayAttendanceDialog = ({
               />
             </div>
             <div>
+              {studentDayAttendances.length === 0 && onEditMode && (
+                <button
+                  onClick={handleLoadStudents}
+                  className={defaultButtonStyle}
+                  disabled={onViewMode}
+                  hidden={onViewMode}
+                >
+                  <IconFormatter icon={UserRoundCheck} /> Load Students
+                </button>
+              )}
               {onCreateMode && !isFetchingEnrolledStudent && studentDayAttendances.length === 0 && (
                 <button
                   onClick={handleLoadStudents}

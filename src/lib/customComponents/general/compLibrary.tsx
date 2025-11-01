@@ -359,10 +359,25 @@ export const StatusFormatter = ({ text }: { text: string }) => {
   return (
     <span
       className={`
-    px-2 py-1 mx-3 rounded-full text-sm font-medium border border-borderColor
-    ${lowerText === "active" || lowerText === "completed" ? "text-green-700 bg-green-100" : ""}
-    ${lowerText === "in progress" ? "text-yellow-700 bg-yellow-100" : ""}
-    ${["inactive", "closed", "cancelled", "locked"].includes(lowerText) ? "text-red-700 bg-red-100" : ""}
+    px-2 py-1 rounded-full text-sm font-medium border border-borderColor
+    ${["completed", "active", "create", "new", "added"].includes(lowerText) ? "text-green-700 bg-green-100" : ""}
+      ${["in progress", "array change"].includes(lowerText) ? "text-yellow-700 bg-yellow-100" : ""}
+    ${["inactive", "closed", "cancelled", "locked", "deleted"].includes(lowerText) ? "text-red-700 bg-red-100" : ""}  ${
+        lowerText.includes("update") ||
+        lowerText.includes("edit") ||
+        lowerText.includes("edition") ||
+        lowerText.includes("edited")
+          ? "text-blue-700 bg-blue-100"
+          : ""
+      }  ${lowerText.includes("delete") || lowerText.includes("deletion") ? "text-red-700 bg-red-100" : ""} ${
+        lowerText.includes("create") || lowerText.includes("creation") ? "text-green-700 bg-green-100" : ""
+      }
+
+      ${
+        lowerText.includes("sign in") || lowerText.includes("sign up")
+          ? "text-foregroundColor bg-backgroundColor-2"
+          : ""
+      }
   `}
     >
       {text}

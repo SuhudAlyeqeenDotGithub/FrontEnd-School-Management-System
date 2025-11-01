@@ -193,7 +193,7 @@ export const UserDialogComponent = ({
       setError("Missing Data: Please enter a user name");
       return false;
     }
-    if (!staffId) {
+    if (!staffId && !isAbsoluteAdminRecord) {
       setError("Missing Data: Please enter a staff Id");
       return false;
     }

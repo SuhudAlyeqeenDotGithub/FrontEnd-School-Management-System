@@ -6,27 +6,15 @@ import {
   ContainerComponent,
   ErrorDiv,
   SelectInputComponent,
-  TextAreaComponent,
-  ActionButtons
+  TextAreaComponent
 } from "../general/compLibrary";
 import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { useNavigationHandler } from "../../shortFunctions/clientFunctions.ts/clientFunctions";
-import {
-  formatDate,
-  generateCustomId,
-  handledDeleteImage,
-  validateEmail,
-  validatePhoneNumber
-} from "../../shortFunctions/shortFunctions";
+import { generateCustomId } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../general/compLibrary";
-import { useAppSelector } from "@/redux/hooks";
-import ImageUploadDiv from "../general/imageUploadCom";
-import { handleApiRequest } from "@/axios/axiosClient";
-import axios from "axios";
 import { defaultButtonStyle, tabGroupButtonStyle } from "@/lib/generalStyles";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
-import { MdAdd } from "react-icons/md";
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
 
 export const ProgrammeDialogComponent = ({

@@ -209,6 +209,7 @@ const layout = ({ children }: { children: ReactNode }) => {
     Users: "/main/admin/users",
     "Activity Log": "/main/admin/activitylog",
     Billing: "/main/admin/billing",
+    Setting: "/main/admin/setting",
     Student: "/main/student/profile",
     "Academic Session": "/main/curriculum/academicsession",
     "Learning Plan": "/main/curriculum/learningplan",

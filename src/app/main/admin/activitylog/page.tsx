@@ -1,5 +1,5 @@
 "use client";
-import { checkDataType } from "@/lib/shortFunctions/shortFunctions";
+import { checkDataType, safeText } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { use, useEffect, useState } from "react";
 import {
@@ -36,6 +36,7 @@ import {
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { MdAdd, MdContentCopy } from "react-icons/md";
+import { ActivityLogDialogComponent } from "@/lib/customComponents/admin/activityLogDialogComp";
 
 const ActivityLog = () => {
   const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
@@ -115,6 +116,24 @@ const ActivityLog = () => {
     }
   };
 
+  if (!hasActionAccess("View Activity Logs")) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-center p-8">
+        <div className=" flex flex-col items-center mb-5">
+          <div className="h-10 w-22">
+            <img src="/suhudlogo.png" className="h-full w-full" alt="Suhud Logo" />
+          </div>
+          <p className="text-[18px] text-[#0097a7]  font-medium">School Management System</p>
+        </div>
+        <h1 className="text-4xl font-bold mb-4">Unauthorized Access</h1>
+        <p className="mb-6">Oops! You do not have access to this page - Contact your admin if you need access</p>
+        <a href="/main" className="text-[#0097a7]  underline">
+          Go back home
+        </a>
+      </div>
+    );
+  }
+
   if (!accountData) {
     return (
       <div className="flex items-center justify-center mt-10">
@@ -168,29 +187,16 @@ const ActivityLog = () => {
     <div className="px-4 py-6 w-full">
       {/* data table section */}
       <>
-        {/* {openViewActivityLogDialog && (
+        {openViewActivityLogDialog && (
           <ActivityLogDialogComponent
-            type="view"
             onClose={(open: boolean) => {
               document.body.style.overflow = "";
               setOpenViewActivityLogDialog(!open);
               return {};
             }}
-            onSave={(notSave) => {
-              document.body.style.overflow = "";
-              setOpenViewActivityLogDialog(!notSave);
-              return {};
-            }}
             data={onOpenActivityLogDialogData}
-            staffProfiles={staffProfiles}
-            roles={roles
-              .filter(({ absoluteAdmin }: any) => !absoluteAdmin)
-              .map((roleDocument: any) => ({
-                ...roleDocument,
-                searchText: roleDocument._id + roleDocument.roleName
-              }))}
           />
-        )} */}
+        )}
         {openDisallowedDeleteDialog && (
           <DisallowedActionDialog
             warningText="This delete action is disallowed as it relates to the default Admin / organisation account"
@@ -245,6 +251,7 @@ const ActivityLog = () => {
           </div>
           <div hidden={!openFilterDiv}>
             <CustomFilterComponent
+              includeDate={true}
               currentQuery={queryParams}
               placeholder="Search role (ActivityLog Name, Email, Status)"
               filters={[
@@ -252,6 +259,39 @@ const ActivityLog = () => {
                   displayText: "Account Status",
                   fieldName: "accountStatus",
                   options: ["All", "Active", "Locked"]
+                },
+                {
+                  displayText: "Tab",
+                  fieldName: "recordModel",
+                  options: [
+                    "All",
+                    "Course",
+                    "Student",
+                    "StudentEnrollment",
+                    "Staff",
+                    "Programme",
+                    "Subject",
+                    "Account",
+                    "Role",
+                    "Staff",
+                    "Level",
+                    "Enrollment",
+                    "Attendance",
+                    "AcademicYear",
+                    "StaffContract",
+                    "ProgrammeManager",
+                    "CourseManager",
+                    "LevelManager",
+                    "SubjectTeacher",
+                    "BaseSubject",
+                    "BaseSubjectManager",
+                    "StudentDayAttendanceTemplate",
+                    "StudentSubjectAttendanceTemplate",
+                    "StudentEventAttendanceTemplate",
+                    "Topic",
+                    "Syllabus",
+                    "None"
+                  ]
                 }
               ]}
               onQuery={(query: any) => {
@@ -391,9 +431,9 @@ const ActivityLog = () => {
                       recordId,
                       recordModel,
                       logAction
-                    } = doc;
+                    } = doc || {};
 
-                    const { accountName, accountEmail, accountStatus, roleId, staffId } = accountId;
+                    const { accountName, accountEmail, accountStatus, roleId, staffId } = accountId || {};
                     const staffCustomId = staffId ? staffId.staffCustomId : "Not a staff";
                     const roleName = roleId ? roleId.roleName : "";
                     const recordObjId = recordId ? recordId._id : "";
@@ -409,28 +449,27 @@ const ActivityLog = () => {
                             setError("You do not have View Activity Log Access - Please contact your admin");
                           }
                         }}
-                        className="hover:bg-backgroundColor-2 hover:cursor-pointer border-y border-borderColor-2 h-25 gap-7"
+                        className="hover:bg-backgroundColor-2 hover:cursor-pointer border-y border-borderColor-2 h-28 p-7"
                       >
                         <td className="w-[270px] text-center px-3 whitespace-nowrap">
-                          <div className="flex flex-col justify-center items-center">
-                            <span className="font-semibold text-foregroundColor-2">{logAction.slice(0, 30)}</span>
+                          <div className="flex flex-col gap-1 justify-center items-center">
+                            <StatusFormatter text={logAction} />
 
                             <div>
                               <span className="font-medium text-[14px] text-foregroundColor-2">Tab: </span>
-                              <span className="text-[14px] text-foregroundColor-2">{recordModel.slice(0, 30)}</span>
+                              <span className="text-[14px] text-foregroundColor-2">{safeText(recordModel, 30)}</span>
                             </div>
 
                             <div>
                               <span className="font-medium text-[14px] text-foregroundColor-2">Log Id: </span>
-
                               <span className="text-[14px] text-foregroundColor-2">
-                                {activityLogId.slice(0, 15)}
+                                {safeText(activityLogId, 15)}
                                 <MdContentCopy
                                   title="copy id"
                                   className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                                   onClick={async (e) => {
                                     e.stopPropagation();
-                                    await navigator.clipboard.writeText(activityLogId);
+                                    if (activityLogId) await navigator.clipboard.writeText(activityLogId);
                                   }}
                                 />
                               </span>
@@ -438,38 +477,38 @@ const ActivityLog = () => {
                           </div>
                         </td>
 
-                        <td className="w-[150px] text-center px-3 whitespace-nowrap font-medium ">
+                        <td className="w-[150px] text-center px-3 whitespace-nowrap font-medium">
                           <div className="flex flex-col justify-center items-center">
-                            {formatDate(createdAt)}
+                            {createdAt ? formatDate(createdAt) : ""}
                             <span className="text-foregroundColor-2 text-[14px]">
-                              {new Date(createdAt).toLocaleTimeString()}
+                              {createdAt ? new Date(createdAt).toLocaleTimeString() : ""}
                             </span>
                           </div>
                         </td>
 
                         <td className="w-[270px] text-center px-3 whitespace-nowrap">
                           <div className="flex flex-col justify-center items-center">
-                            <span className="font-medium">{accountName.slice(0, 50)}</span>
+                            <span className="font-medium">{safeText(accountName, 50)}</span>
 
                             <span className="text-foregroundColor-2 text-[14px]">
-                              {staffCustomId.slice(0, 15)}
+                              {safeText(staffCustomId, 15)}
                               <MdContentCopy
                                 title="copy id"
                                 className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                                 onClick={async (e) => {
                                   e.stopPropagation();
-                                  await navigator.clipboard.writeText(staffCustomId);
+                                  if (staffCustomId) await navigator.clipboard.writeText(staffCustomId);
                                 }}
                               />
                             </span>
 
-                            <span className="text-foregroundColor-2 text-[14px]">{roleName.slice(0, 30)}</span>
+                            <span className="text-foregroundColor-2 text-[14px]">{safeText(roleName, 30)}</span>
                           </div>
                         </td>
 
-                        <td className="w-[150px] text-center px-3 whitespace-nowrap font-medium ">
+                        <td className="w-[150px] text-center px-3 whitespace-nowrap font-medium">
                           <div className="flex flex-col gap-2 justify-center items-center">
-                            <span className="font-medium">{accountEmail.slice(0, 30)}</span>
+                            <span className="font-medium">{safeText(accountEmail, 30)}</span>
                             <span className="text-foregroundColor-2 text-[14px] font-medium">
                               <StatusFormatter text={accountStatus} />
                             </span>
@@ -478,21 +517,21 @@ const ActivityLog = () => {
 
                         <td className="w-[270px] text-center px-3 whitespace-nowrap">
                           <span className="text-[14px] font-medium">
-                            {recordChange.length > 0 ? "Change Available" : "No Change"}
+                            {Array.isArray(recordChange) && recordChange.length > 0 ? "Change Available" : "No Change"}
                           </span>
 
                           <div className="flex flex-col justify-center items-center">
                             <span className="text-foregroundColor-2 text-[14px] font-medium">
-                              {recordName.slice(0, 30)}
+                              {safeText(recordName, 30)}
                             </span>
                             <span className="text-foregroundColor-2 text-[14px] font-medium">
-                              {recordObjId.slice(0, 15)}...{" "}
+                              {safeText(recordObjId, 15)}...{" "}
                               <MdContentCopy
                                 title="copy id"
                                 className="ml-2 inline-block text-[19px] text-foregroundColor-2 hover:text-borderColor-3 hover:cursor-pointer"
                                 onClick={async (e) => {
                                   e.stopPropagation();
-                                  await navigator.clipboard.writeText(recordObjId);
+                                  if (recordObjId) await navigator.clipboard.writeText(recordObjId);
                                 }}
                               />
                             </span>

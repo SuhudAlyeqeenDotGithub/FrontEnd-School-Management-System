@@ -77,15 +77,6 @@ export const GroupTabDialog = ({
     }
   }, [searchValue]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setUnsaved(true);
-    const { name, value } = e.target;
-    setLocalData((prev: any) => ({ ...prev, [name]: value }));
-  };
-
-  const handleDeleteTab = () => {
-    setUnsaved(true);
-  };
 
   return (
     <ContainerComponent id="groupTabContainer" style="w-[50%] h-[80%] gap-5 overflow-auto flex flex-col py-5">

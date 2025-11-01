@@ -6,6 +6,66 @@ import { FaSearch } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { defaultButtonStyle, ghostbuttonStyle } from "@/lib/generalStyles";
 
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+
+export const DateRangePicker = ({
+  onClose,
+  defaultDate
+}: {
+  onClose: (dates: { from: string | undefined; to: string | undefined }) => void;
+  defaultDate?: any;
+}) => {
+  const [date, setDate] = useState<{ from: Date | undefined; to: Date | undefined } | undefined>(undefined);
+
+  useEffect(() => {
+    if (defaultDate === undefined) {
+      setDate(undefined);
+    }
+  }, [defaultDate]);
+
+  const handleSelect = (
+    range:
+      | {
+          from?: Date | undefined;
+          to?: Date | undefined;
+        }
+      | undefined
+  ) => {
+    setDate(range ? { from: range.from, to: range.to } : undefined);
+    if (range?.from && range?.to) {
+      const formattedRange = {
+        from: range.from.toISOString().split("T")[0],
+        to: range.to.toISOString().split("T")[0]
+      };
+      onClose(formattedRange);
+    }
+  };
+  return (
+    <div className="flex flex-col gap-2">
+      <Popover>
+        <PopoverTrigger asChild>
+          <button className="px-4 py-2 rounded-sm border border-borderColor bg-backgroundColor text-foregroundColor hover:bg-backgroundColor-2 hover:cursor-pointer shadow-xs whitespace-nowrap h-[43px]">
+            <CalendarIcon className="mr-2 h-4 w-4 inline-block" />
+            {date?.from && date?.to ? (
+              <>
+                {format(date!.from, "dd MMM yyyy")} – {format(date!.to as Date, "dd MMM yyyy")}
+              </>
+            ) : (
+              <span>Pick a date range</span>
+            )}
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar mode="range" numberOfMonths={4} selected={date} onSelect={handleSelect} />
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+};
+
 export const DisallowedActionDialog = ({ onOk, warningText }: { onOk: () => void; warningText: string }) => {
   return (
     <div className="w-[100%] h-[100%] bg-foregroundColor-transparent items-center justify-center z-30 flex fixed inset-0">
@@ -208,23 +268,26 @@ export const ConfirmActionByInputDialog = ({
 };
 
 export const CustomFilterComponent = ({
+  includeDate,
   placeholder,
   filters,
   onQuery,
   currentQuery
 }: {
+  includeDate?: boolean;
   placeholder: string;
   filters: { displayText: string; fieldName: string; options: string[] }[];
   onQuery: (query: any) => void;
   currentQuery?: any;
 }) => {
   const [filterQuery, setFilterQuery] = useState<Record<string, string>>(currentQuery);
+  const [defaultDate, setDefaultDate] = useState<{ from: string | undefined; to: string | undefined } | undefined>(
+    undefined
+  );
   const { search } = filterQuery;
-  console.log("filterQuery", filterQuery);
-
   return (
-    <div className="flex flex-col rounded-lg border border-borderColor shadow bg-backgroundColor my-4">
-      <div className="bg-backgroundColor-3 rounded-t-md w-full px-5 py-4 font-bold border-b border-borderColor flex justify-between items-center">
+    <div className="flex flex-col rounded-lg border border-borderColor bg-backgroundColor shadow my-4">
+      <div className="bg-backgroundColor rounded-t-md w-full px-5 py-4 font-bold border-b border-borderColor flex justify-between items-center">
         <CustomHeading variation="head2">Filter & Search</CustomHeading>
       </div>
 
@@ -286,6 +349,16 @@ export const CustomFilterComponent = ({
               </div>
             );
           })}
+          <div className="flex flex-col gap-1">
+            <span className="text-foregroundColor-2 font-medium">Logged Between # & #</span>
+            <DateRangePicker
+              defaultDate={defaultDate}
+              onClose={({ from, to }: { from: string | undefined; to: string | undefined }) => {
+                setDefaultDate({ from, to });
+                setFilterQuery((prev: any) => ({ ...prev, from: from || "", to: to || "" }));
+              }}
+            />
+          </div>
         </div>
 
         <div className="flex gap-3">
@@ -308,6 +381,7 @@ export const CustomFilterComponent = ({
           <button
             className={ghostbuttonStyle}
             onClick={() => {
+              setDefaultDate(undefined);
               const copyQuery = { ...filterQuery };
               for (const key in copyQuery) {
                 copyQuery[key] = key !== "search" ? "all" : "";

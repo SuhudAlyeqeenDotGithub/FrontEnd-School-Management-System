@@ -18,6 +18,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
       url: "/main/curriculum/academicsession/period"
     }
   ];
+
   return (
     <div className="">
       <SubTabNav tabs={navTabObj} />
