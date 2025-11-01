@@ -6,7 +6,6 @@ import {
   ErrorDiv,
   IconFormatter,
   LoaderDiv,
-  SelectInputComponent,
   YesNoDialog
 } from "@/lib/customComponents/general/compLibrary";
 
@@ -15,8 +14,8 @@ import { setTriggerUnsavedDialog } from "@/redux/features/general/generalSlice";
 import { Activity } from "lucide-react";
 import { defaultButtonStyle } from "@/lib/generalStyles";
 import { useNavigationHandler } from "@/lib/shortFunctions/clientFunctions.ts/clientFunctions";
-import { set } from "date-fns";
 import { handleApiRequest } from "@/axios/axiosClient";
+import { updateSettings } from "@/redux/features/accounts/accountSlice";
 
 const Setting = () => {
   const dispatch = useAppDispatch();
@@ -96,6 +95,7 @@ const Setting = () => {
       const response = await handleApiRequest("post", `alyeqeenschoolapp/api/admin/settings`, { settings });
 
       if (response?.data) {
+        dispatch(updateSettings(settings));
         dispatch(setTriggerUnsavedDialog(false));
         setUnsaved(false);
       }

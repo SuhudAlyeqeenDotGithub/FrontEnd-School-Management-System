@@ -48,6 +48,9 @@ export const orgAccountSlice = createSlice({
   reducers: {
     resetAccount: (state) => {
       Object.assign(state, initialState);
+    },
+    updateSettings: (state, action) => {
+      state.accountData.settings = action.payload;
     }
   },
 
@@ -120,5 +123,5 @@ export const orgAccountSlice = createSlice({
   }
 });
 
-export const { resetAccount } = orgAccountSlice.actions;
+export const { resetAccount, updateSettings } = orgAccountSlice.actions;
 export default orgAccountSlice.reducer;
