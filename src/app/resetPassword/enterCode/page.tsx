@@ -54,8 +54,7 @@ const signInPage = () => {
     }
   };
   return (
-    <div className="flex flex-col gap-5 border border-foregroundColor-20 p-8 rounded-lg shadow justify-center items-center w-3/4">
-      <h2>Reset Password - Enter Code</h2>
+    <div className="flex flex-col gap-2 border border-borderColor px-6 py-4 bg-backgroundColor rounded-lg shadow justify-center items-center w-[40%] h-[50%] mt-3 overflow-auto">
       <h3>Please provide the code you received through email</h3>
       {error && (
         <ErrorDiv
@@ -69,7 +68,7 @@ const signInPage = () => {
         </ErrorDiv>
       )}
       {success && <SuccessDiv>{success}</SuccessDiv>}
-      <form className="flex flex-col gap-2 mt-5 w-full items-center" onSubmit={handleSubmit}>
+      <form className="flex flex-col gap-5 mt-5 w-full items-center" onSubmit={handleSubmit}>
         <InputComponent
           type="code"
           placeholder="Enter Received Code *"
@@ -86,7 +85,6 @@ const signInPage = () => {
           buttonText="Send code"
           loadingButtonText="Checking code..."
           disabled={!code}
-          buttonStyle="w-full mt-5"
           isLoading={isLoading}
         />
       </form>

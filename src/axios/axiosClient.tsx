@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_API_URL } from "@/lib/shortFunctions/shortFunctions";
+import { BASE_API_URL, subscriptionErrors } from "@/lib/shortFunctions/shortFunctions";
 
 export const handleApiRequest = async (method: "get" | "post" | "put" | "delete", url: string, data?: any) => {
   const refinedUrl = `${BASE_API_URL}/${url}`;
@@ -17,8 +17,8 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
       return response;
     }
   } catch (err: any) {
-    const status = err.response?.status;
-    const isUnauthenticated = status === 401 || status === 403;
+    const message = err.response?.data?.message;
+    const isUnauthenticated = message === "No Access Token Found" || message === "Invalid Access token";
 
     if (isUnauthenticated) {
       try {
@@ -43,8 +43,8 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
           }
         }
       } catch (refreshErr: any) {
-        const status = refreshErr.response?.status;
-        const unAuthorisedRefresh = status === 401 || status === 403;
+        const message = refreshErr.response?.message;
+        const unAuthorisedRefresh = message === "No Refresh Token Found" || message === "Invalid Refresh token";
         try {
           const response = await axios.get(`${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/signout`, {
             withCredentials: true
@@ -59,6 +59,7 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
       }
     }
 
+    if (subscriptionErrors.includes(err.response?.data.message)) window.location.href = "/invalidsubscription";
     throw err;
   }
 };

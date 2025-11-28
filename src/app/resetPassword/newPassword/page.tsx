@@ -17,6 +17,7 @@ const signUpPage = () => {
     organisationPassword: "",
     organisationConfirmPassword: ""
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const { organisationEmail, organisationPassword, organisationConfirmPassword } = inputData;
 
@@ -81,7 +82,7 @@ const signUpPage = () => {
     }
   };
   return (
-    <div className="flex flex-col gap-5 border border-foregroundColor-20 p-8 rounded-lg shadow justify-center items-center w-3/4">
+    <div className="flex flex-col gap-2 border border-borderColor px-6 py-4 bg-backgroundColor rounded-lg shadow justify-center items-center w-[40%] h-[70%] mt-3 overflow-auto">
       <h2>Reset Password</h2>
       <h3>Please provide the organisation email and the new password</h3>
       {error && (
@@ -106,7 +107,7 @@ const signUpPage = () => {
         />
 
         <InputComponent
-          type="password"
+          type={showPassword ? "text" : "password"}
           placeholder="New Password *"
           name="organisationPassword"
           value={organisationPassword}
@@ -114,7 +115,7 @@ const signUpPage = () => {
           onChange={handleInputChange}
         />
         <InputComponent
-          type="password"
+          type={showPassword ? "text" : "password"}
           placeholder="Confirm New Password *"
           name="organisationConfirmPassword"
           value={organisationConfirmPassword}
@@ -122,13 +123,19 @@ const signUpPage = () => {
           onChange={handleInputChange}
         />
 
+        <div className="flex gap-3 w-full items-center my-3">
+          <input type="checkbox" onChange={() => setShowPassword(!showPassword)} className="w-4 h-4" />
+          <span className="text-foregroundColor text-sm hover:text-foregroundColor-2 hover:underline cursor-pointer pt-1">
+            {showPassword ? "Hide Passwords" : "Show Passwords"}
+          </span>
+        </div>
+
         <LoaderButton
           type="submit"
           buttonText="Reset Password"
           loadingButtonText="Reseting Password..."
           disabled={!organisationEmail || !organisationPassword || !organisationConfirmPassword}
-          buttonStyle="w-full"
-          isLoading={isLoading}
+                  isLoading={isLoading}
         />
       </form>
       <Link href="/signup" className="hover:text-foregroundColor-70 hover:underline">

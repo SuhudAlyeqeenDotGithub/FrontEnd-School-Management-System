@@ -574,8 +574,8 @@ const StaffContractDialog = ({
             />
             <InputComponent
               disabled={onViewMode}
-              title="Pay Frequency"
-              placeholder="Pay Frequency (e.g., Weekly, Monthly)"
+              title="Pay Frequency *"
+              placeholder="Pay Frequency (e.g., Weekly, Monthly) *"
               required
               name="payFrequency"
               value={payFrequency}

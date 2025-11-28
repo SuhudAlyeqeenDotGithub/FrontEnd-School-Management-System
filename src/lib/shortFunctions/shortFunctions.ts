@@ -17,10 +17,35 @@ export const checkDataType = (value: any) => {
   }
 };
 
-export const safeText = (value: any, length?: number) => {
+export const subscriptionErrors = [
+  "No Subscription Found",
+  "Your subscription has expired",
+  "Your freemium subscription has expired - visit billing/subscriptions to renew",
+  "No Billing Found for last month",
+  "Last month billing has not been paid - visit billing page to resolve this issue"
+];
+
+export const isExpired = (date: string | Date): boolean => {
+  const expiry = new Date(date).getTime();
+  const now = Date.now();
+
+  return expiry < now;
+};
+
+export const ownerMongoId = process.env.OWNER_MONGO_ID;
+export const safeText = (value: any, length?: number, returnType?: "string" | "number") => {
   if (value === null || value === undefined) return "";
   const str = String(value);
-  return length ? str.slice(0, length) : str;
+  const safeStr = length && str.length ? str.slice(0, length) : str;
+  return returnType === "number" ? Number(safeStr) : safeStr;
+};
+
+export const getDayDifferenceSafe = (dateA: string | Date, dateB: string | Date): number => {
+  const d1 = new Date(dateA).getTime();
+  const d2 = new Date(dateB).getTime();
+
+  const diffMs = Math.abs(d2 - d1);
+  return Number(diffMs / (1000 * 60 * 60 * 24)).toFixed(1);
 };
 
 export const formatDate = (dateStr: any) => {

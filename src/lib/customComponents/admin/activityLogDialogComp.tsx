@@ -1,15 +1,7 @@
 "use client";
 
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
-import {
-  InputComponent,
-  LoaderButton,
-  ContainerComponent,
-  ErrorDiv,
-  SelectInputComponent,
-  TextAreaComponent,
-  StatusFormatter
-} from "../general/compLibrary";
+import { ContainerComponent, StatusFormatter } from "../general/compLibrary";
 import { IoClose } from "react-icons/io5";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";

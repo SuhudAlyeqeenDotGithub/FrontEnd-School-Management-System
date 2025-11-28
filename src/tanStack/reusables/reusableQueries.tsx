@@ -2,6 +2,7 @@ import { useAppSelector } from "@/redux/hooks";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { tanFetchAny } from "./fetch";
+import { ownerMongoId } from "@/lib/shortFunctions/shortFunctions";
 
 const reusableQueries = () => {
   const { accountData } = useAppSelector((state: any) => state.accountData);
@@ -49,6 +50,8 @@ const reusableQueries = () => {
     return accountPermittedActions.includes(action);
   };
 
+  const isOwnerAccount = accountData.accountType === "Owner" && accountData._id === ownerMongoId;
+
   const useReusableQuery = (
     prefixKey: string,
     action: string,
@@ -58,7 +61,7 @@ const reusableQueries = () => {
     enable2: boolean = true,
     enable3: boolean = true
   ) => {
-    return useQuery<any[]>({
+    return useQuery<any>({
       queryKey: [prefixKey],
       queryFn: () => tanFetchAny(accountData, accountPermittedActions, action, url),
       enabled: Boolean(
@@ -107,7 +110,14 @@ const reusableQueries = () => {
     });
   };
 
-  return { useReusableQuery, useReusableInfiniteQuery, hasActionAccess, getMergedTabAccess, isAbsoluteAdmin };
+  return {
+    useReusableQuery,
+    useReusableInfiniteQuery,
+    hasActionAccess,
+    getMergedTabAccess,
+    isOwnerAccount,
+    isAbsoluteAdmin
+  };
 };
 
 export default reusableQueries;

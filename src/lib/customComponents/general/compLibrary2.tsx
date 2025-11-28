@@ -10,6 +10,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import reusableQueries from "@/tanStack/reusables/reusableQueries";
 
 export const DateRangePicker = ({
   onClose,
@@ -23,6 +24,11 @@ export const DateRangePicker = ({
   useEffect(() => {
     if (defaultDate === undefined) {
       setDate(undefined);
+    } else {
+      setDate({
+        from: defaultDate.from ? new Date(defaultDate.from) : undefined,
+        to: defaultDate.to ? new Date(defaultDate.to) : undefined
+      });
     }
   }, [defaultDate]);
 
@@ -37,8 +43,8 @@ export const DateRangePicker = ({
     setDate(range ? { from: range.from, to: range.to } : undefined);
     if (range?.from && range?.to) {
       const formattedRange = {
-        from: range.from.toISOString().split("T")[0],
-        to: range.to.toISOString().split("T")[0]
+        from: format(range.from, "yyyy-MM-dd"),
+        to: format(range.to, "yyyy-MM-dd")
       };
       onClose(formattedRange);
     }
@@ -51,7 +57,7 @@ export const DateRangePicker = ({
             <CalendarIcon className="mr-2 h-4 w-4 inline-block" />
             {date?.from && date?.to ? (
               <>
-                {format(date!.from, "dd MMM yyyy")} – {format(date!.to as Date, "dd MMM yyyy")}
+                {format(date!.from as Date, "dd MMM yyyy")} – {format(date!.to as Date, "dd MMM yyyy")}
               </>
             ) : (
               <span>Pick a date range</span>
@@ -268,23 +274,24 @@ export const ConfirmActionByInputDialog = ({
 };
 
 export const CustomFilterComponent = ({
-  includeDate,
   placeholder,
   filters,
   onQuery,
   currentQuery
 }: {
-  includeDate?: boolean;
   placeholder: string;
   filters: { displayText: string; fieldName: string; options: string[] }[];
   onQuery: (query: any) => void;
   currentQuery?: any;
 }) => {
+  const { isOwnerAccount } = reusableQueries();
   const [filterQuery, setFilterQuery] = useState<Record<string, string>>(currentQuery);
-  const [defaultDate, setDefaultDate] = useState<{ from: string | undefined; to: string | undefined } | undefined>(
-    undefined
-  );
+  const [defaultDate, setDefaultDate] = useState<{ from: string | undefined; to: string | undefined } | undefined>({
+    from: currentQuery?.from,
+    to: currentQuery?.to
+  });
   const { search } = filterQuery;
+  console.log("filterQuery", filterQuery);
   return (
     <div className="flex flex-col rounded-lg border border-borderColor bg-backgroundColor shadow my-4">
       <div className="bg-backgroundColor rounded-t-md w-full px-5 py-4 font-bold border-b border-borderColor flex justify-between items-center">
@@ -320,21 +327,25 @@ export const CustomFilterComponent = ({
           </span>
         </div>
         <div className="flex gap-3">
-          {filters.map((filter: any, index: number) => {
-            return (
-              <div key={index} className="flex flex-col gap-1">
-                <span className="text-foregroundColor-2 font-medium">{filter.displayText}</span>
-                <select
-                  className="bg-backgroundColor border border-borderColor shadow-xs rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full"
-                  value={filterQuery[filter.fieldName]}
-                  onChange={(e) => {
-                    setFilterQuery((prev: any) => ({ ...prev, [filter.fieldName]: e.target.value }));
-                  }}
-                >
-                  <option value="" disabled>
-                    {filter.displayText}
-                  </option>
-                  {filter.options.map((option: string, index: number) => {
+          {isOwnerAccount && filters.find((filter) => filter.fieldName === "organisationId") && (
+            <div key={"organisationId"} className="flex flex-col gap-1">
+              <span className="text-foregroundColor-2 font-medium">{"Organisation"}</span>
+              <select
+                className="bg-backgroundColor border border-borderColor shadow-xs rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full"
+                value={filterQuery["organisationId"]}
+                onChange={(e) => {
+                  setFilterQuery((prev: any) => ({
+                    ...prev,
+                    ["organisationId"]: e.target.value
+                  }));
+                }}
+              >
+                <option value="" disabled>
+                  {"Organisation"}
+                </option>
+                {filters
+                  .find((filter) => filter.fieldName === "organisationId")
+                  ?.options.map((option: string, index: number) => {
                     return (
                       <option
                         key={index}
@@ -345,12 +356,45 @@ export const CustomFilterComponent = ({
                       </option>
                     );
                   })}
-                </select>
-              </div>
-            );
-          })}
+              </select>
+            </div>
+          )}
+          {filters
+            .filter((filter) => filter.fieldName !== "organisationId")
+            .map((filter: any, index: number) => {
+              return (
+                <div key={index} className="flex flex-col gap-1">
+                  <span className="text-foregroundColor-2 font-medium">{filter.displayText}</span>
+                  <select
+                    className="bg-backgroundColor border border-borderColor shadow-xs rounded p-2 outline-none focus:border-b-3 focus:border-borderColor-3 w-full"
+                    value={filterQuery[filter.fieldName]}
+                    onChange={(e) => {
+                      setFilterQuery((prev: any) => ({
+                        ...prev,
+                        [filter.fieldName]: e.target.value
+                      }));
+                    }}
+                  >
+                    <option value="" disabled>
+                      {filter.displayText}
+                    </option>
+                    {filter.options.map((option: string, index: number) => {
+                      return (
+                        <option
+                          key={index}
+                          className="bg-backgroundColor text-foregroundColor"
+                          value={option === "All" ? option.toLowerCase() : option}
+                        >
+                          {option}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              );
+            })}
           <div className="flex flex-col gap-1">
-            <span className="text-foregroundColor-2 font-medium">Logged Between # & #</span>
+            <span className="text-foregroundColor-2 font-medium">Dates Between # & #</span>
             <DateRangePicker
               defaultDate={defaultDate}
               onClose={({ from, to }: { from: string | undefined; to: string | undefined }) => {
@@ -384,7 +428,7 @@ export const CustomFilterComponent = ({
               setDefaultDate(undefined);
               const copyQuery = { ...filterQuery };
               for (const key in copyQuery) {
-                copyQuery[key] = key !== "search" ? "all" : "";
+                copyQuery[key] = key !== "search" && key !== "from" && key !== "to" ? "all" : "";
               }
               setFilterQuery(copyQuery);
 

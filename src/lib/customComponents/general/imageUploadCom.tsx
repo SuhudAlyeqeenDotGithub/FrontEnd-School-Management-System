@@ -17,7 +17,8 @@ const ImageUploadDiv = ({
     publicUrl: string,
     imageFile: File | null,
     imageName: string,
-    imageType: string
+    imageType: string,
+    imageSize?: number
   ) => void;
 }) => {
   const [error, setError] = useState("");
@@ -32,8 +33,9 @@ const ImageUploadDiv = ({
     if (file) {
       setImageName(file.name);
       const localUrl = URL.createObjectURL(file);
+      const fileSize = file.size / (1024 * 1024 * 1024);
       setLocalPublicUrl(localUrl);
-      onUpload(true, localPublicUrl, file, file.name, file.type);
+      onUpload(true, localPublicUrl, file, file.name, file.type, fileSize);
     }
   };
   return (

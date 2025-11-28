@@ -551,7 +551,7 @@ const layout = ({ children }: { children: ReactNode }) => {
         </div>
       </div>
 
-      <div className="bg-backgroundColor-2 w-screen h-screen overflow-auto">
+      <div className="bg-gradient-to-l from-backgroundColor-2 to-[#0097a7]/2 w-screen h-screen overflow-auto">
         {error && (
           <ErrorDiv
             onClose={(close) => {

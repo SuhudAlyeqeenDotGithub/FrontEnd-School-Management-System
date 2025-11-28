@@ -327,8 +327,25 @@ export const ErrorDiv = ({ children, onClose }: { children: React.ReactNode; onC
   );
 };
 
-export const SuccessDiv = ({ children }: { children: React.ReactNode }) => {
-  return <div className="text-green-600 text-sm bg-green-50 border border-green-600 p-2 rounded">{children}</div>;
+export const SuccessDiv = ({
+  children,
+  onClose = () => {}
+}: {
+  children: React.ReactNode;
+  onClose?: (close: boolean) => void;
+}) => {
+  return (
+    <div className="text-green-600 text-sm bg-green-50 border border-green-600 p-2 rounded  flex gap-5 justify-between items-center">
+      {children}{" "}
+      <IoClose
+        title="Close"
+        className="hover:cursor-pointer"
+        onClick={() => {
+          onClose(true);
+        }}
+      />
+    </div>
+  );
 };
 
 export const LoaderDiv = ({
@@ -360,9 +377,21 @@ export const StatusFormatter = ({ text }: { text: string }) => {
     <span
       className={`
     px-2 py-1 rounded-full text-sm font-medium border border-borderColor
-    ${["completed", "active", "create", "new", "added"].includes(lowerText) ? "text-green-700 bg-green-100" : ""}
-      ${["in progress", "array change"].includes(lowerText) ? "text-yellow-700 bg-yellow-100" : ""}
-    ${["inactive", "closed", "cancelled", "locked", "deleted"].includes(lowerText) ? "text-red-700 bg-red-100" : ""}  ${
+    ${
+      ["completed", "active", "create", "new", "added", "paid", "billed"].includes(lowerText)
+        ? "text-green-700 bg-green-100"
+        : ""
+    }
+      ${
+        ["in progress", "array change", "pending", "not billed", "unpaid"].includes(lowerText)
+          ? "text-yellow-700 bg-yellow-100"
+          : ""
+      }
+    ${
+      ["inactive", "closed", "cancelled", "locked", "deleted", "failed"].includes(lowerText)
+        ? "text-red-700 bg-red-100"
+        : ""
+    }  ${
         lowerText.includes("update") ||
         lowerText.includes("edit") ||
         lowerText.includes("edition") ||

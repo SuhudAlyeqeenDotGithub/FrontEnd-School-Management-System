@@ -7,10 +7,11 @@ import { BASE_API_URL } from "../shortFunctions";
 import axios from "axios";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { handleApiRequest } from "@/axios/axiosClient";
+import socket from "./socket";
 
 const useWebSocketHandler = (onError?: (error: string) => void) => {
   const socketRef = useRef<any>(null);
-  const { hasActionAccess } = reusableQueries();
+  const { hasActionAccess, isOwnerAccount } = reusableQueries();
 
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const organisationId = accountData?.organisationId._id;
@@ -18,77 +19,149 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
   useEffect(() => {
     if (!organisationId) return;
 
-    socketRef.current = io(BASE_API_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-      reconnection: false
-    });
+    // CONNECT ---
+    socket.connect();
 
-    socketRef.current.on("connect", () => {
-      if (!organisationId) {
-        return;
-      }
+    // CONNECT EVENT ---
+    const onConnect = () => {
+      console.log("Connected to server");
 
-      // Join the organisation room
-      socketRef.current.emit("joinOrgRoom", {
+      socket.emit("joinOrgRoom", {
         organisationId,
         accountName: accountData?.accountName
       });
-    });
+    };
 
-    socketRef.current.on("disconnect", () => {});
+    socket.on("connect", onConnect);
 
-    socketRef.current.on("reconnect_attempt", (attemptNumber: number) => {});
+    //  DATABASE CHANGE EVENT ---
+    const onDatabaseChange = (change: any) => {
+      handleDataFetch(change);
+    };
 
-    socketRef.current.on("connect_error", async (error: any) => {
-      if (error.message == "Invalid token" || error.message == "No Cookies" || error.message == "No Access Token") {
+    socket.on("databaseChange", onDatabaseChange);
+
+    // TOKEN ERROR HANDLING ---
+    const onConnectError = async (error: any) => {
+      console.log("Socket connect error:", error.message);
+
+      if (error.message === "Invalid token" || error.message === "No Cookies" || error.message === "No Access Token") {
         try {
-          const refreshResponse = await axios.post(
+          const refresh = await axios.post(
             `${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/refreshaccesstoken`,
             {},
-            {
-              withCredentials: true
-            }
+            { withCredentials: true }
           );
-          if (refreshResponse.data) {
-            socketRef.current.connect();
+
+          if (refresh.data) {
+            socket.connect();
           }
         } catch (refreshErr: any) {
           const status = refreshErr.response?.status;
-          const unAuthorisedRefresh = status === 401 || status === 403;
+          const unauth = status === 401 || status === 403;
+
           try {
-            const response = await axios.get(`${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/signout`, {
+            const logout = await axios.get(`${BASE_API_URL}/alyeqeenschoolapp/api/orgaccount/signout`, {
               withCredentials: true
             });
-            if (response) {
-              if (unAuthorisedRefresh) window.location.href = "/signin";
+
+            if (logout) {
+              if (unauth) window.location.href = "/signin";
               throw refreshErr;
             }
-          } catch (error: any) {
+          } catch (e) {
             throw refreshErr;
           }
         }
       }
-    });
+    };
 
-    socketRef.current.on(
-      "databaseChange",
-      (change: { collection: string; fullDocument: any; changeOperation: string }) => {
-        handleDataFetch(change);
-      }
-    );
+    socket.on("connect_error", onConnectError);
 
+    // --- 5. CLEANUP ---
     return () => {
-      socketRef.current.disconnect();
+      socket.off("connect", onConnect);
+      socket.off("databaseChange", onDatabaseChange);
+      socket.off("connect_error", onConnectError);
+      socket.disconnect();
     };
   }, [organisationId]);
 
   const handleDataFetch = async (change: { collection: string; fullDocument: any; changeOperation: string }) => {
     const { collection, fullDocument, changeOperation } = change;
-    console.log("Received change:", change);
+    console.log("processing change:", change);
 
     const userIsAbsoluteAdmin = accountData.roleId.absoluteAdmin;
     try {
+      // handle subscription
+      if ((hasActionAccess("View Subscriptions") || userIsAbsoluteAdmin) && collection === "subscriptions") {
+        const queriesData = queryClient.getQueriesData({ queryKey: ["subscriptions"] });
+        if (queriesData.length === 0) return;
+
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queryClient.setQueryData(["subscriptions"], (subscription: any) => {
+            return { ...subscription, ...fullDocument };
+          });
+        }
+      }
+
+      // handle billing
+      if ((hasActionAccess("View Billings") || userIsAbsoluteAdmin) && collection === "billings") {
+        const queriesData = queryClient.getQueriesData({ queryKey: ["billings"] });
+        if (queriesData.length === 0) return;
+        if (changeOperation === "insert") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              ``;
+              queryClient.setQueryData(queryKey, (billings: any) => {
+                return [fullDocument, ...billings];
+              });
+            } else {
+              const pages = data.pages;
+
+              if (pages.length > 0) {
+                const firstPage = pages[0];
+                if (firstPage !== undefined) {
+                  const { billings: firstPageBillings } = firstPage;
+                  queryClient.setQueryData(queryKey, (queryData: any) => {
+                    const { pages: queryPages } = queryData;
+                    const returnArray = {
+                      ...queryData,
+                      pages: [{ ...firstPage, billings: [fullDocument, ...firstPageBillings] }, ...queryPages.slice(1)]
+                    };
+
+                    return returnArray;
+                  });
+                }
+              }
+            }
+          });
+        }
+        if (changeOperation === "update" || changeOperation === "replace") {
+          queriesData.forEach(([queryKey, data]: [any, any]) => {
+            if (queryKey.length === 1) {
+              queryClient.setQueryData(queryKey, (billings: any) => {
+                return billings.map((billing: any) => (billing._id === fullDocument._id ? fullDocument : billing));
+              });
+            } else {
+              queryClient.setQueryData(queryKey, (queryData: any) => {
+                const { pages: queryPages } = queryData;
+                const returnArray = {
+                  ...queryData,
+                  pages: queryPages.map((page: any) => ({
+                    ...page,
+                    billings: page.billings.map((billing: any) =>
+                      billing._id === fullDocument._id ? fullDocument : billing
+                    )
+                  }))
+                };
+
+                return returnArray;
+              });
+            }
+          });
+        }
+      }
       if ((hasActionAccess("View Roles") || userIsAbsoluteAdmin) && collection === "roles") {
         const changedRecordId = fullDocument._id;
         const userRoleId = accountData.roleId._id;

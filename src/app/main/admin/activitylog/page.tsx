@@ -197,42 +197,6 @@ const ActivityLog = () => {
             data={onOpenActivityLogDialogData}
           />
         )}
-        {openDisallowedDeleteDialog && (
-          <DisallowedActionDialog
-            warningText="This delete action is disallowed as it relates to the default Admin / organisation account"
-            onOk={() => {
-              document.body.style.overflow = "";
-              setOpenDisallowedDeleteDialog(false);
-              setError("");
-            }}
-          />
-        )}
-        {openConfirmDelete && (
-          <ConfirmActionByInputDialog
-            returnObject={confirmWithReturnObj}
-            confirmWithText={confirmWithText}
-            onCancel={() => {
-              document.body.style.overflow = "";
-              setOpenConfirmDelete(false);
-              setError("");
-            }}
-            onConfirm={async (confirmed, returnObject) => {
-              setError("");
-              if (confirmed) {
-                try {
-                  await deleteMutation.mutateAsync(returnObject);
-                } catch (err: any) {
-                  setError(err.message);
-                }
-              } else {
-                setError("An error occured while deleting - Please try again");
-              }
-              setOpenConfirmDelete(false);
-              document.body.style.overflow = "";
-            }}
-            warningText="Please confirm the ID of the activityLog you want to delete"
-          />
-        )}
         {/* data table div */}
         <div className="flex flex-col gap-4">
           <div className={tableTopStyle}>
@@ -388,7 +352,7 @@ const ActivityLog = () => {
                   ))}
 
                   <th className="hover:bg-backgroundColor-2 text-center font-semibold whitespace-nowrap text-foregroundColor p-2">
-                    Creator By
+                    Created By
                   </th>
                   <th className="hover:bg-backgroundColor-2 text-center font-semibold whitespace-nowrap text-foregroundColor p-2">
                     Created At

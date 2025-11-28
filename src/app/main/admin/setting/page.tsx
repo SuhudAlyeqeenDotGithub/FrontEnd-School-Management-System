@@ -16,6 +16,7 @@ import { defaultButtonStyle } from "@/lib/generalStyles";
 import { useNavigationHandler } from "@/lib/shortFunctions/clientFunctions.ts/clientFunctions";
 import { handleApiRequest } from "@/axios/axiosClient";
 import { updateSettings } from "@/redux/features/accounts/accountSlice";
+import { set } from "date-fns";
 
 const Setting = () => {
   const dispatch = useAppDispatch();
@@ -98,6 +99,7 @@ const Setting = () => {
         dispatch(updateSettings(settings));
         dispatch(setTriggerUnsavedDialog(false));
         setUnsaved(false);
+        setError("");
       }
     } catch (error: any) {
       setError(error.response?.data.message || error.message || "Error saving settings");

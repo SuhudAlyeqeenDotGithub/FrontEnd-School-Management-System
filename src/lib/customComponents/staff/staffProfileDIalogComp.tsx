@@ -53,7 +53,6 @@ const StaffProfileDialogComponent = ({
   const { getStaffImageViewSignedUrl } = useGeneralClientFunctions();
   const updateMutation = tanMutateAny("put", "alyeqeenschoolapp/api/staff/profile");
   const createMutation = tanMutateAny("post", "alyeqeenschoolapp/api/staff/profile");
-  const { accountData } = useAppSelector((state: any) => state.accountData);
   const [unsaved, setUnsaved] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageName, setImageName] = useState("");
@@ -346,7 +345,11 @@ const StaffProfileDialogComponent = ({
         if (imageName !== "") {
           try {
             const signedUrlParamData = { imageName: sanitizeStaffImageName(imageName), imageType };
-            const response = await handleApiRequest("post", `alyeqeenschoolapp/api/signedurl`, signedUrlParamData);
+            const response = await handleApiRequest(
+              "post",
+              `alyeqeenschoolapp/api/staffimageuploadsignedurl`,
+              signedUrlParamData
+            );
 
             if (response) {
               const { signedUrl, publicUrl, destination }: any = response.data;

@@ -11,7 +11,7 @@ import { validateEmail } from "@/lib/shortFunctions/shortFunctions";
 const signInPage = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { isLoading, isSuccess, isError, errorMessage } = useAppSelector((state) => state.accountData);
+  const { isLoading } = useAppSelector((state) => state.accountData);
   const [inputData, setInputData] = useState({
     email: "",
     password: ""

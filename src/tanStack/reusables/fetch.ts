@@ -16,6 +16,7 @@ export const tanFetchAny = async (accountData: any, permittedActions: string[], 
     const msg = `Unauthorized: You do not have access to ${action} - Please contact your admin`;
     throw new Error(msg);
   }
+
   const res = await handleApiRequest("get", url);
   const responseData = res?.data;
   if (responseData) {

@@ -23,11 +23,10 @@ import {
   validatePhoneNumber
 } from "../../shortFunctions/shortFunctions";
 import { YesNoDialog } from "../general/compLibrary";
-import { useAppSelector } from "@/redux/hooks";
 import ImageUploadDiv from "../general/imageUploadCom";
 import { handleApiRequest } from "@/axios/axiosClient";
 import axios from "axios";
-import { defaultButtonStyle, tabGroupButtonStyle } from "@/lib/generalStyles";
+import { defaultButtonStyle } from "@/lib/generalStyles";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { MdAdd } from "react-icons/md";
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
@@ -192,19 +191,11 @@ export const StudentProfileDialogComponent = ({
       studentQualification,
       identification,
       studentPostCode,
+      studentEmail,
+      studentPhone,
       studentEndDate,
       ...copyLocalData
     } = localData;
-
-    if (!validateEmail(studentEmail)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    if (!validatePhoneNumber(studentPhone)) {
-      setError("Please enter a valid phone number with the country code. e.g +234, +447");
-      return;
-    }
 
     for (const [key, value] of Object.entries(copyLocalData)) {
       if (!value || (typeof value === "string" && value.trim() === "")) {
@@ -591,8 +582,8 @@ export const StudentProfileDialogComponent = ({
 
               <InputComponent
                 disabled={onViewMode}
-                title="Phone *"
-                placeholder="Phone (+44787654321)*"
+                title="Phone"
+                placeholder="Phone (+44787654321)"
                 name="studentPhone"
                 value={studentPhone}
                 onChange={handleInputChange}
@@ -600,8 +591,8 @@ export const StudentProfileDialogComponent = ({
               <InputComponent
                 disabled={onViewMode}
                 autocomplete="on"
-                title="Email *"
-                placeholder="Email *"
+                title="Email"
+                placeholder="Email"
                 name="studentEmail"
                 value={studentEmail}
                 onChange={handleInputChange}
