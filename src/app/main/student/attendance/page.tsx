@@ -248,10 +248,10 @@ const StudentDayAttendances = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen text-center p-8">
         <div className=" flex flex-col items-center mb-5">
-          <div className="h-10 w-22">
+          <div className="h-20 w-45">
             <img src="/suhudlogo.png" className="h-full w-full" alt="Suhud Logo" />
           </div>
-          <p className="text-[18px] text-[#0097a7]  font-medium">School Management System</p>
+          <p className="text-[18px] text-[#0097a7]  font-medium">Management System</p>
         </div>
         <h1 className="text-4xl font-bold mb-4">Unauthorized Access</h1>
         <p className="mb-6">Oops! You do not have access to this page - Contact your admin if you need access</p>

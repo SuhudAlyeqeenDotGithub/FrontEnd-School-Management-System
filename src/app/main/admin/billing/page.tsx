@@ -74,6 +74,8 @@ const Billing = () => {
   const [limit, setLimit] = useState("10");
   const [queryParams, setQueryParams] = useState({});
   const [localSubscription, setLocalSubscription] = useState<any>({});
+  const [subscriptionCancelled, setSubscriptionCancelled] = useState(false);
+  const [subscriptionUpgraded, setSubscriptionUpgraded] = useState(false);
   const {
     subscriptionType,
     organisationId,
@@ -185,10 +187,10 @@ const Billing = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen text-center p-8">
         <div className=" flex flex-col items-center mb-5">
-          <div className="h-10 w-22">
+          <div className="h-20 w-45">
             <img src="/suhudlogo.png" className="h-full w-full" alt="Suhud Logo" />
           </div>
-          <p className="text-[18px] text-[#0097a7]  font-medium">School Management System</p>
+          <p className="text-[18px] text-[#0097a7]  font-medium">Management System</p>
         </div>
         <h1 className="text-4xl font-bold mb-4">Unauthorized Access</h1>
         <p className="mb-6">Oops! You do not have access to this page - Contact your admin if you need access</p>
@@ -245,9 +247,23 @@ const Billing = () => {
       const response = await handleApiRequest("post", `alyeqeenschoolapp/api/admin/billing/subscription/topremium`);
       if (response?.data) {
         setLocalSubscription(response?.data);
+        setSubscriptionCancelled(false);
+        setSubscriptionUpgraded(true);
+        false;
       }
     } catch (error: any) {
       setError(error.response?.data.message || error.message || "Error upgrading to premium");
+    }
+  };
+
+  const cancelSubscription = async () => {
+    try {
+      const response = await handleApiRequest("post", `alyeqeenschoolapp/api/admin/billing/subscription/cancel`);
+      if (response?.data) {
+        setSubscriptionCancelled(true);
+      }
+    } catch (error: any) {
+      setError(error.response?.data.message || error.message || "Error canceling subscription");
     }
   };
 
@@ -321,6 +337,22 @@ const Billing = () => {
 
   return (
     <div className="px-4 py-6 w-full">
+      {subscriptionCancelled && (
+        <DisallowedActionDialog
+          onOk={() => setSubscriptionCancelled(false)}
+          warningText="Your subscription has been cancelled"
+          p1="Please note that you will still be charged the regular cost for usages before the cancellation date."
+          p2="This will be on the 5th of next month"
+        />
+      )}
+      {subscriptionUpgraded && (
+        <DisallowedActionDialog
+          onOk={() => setSubscriptionUpgraded(false)}
+          warningText="You have successfully upgraded to premium"
+          p1="Your bill for this month will be charged on the 5th of the next month."
+          p2="For the meantime you can track your usage in Billing section of your admin dashboard"
+        />
+      )}
       <div className="flex flex-col">
         <div className={tableTopStyle}>
           {/* title */}
@@ -782,14 +814,15 @@ const Billing = () => {
 
                 {/* Action Buttons */}
                 <div className="flex gap-4 justify-center">
-                  {subscriptionType === "Freemium" && isExpired(freemiumEndDate) && (
-                    <button
-                      onClick={upgradeToPremium}
-                      className="px-4 py-3 rounded-md bg-emerald-600 hover:bg-emerald-600/80 hover:cursor-pointer text-backgroundColor shadow-xs whitespace-nowrap disabled:bg-backgroundColor-4 disabled:text-emerald-600/80 disabled:cursor-not-allowed"
-                    >
-                      Upgrade to Premium
-                    </button>
-                  )}
+                  {(subscriptionType === "Freemium" && isExpired(freemiumEndDate)) ||
+                    (subscriptionType === "Premium" && subscriptionStatus === "Inactive" && (
+                      <button
+                        onClick={upgradeToPremium}
+                        className="px-4 py-3 rounded-md bg-emerald-600 hover:bg-emerald-600/80 hover:cursor-pointer text-backgroundColor shadow-xs whitespace-nowrap disabled:bg-backgroundColor-4 disabled:text-emerald-600/80 disabled:cursor-not-allowed"
+                      >
+                        Upgrade to Premium
+                      </button>
+                    ))}
 
                   {subscriptionType === "Freemium" && !isExpired(freemiumEndDate) && (
                     <span className="bg-backgroundColor-3 font-medium shadow text-foregroundColor px-4 py-3 rounded-md">
@@ -798,7 +831,10 @@ const Billing = () => {
                     </span>
                   )}
                   {subscriptionType === "Premium" && subscriptionStatus === "Active" && (
-                    <button className="px-4 py-3 rounded-md bg-red-500 hover:bg-red-500/80 hover:cursor-pointer text-backgroundColor shadow-xs whitespace-nowrap disabled:bg-backgroundColor-4 disabled:text-red-500/80 disabled:cursor-not-allowed">
+                    <button
+                      onClick={cancelSubscription}
+                      className="px-4 py-3 rounded-md bg-red-500 hover:bg-red-500/80 hover:cursor-pointer text-backgroundColor shadow-xs whitespace-nowrap disabled:bg-backgroundColor-4 disabled:text-red-500/80 disabled:cursor-not-allowed"
+                    >
                       Cancel Subscription
                     </button>
                   )}

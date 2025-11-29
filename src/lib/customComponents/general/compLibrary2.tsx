@@ -72,11 +72,23 @@ export const DateRangePicker = ({
   );
 };
 
-export const DisallowedActionDialog = ({ onOk, warningText }: { onOk: () => void; warningText: string }) => {
+export const DisallowedActionDialog = ({
+  onOk,
+  warningText,
+  p1,
+  p2
+}: {
+  onOk: () => void;
+  warningText: string;
+  p1?: string;
+  p2?: string;
+}) => {
   return (
     <div className="w-[100%] h-[100%] bg-foregroundColor-transparent items-center justify-center z-30 flex fixed inset-0">
       <ContainerComponent style="min-w-[500px] max-h-[300px] z-50 flex flex-col bg-backgroundColor gap-5 items-center justify-center">
         <span>{warningText}</span>
+        <p>{p1}</p>
+        <p>{p2}</p>
         <div className="w-full flex justify-center px-30 items-center">
           <button onClick={onOk} className={defaultButtonStyle}>
             Ok
