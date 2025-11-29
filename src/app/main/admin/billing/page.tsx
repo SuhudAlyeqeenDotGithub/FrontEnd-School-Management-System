@@ -756,7 +756,13 @@ const Billing = () => {
                     )}
                     <div>
                       <p className="text-sm text-foregroundColor-2 mb-2">Status</p>
-                      <StatusFormatter text={subscriptionStatus} />
+                      <StatusFormatter
+                        text={
+                          subscriptionType === "Freemium" && isExpired(freemiumEndDate)
+                            ? "Inactive"
+                            : subscriptionStatus
+                        }
+                      />
                     </div>
                   </div>
                 </div>
@@ -785,7 +791,7 @@ const Billing = () => {
                     </button>
                   )}
 
-                  {subscriptionType === "Freemium" && (
+                  {subscriptionType === "Freemium" && !isExpired(freemiumEndDate) && (
                     <span className="bg-backgroundColor-3 font-medium shadow text-foregroundColor px-4 py-3 rounded-md">
                       You have {getDayDifferenceSafe(freemiumEndDate, new Date())} day(s) left till your Freemium period
                       ends

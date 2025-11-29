@@ -310,10 +310,10 @@ const layout = ({ children }: { children: ReactNode }) => {
         <div className="flex flex-col bg-backgroundColor sticky top-0 z-20">
           <div className="flex w-full justify-between items-center px-2 py-3">
             <div className=" flex flex-col justify-center w-full h-full ml-2">
-              <div className="h-8 w-19">
+              <div className="h-14 w-29">
                 <img src="/suhudlogo.png" className="h-full w-full" alt="Suhud Logo" />
               </div>
-              <p className="text-[13px] text-[#0097a7]  font-medium">School Management System</p>
+              <p className="text-[13px] text-[#0097a7]  font-medium">Management System</p>
             </div>
 
             {/* side bar toggle */}
@@ -437,14 +437,14 @@ const layout = ({ children }: { children: ReactNode }) => {
       {/* collapsed side bar */}
       <div
         hidden={openSideBar}
-        className="flex flex-col pb-4 border-r border-borderColor min-w-[150px] bg-backgroundColor h-screen relative"
+        className="flex flex-col pb-4 border-r border-borderColor min-w-[165px] bg-backgroundColor h-screen relative"
       >
         {/* top side bar */}
         <div className="sticky top-0 z-20">
           <div className="flex flex-col items-center justify-center gap-5 p-3 bg-backgroundColor">
             <div className="flex w-full justify-between">
               <div className=" flex flex-col justify-center w-full h-full ml-2">
-                <div className="h-8 w-19">
+                <div className="h-14 w-29">
                   <img src="/suhudlogo.png" className="h-full w-full" alt="Suhud Logo" />
                 </div>
               </div>
