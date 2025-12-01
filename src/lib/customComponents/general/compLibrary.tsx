@@ -414,6 +414,31 @@ export const StatusFormatter = ({ text }: { text: string }) => {
   );
 };
 
+export const CustomBadge = ({
+  children,
+  variant = "default"
+}: {
+  children: React.ReactNode;
+  variant?: "success" | "warning" | "danger" | "default" | "info" | "mandatory";
+}) => {
+  const variants = {
+    success: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    warning: "bg-amber-100 text-amber-800 border-amber-200",
+    danger: "bg-rose-100 text-rose-800 border-rose-200",
+    info: "bg-blue-100 text-blue-800 border-blue-200",
+    default: "bg-slate-100 text-slate-800 border-slate-200",
+    mandatory: "bg-purple-100 text-purple-800 border-purple-200"
+  };
+
+  return (
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${variants[variant]}`}
+    >
+      {children}
+    </span>
+  );
+};
+
 export const LoaderButton = ({
   type = "button",
   buttonText,

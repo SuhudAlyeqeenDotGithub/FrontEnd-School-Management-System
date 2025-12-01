@@ -22,6 +22,11 @@ export const allTabs = [
     ]
   },
   {
+    tab: "Features",
+    group: "Administration",
+    actions: [{ action: "Update Features", permission: true }]
+  },
+  {
     tab: "Activity Log",
     group: "Administration",
     actions: [

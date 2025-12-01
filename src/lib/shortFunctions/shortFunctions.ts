@@ -4,6 +4,43 @@ import parsePhoneNumberFromString from "libphonenumber-js";
 import { customAlphabet } from "nanoid";
 
 export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
+export const getDollarNairaRate = Number(process.env.NEXT_PUBLIC_DOLLAR_NAIRA);
+export const getDollarPoundsRate = Number(process.env.NEXT_PUBLIC_DOLLAR_POUNDS);
+export const ownerMongoId = process.env.NEXT_PUBLIC_OWNER_MONGO_ID;
+
+export const dollarToDollar = (dollar: number) => {
+  if (!dollar) return 0;
+  return Number(dollar.toFixed(2));
+};
+export const dollarToNaira = (dollar: number, rate: number) => {
+  if (!dollar) return 0;
+  return Number((dollar * rate).toFixed(2));
+};
+export const dollarToPounds = (dollar: number, rate: number) => {
+  if (!dollar) return 0;
+  return Number((dollar * rate).toFixed(2));
+};
+
+export const makeHumanReadable = (amount: number, currency: "USD" | "NGN" | "GBP") => {
+  const nairaResult =
+    "₦" +
+    amount
+      .toLocaleString(undefined, {
+        style: "currency",
+        currency,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })
+      .split("NGN")[1];
+  return currency === "NGN"
+    ? nairaResult
+    : amount.toLocaleString(undefined, {
+        style: "currency",
+        currency,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+};
 
 export const checkDataType = (value: any) => {
   if (Array.isArray(value)) {
@@ -32,15 +69,14 @@ export const isExpired = (date: string | Date): boolean => {
   return expiry < now;
 };
 
-export const ownerMongoId = process.env.OWNER_MONGO_ID;
 export const safeText = (value: any, length?: number, returnType?: "string" | "number") => {
-  if (value === null || value === undefined) return "";
+  if (value === null || value === undefined) return "null";
   const str = String(value);
   const safeStr = length && str.length ? str.slice(0, length) : str;
   return returnType === "number" ? Number(safeStr) : safeStr;
 };
 
-export const getDayDifferenceSafe = (dateA: string | Date, dateB: string | Date): number => {
+export const getDayDifferenceSafe = (dateA: string | Date, dateB: string | Date): string => {
   const d1 = new Date(dateA).getTime();
   const d2 = new Date(dateB).getTime();
 

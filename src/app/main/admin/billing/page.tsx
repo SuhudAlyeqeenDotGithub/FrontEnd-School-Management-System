@@ -1,5 +1,14 @@
 "use client";
-import { checkDataType, getDayDifferenceSafe, isExpired, safeText } from "@/lib/shortFunctions/shortFunctions";
+import {
+  checkDataType,
+  dollarToDollar,
+  dollarToNaira,
+  dollarToPounds,
+  getDayDifferenceSafe,
+  isExpired,
+  makeHumanReadable,
+  safeText
+} from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { use, useEffect, useState } from "react";
 import {
@@ -76,6 +85,8 @@ const Billing = () => {
   const [localSubscription, setLocalSubscription] = useState<any>({});
   const [subscriptionCancelled, setSubscriptionCancelled] = useState(false);
   const [subscriptionUpgraded, setSubscriptionUpgraded] = useState(false);
+  const [transactionInitiated, setTransactionInitiated] = useState(false);
+  const [authorizationUrl, setAuthorizationUrl] = useState("");
   const {
     subscriptionType,
     organisationId,
@@ -229,19 +240,6 @@ const Billing = () => {
     );
   }
 
-  const dollarToDollar = (dollar: number) => {
-    if (!dollar) return 0;
-    return Number(dollar.toFixed(2));
-  };
-  const dollarToNaira = (dollar: number, rate: number) => {
-    if (!dollar) return 0;
-    return Number((dollar * rate).toFixed(2));
-  };
-  const dollarToPounds = (dollar: number, rate: number) => {
-    if (!dollar) return 0;
-    return Number((dollar * rate).toFixed(2));
-  };
-
   const upgradeToPremium = async () => {
     try {
       const response = await handleApiRequest("post", `alyeqeenschoolapp/api/admin/billing/subscription/topremium`);
@@ -265,27 +263,6 @@ const Billing = () => {
     } catch (error: any) {
       setError(error.response?.data.message || error.message || "Error canceling subscription");
     }
-  };
-
-  const makeHumanReadable = (amount: number, currency: "USD" | "NGN" | "GBP") => {
-    const nairaResult =
-      "₦" +
-      amount
-        .toLocaleString(undefined, {
-          style: "currency",
-          currency,
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        })
-        .split("NGN")[1];
-    return currency === "NGN"
-      ? nairaResult
-      : amount.toLocaleString(undefined, {
-          style: "currency",
-          currency,
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        });
   };
 
   const features = [
@@ -366,7 +343,15 @@ const Billing = () => {
             </CustomHeading>
           </div>
         </div>
-
+        {transactionInitiated && authorizationUrl && (
+          <div className="text-green-500 bg-green-50 border border-green-600 p-2 rounded">
+            Transaction Initiated. You will be redirected. You can also click
+            <a href={authorizationUrl} target="_blank" rel="noopener noreferrer">
+              {authorizationUrl}
+            </a>{" "}
+            to complete the payment.
+          </div>
+        )}
         {/* Section Tabs */}
         <div className="mb-6 bg-backgroundColor rounded-xl shadow-xs border border-borderColor-2 p-2 mt-5">
           <div className="flex gap-2">
@@ -579,7 +564,34 @@ const Billing = () => {
               >
                 Prepare Last Bills
               </button>
+              <button
+                hidden={!isOwnerAccount}
+                onClick={async () => {
+                  const response = await handleApiRequest(
+                    "post",
+                    "alyeqeenschoolapp/api/admin/billing/initializefirstcharge",
+                    {
+                      email: "suhudalyeqeenapp@gmail.com",
+                      amount: 200
+                    }
+                  );
+
+                  if (response?.data) {
+                    const { authorization_url } = response?.data?.data;
+                    setTransactionInitiated(true);
+                    setAuthorizationUrl(authorization_url);
+
+                    setTimeout(() => {
+                      window.open(authorization_url, "_blank");
+                    }, 1000);
+                  }
+                }}
+                className={defaultButtonStyle}
+              >
+                Simulate First Charge
+              </button>
             </div>
+
             {/* table body */}
             <div className={tableContainerStyle}>
               {/* table header */}
@@ -655,6 +667,8 @@ const Billing = () => {
                         dollarToPoundsRate
                       } = doc || {};
 
+                      const { accountName, _id } = organisationId || {};
+
                       return (
                         <tr
                           key={billingId}
@@ -670,11 +684,10 @@ const Billing = () => {
                           className="hover:bg-backgroundColor-2 hover:cursor-pointer border-y border-borderColor-2 h-22 p-7"
                         >
                           <td className="w-[270px] text-center px-3 whitespace-nowrap">
-                            <div className="font-semibold text-foregroundColor">
-                              {safeText(organisationId?.accountName)}
-                            </div>
-                            <div className="text-[14px] text-foregroundColor-2">{safeText(organisationId?._id)}</div>
+                            <div className="font-semibold text-foregroundColor">{safeText(accountName)}</div>
+                            <div className="text-[14px] text-foregroundColor-2">{safeText(_id)}</div>
                           </td>
+
                           <td className="w-[150px] text-center px-3 whitespace-nowrap font-medium">
                             {safeText(billingId)}
                           </td>

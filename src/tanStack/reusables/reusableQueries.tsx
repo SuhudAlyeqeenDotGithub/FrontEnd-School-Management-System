@@ -36,6 +36,8 @@ const reusableQueries = () => {
 
   const isAbsoluteAdmin = accountData.roleId.absoluteAdmin;
 
+  const features = accountData.organisationId.features;
+
   const accountPermittedActions = groupTabs
     .map((tab: any) => {
       return tab.actions.filter(({ permission }: any) => permission === true);
@@ -116,7 +118,8 @@ const reusableQueries = () => {
     hasActionAccess,
     getMergedTabAccess,
     isOwnerAccount,
-    isAbsoluteAdmin
+    isAbsoluteAdmin,
+    orgFeatures: features
   };
 };
 

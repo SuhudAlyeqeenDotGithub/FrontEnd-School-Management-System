@@ -60,9 +60,9 @@ import {
   UserRoundCheck,
   User,
   CalendarSync,
-  CalendarRange
+  CalendarRange,
+  Puzzle
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 
 const layout = ({ children }: { children: ReactNode }) => {
@@ -173,6 +173,7 @@ const layout = ({ children }: { children: ReactNode }) => {
     "/main/admin/roles": "Administration",
     "/main/admin/activitylog": "Administration",
     "/main/admin/billing": "Administration",
+    "/main/admin/features": "Administration",
     "/main/curriculum": "Curriculum",
     "/main/curriculum/academicsession": "Curriculum",
     "/main/curriculum/programme": "Curriculum",
@@ -210,6 +211,7 @@ const layout = ({ children }: { children: ReactNode }) => {
     "Activity Log": "/main/admin/activitylog",
     Billing: "/main/admin/billing",
     Setting: "/main/admin/setting",
+    Features: "/main/admin/features",
     Student: "/main/student/profile",
     "Academic Session": "/main/curriculum/academicsession",
     "Learning Plan": "/main/curriculum/learningplan",
@@ -254,7 +256,8 @@ const layout = ({ children }: { children: ReactNode }) => {
     Billing: Receipt,
     "Activity Log": Activity,
     Setting: Wrench,
-    Event: CalendarRange
+    Event: CalendarRange,
+    Features: Puzzle
   };
 
   const profileDialog = (
@@ -310,7 +313,7 @@ const layout = ({ children }: { children: ReactNode }) => {
         <div className="flex flex-col bg-backgroundColor sticky top-0 z-20">
           <div className="flex w-full justify-between items-center px-2 py-3">
             <div className=" flex flex-col justify-center w-full h-full ml-2">
-              <div className="h-14 w-29">
+              <div className="h-14 w-32">
                 <img src="/suhudlogo.png" className="h-full w-full" alt="Suhud Logo" />
               </div>
               <p className="text-[13px] text-[#0097a7]  font-medium">Management System</p>
@@ -444,7 +447,7 @@ const layout = ({ children }: { children: ReactNode }) => {
           <div className="flex flex-col items-center justify-center gap-5 p-3 bg-backgroundColor">
             <div className="flex w-full justify-between">
               <div className=" flex flex-col justify-center w-full h-full ml-2">
-                <div className="h-14 w-29">
+                <div className="h-12 w-29">
                   <img src="/suhudlogo.png" className="h-full w-full" alt="Suhud Logo" />
                 </div>
               </div>

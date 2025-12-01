@@ -110,32 +110,38 @@ const useWebSocketHandler = (onError?: (error: string) => void) => {
         const queriesData = queryClient.getQueriesData({ queryKey: ["billings"] });
         if (queriesData.length === 0) return;
         if (changeOperation === "insert") {
-          queriesData.forEach(([queryKey, data]: [any, any]) => {
-            if (queryKey.length === 1) {
-              ``;
-              queryClient.setQueryData(queryKey, (billings: any) => {
-                return [fullDocument, ...billings];
-              });
-            } else {
-              const pages = data.pages;
+          try {
+            const response = await handleApiRequest("get", "alyeqeenschoolapp/api/admin/organisation");
+            if (response?.data) {
+              queriesData.forEach(([queryKey, data]: [any, any]) => {
+                const pages = data.pages;
 
-              if (pages.length > 0) {
-                const firstPage = pages[0];
-                if (firstPage !== undefined) {
-                  const { billings: firstPageBillings } = firstPage;
-                  queryClient.setQueryData(queryKey, (queryData: any) => {
-                    const { pages: queryPages } = queryData;
-                    const returnArray = {
-                      ...queryData,
-                      pages: [{ ...firstPage, billings: [fullDocument, ...firstPageBillings] }, ...queryPages.slice(1)]
-                    };
+                if (pages.length > 0) {
+                  const firstPage = pages[0];
+                  if (firstPage !== undefined) {
+                    const { billings: firstPageBillings } = firstPage;
+                    queryClient.setQueryData(queryKey, (queryData: any) => {
+                      const { pages: queryPages } = queryData;
+                      const returnArray = {
+                        ...queryData,
+                        pages: [
+                          {
+                            ...firstPage,
+                            billings: [{ ...fullDocument, organisationId: response.data }, ...firstPageBillings]
+                          },
+                          ...queryPages.slice(1)
+                        ]
+                      };
 
-                    return returnArray;
-                  });
+                      return returnArray;
+                    });
+                  }
                 }
-              }
+              });
             }
-          });
+          } catch (error: any) {
+            throw new Error(error.response?.data.message || error.message || "Error fetching activity logs");
+          }
         }
         if (changeOperation === "update" || changeOperation === "replace") {
           queriesData.forEach(([queryKey, data]: [any, any]) => {

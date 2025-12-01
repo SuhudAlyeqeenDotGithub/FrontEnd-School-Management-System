@@ -59,7 +59,9 @@ export const handleApiRequest = async (method: "get" | "post" | "put" | "delete"
       }
     }
 
-    if (subscriptionErrors.includes(err.response?.data.message)) window.location.href = "/invalidsubscription";
+    if (subscriptionErrors.includes(err.response?.data.message)) {
+      window.location.href = "/invalidsubscription";
+    }
     throw err;
   }
 };
