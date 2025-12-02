@@ -8,35 +8,91 @@ const reusableQueries = () => {
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const queryClient = useQueryClient();
 
-  // return group with access of true
+  const tab_GroupMap = {
+    Home: "Home",
+
+    // Administration
+    "Roles & Permission": "Administration",
+    Users: "Administration",
+    "Activity Log": "Administration",
+    Billing: "Administration",
+    Setting: "Administration",
+    Features: "Administration",
+
+    // Curriculum
+    "Academic Session": "Curriculum",
+    "Learning Plan": "Curriculum",
+    Programme: "Curriculum",
+    Course: "Curriculum",
+    Level: "Curriculum",
+    Subject: "Curriculum",
+    Period: "Curriculum",
+    Event: "Curriculum",
+
+    // Student
+    "Student Attendance": "Student",
+    "Student Profile": "Student",
+    "Student Enrollment": "Student",
+
+    // Staff
+    "Staff Profile": "Staff",
+    "Staff Contract": "Staff"
+  };
+  // get features purchased by organisation
+  const features = accountData.organisationId.features;
+  // get the tabs included in all features
+  const allowedTabsFromFeatures = features?.flatMap((feature: any) => feature.tabs);
+  // get the groups included in all features by mapping the tabs
+  const allowedGroupsFromFeatures = allowedTabsFromFeatures?.map(
+    (tab: any) => tab_GroupMap[tab as keyof typeof tab_GroupMap]
+  );
+
+  // get tab access which is an array of group objects each of which is a container for their own tabs - got through role
   const assignedTabAccess = accountData.roleId.tabAccess;
 
+  // get all uniquely assigned tabs for each user
   const uniqueTabs = accountData.uniqueTabAccess;
 
+  // extract the groups of unique tabs
   const uniqueTabsGroups = uniqueTabs.map((tab: any) => tab.group);
 
-  const assignedTabAccessGroups = assignedTabAccess.map((group: any) => group.group);
+  // extract the groups from tab access - got through role
+  const assignedTabAccessGroups = assignedTabAccess?.map((group: any) => group.group);
 
+  // get all unique groups from both
   const allUniqueTabsGroup = Array.from(new Set([...uniqueTabsGroups, ...assignedTabAccessGroups]));
 
-  const mergedTabAccess = allUniqueTabsGroup.map((group) => {
+  let mergedTabAccess = allUniqueTabsGroup.map((group) => {
+    // find group object that matches string in assigned through role tab access
     const groupObject = assignedTabAccess.find((groupObj: any) => groupObj.group === group);
+
+    // if group object does not exist in assigned through role tab access
+    //  we return a group object with the tabs from unique tabs
     if (!groupObject) {
       return {
         group,
-        tabs: uniqueTabs.filter((tab: any) => tab.group === group)
+        tabs: uniqueTabs?.filter((tab: any) => tab.group === group)
       };
-    } else {
-      return { ...groupObject, tabs: [...groupObject.tabs, ...uniqueTabs.filter((tab: any) => tab.group === group)] };
+    }
+    // if found we reconstruct a group object merging the tab objects from assigned through role tab access and unique tabs
+    else {
+      return {
+        ...groupObject,
+        tabs: [
+          ...groupObject.tabs.filter((tab: any) => allowedTabsFromFeatures?.includes(tab.tab)),
+          ...uniqueTabs.filter((tab: any) => tab.group === group && allowedTabsFromFeatures?.includes(tab.tab))
+        ]
+      };
     }
   });
+
+  // filter out group that is not included in features
+  mergedTabAccess = mergedTabAccess.filter((group: any) => allowedGroupsFromFeatures?.includes(group.group));
 
   // all tabs of each group with access of true
   const groupTabs = mergedTabAccess.flatMap((group: any) => group.tabs);
 
   const isAbsoluteAdmin = accountData.roleId.absoluteAdmin;
-
-  const features = accountData.organisationId.features;
 
   const accountPermittedActions = groupTabs
     .map((tab: any) => {

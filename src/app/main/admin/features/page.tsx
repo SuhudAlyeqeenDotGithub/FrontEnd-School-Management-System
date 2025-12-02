@@ -351,6 +351,19 @@ const Features = () => {
                 <h3 className="text-lg font-bold text-slate-900 mb-2">{feature.name}</h3>
                 <p className="text-sm text-slate-600 mb-4 line-clamp-2">{feature.description}</p>
 
+                {feature.tabs.length > 0 && (
+                  <div className="mb-5">
+                    <p className="text-xs text-slate-500 mb-2">Included Tabs:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {feature.tabs.map((tab: string) => (
+                        <CustomBadge key={tab} variant="info">
+                          {tab}
+                        </CustomBadge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   <div className="flex items-baseline gap-2">
                     <p className="text-2xl font-bold text-indigo-600">{makeHumanReadable(feature.price, "USD")}</p>
@@ -382,7 +395,7 @@ const Features = () => {
                       {feature.requirements.map((requiredFeature: any) => {
                         return (
                           requiredFeature && (
-                            <CustomBadge key={requiredFeature} variant="info">
+                            <CustomBadge key={requiredFeature} variant="danger">
                               {requiredFeature}
                             </CustomBadge>
                           )

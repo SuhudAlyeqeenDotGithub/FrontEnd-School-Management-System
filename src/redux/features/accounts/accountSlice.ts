@@ -25,6 +25,7 @@ const initialState: OrgState = {
       foregroundColor: ""
     },
     settings: {},
+    features: [],
     uniqueTabAccess: [],
     roleId: {
       tabAccess: [],

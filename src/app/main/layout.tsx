@@ -212,7 +212,6 @@ const layout = ({ children }: { children: ReactNode }) => {
     Billing: "/main/admin/billing",
     Setting: "/main/admin/setting",
     Features: "/main/admin/features",
-    Student: "/main/student/profile",
     "Academic Session": "/main/curriculum/academicsession",
     "Learning Plan": "/main/curriculum/learningplan",
     Programme: "/main/curriculum/programme",

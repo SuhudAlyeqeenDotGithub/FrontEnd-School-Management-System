@@ -44,6 +44,7 @@ export interface AccountType {
   accountPhone: string;
   organisationId: any;
   settings: any;
+  features: [];
   uniqueTabAccess: [];
   themes: {
     backgroundColor: string;
