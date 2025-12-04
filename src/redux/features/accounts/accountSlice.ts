@@ -52,6 +52,9 @@ export const orgAccountSlice = createSlice({
     },
     updateSettings: (state, action) => {
       state.accountData.settings = action.payload;
+    },
+    updateOrgInAccount: (state, action) => {
+      state.accountData.organisationId = action.payload;
     }
   },
 
@@ -124,5 +127,5 @@ export const orgAccountSlice = createSlice({
   }
 });
 
-export const { resetAccount, updateSettings } = orgAccountSlice.actions;
+export const { resetAccount, updateSettings, updateOrgInAccount } = orgAccountSlice.actions;
 export default orgAccountSlice.reducer;

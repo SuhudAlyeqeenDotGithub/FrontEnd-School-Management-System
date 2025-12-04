@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export default function middleware(req: NextRequest) {
+export default function proxy(req: NextRequest) {
   const refreshToken = req.cookies.get("refreshToken")?.value;
   const { pathname } = req.nextUrl;
 

@@ -387,7 +387,9 @@ const StudentSubjectAttendanceDialog = ({
             enrolledStudents: relevantStudents
           }));
         } else if (relevantStudents.length === 0) {
-          setError("No relevant enrolled student records found for the selected course, level and academic year");
+          setError(
+            "No relevant enrolled student records found for the selected course, level and academic year - Ensure all selected criteria matches"
+          );
         }
       } catch (err: any) {
         setError(err.response.data.message || err.message || "Error loading relevant enrolled student records");

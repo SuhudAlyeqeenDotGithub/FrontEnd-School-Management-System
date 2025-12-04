@@ -64,43 +64,20 @@ import {
   Puzzle,
   Check
 } from "lucide-react";
-import { formatDate } from "@/lib/shortFunctions/shortFunctions";
-import { DisallowedActionDialog, ConfirmActionByInputDialog } from "@/lib/customComponents/general/compLibrary2";
-import {
-  defaultButtonStyle,
-  sortableTableHeadCellStyle,
-  tableCellStyle,
-  tableContainerStyle,
-  tableHeadCellStyle,
-  tableHeaderStyle,
-  tableRowStyle,
-  tableTopStyle
-} from "@/lib/generalStyles";
-import { MdAdd, MdContentCopy } from "react-icons/md";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
-import { useReusableMutations } from "@/tanStack/reusables/mutations";
+import { FeatureDialog } from "@/lib/customComponents/admin/featuresDialog";
 const Features = () => {
   const { useReusableQuery, hasActionAccess, orgFeatures } = reusableQueries();
-  const { tanMutateAny } = useReusableMutations();
-  const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/admin/features");
   const { accountData } = useAppSelector((state) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
   const [error, setError] = useState("");
   const [searchValue, setSearchValue] = useState("");
-  const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const [openEditRoleDialog, setOpenEditRoleDialog] = useState(false);
-  const [openNewRoleDialog, setOpenNewRoleDialog] = useState(false);
-  const [openViewRoleDialog, setOpenViewRoleDialog] = useState(false);
-  const [onOpenRoleData, setOnOpenRoleData] = useState<any>({});
-  const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
-  const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
-  const [confirmWithText, setConfirmWithText] = useState("");
-  const [confirmWithReturnObj, setConfirmWithReturnObj] = useState({});
+  const [openFeatureDialog, setOpenFeatureDialog] = useState(false);
+  const [selectedFeature, setSelectedFeature] = useState({});
 
   const {
     data: features,
     isPending,
-    isFetching,
     isError,
     error: featuresError
   } = useReusableQuery("features", "View Roles", "alyeqeenschoolapp/api/admin/features");
@@ -220,79 +197,15 @@ const Features = () => {
 
       {/* data table section */}
       <div className="">
-        {/* {openEditRoleDialog && (
-          <div className="fixed flex z-30 items-center justify-center inset-0 bg-foregroundColor-transparent">
-            <RoleDialog
-              type="edit"
-              data={onOpenRoleData}
-              onClose={(open: boolean) => {
-                document.body.style.overflow = "";
-                setOpenEditRoleDialog(!open);
-                return {};
-              }}
-              onSave={(notSave) => {
-                document.body.style.overflow = "";
-                setOpenEditRoleDialog(!notSave);
-                return {};
-              }}
-            />
-          </div>
-        )}
-        {openNewRoleDialog && (
-          <div className="fixed flex z-30 items-center justify-center inset-0 bg-foregroundColor-transparent">
-            <RoleDialog
-              type="new"
-              onClose={(open: boolean) => {
-                document.body.style.overflow = "";
-                setOpenNewRoleDialog(!open);
-              }}
-              onSave={(notSave) => {
-                document.body.style.overflow = "";
-                setOpenNewRoleDialog(!notSave);
-              }}
-            />
-          </div>
-        )}
-        {openViewRoleDialog && (
-          <div className="fixed flex z-30 items-center justify-center inset-0 bg-foregroundColor-transparent">
-            <RoleDialog
-              type="view"
-              data={onOpenRoleData}
-              onClose={(open: boolean) => {
-                document.body.style.overflow = "";
-                setOpenViewRoleDialog(!open);
-              }}
-              onSave={(notSave) => {
-                document.body.style.overflow = "";
-                setOpenViewRoleDialog(!notSave);
-              }}
-            />
-          </div>
-        )} */}
-        {openConfirmDelete && (
-          <ConfirmActionByInputDialog
-            returnObject={confirmWithReturnObj}
-            confirmWithText={confirmWithText}
-            onCancel={() => {
-              document.body.style.overflow = "";
-              setOpenConfirmDelete(false);
-              setError("");
-            }}
-            onConfirm={async (confirmed, returnObject) => {
-              setError("");
-              if (confirmed) {
-                try {
-                  const response = await deleteMutation.mutateAsync(returnObject);
-                } catch (err: any) {
-                  setError(err.message);
-                }
-              } else {
-                setError("An error occured while deleting - Please try again");
-              }
-              setOpenConfirmDelete(false);
-              document.body.style.overflow = "";
-            }}
-            warningText="Please confirm the ID of the feature you want to delete"
+        {openFeatureDialog && (
+          <FeatureDialog
+            isOpen={openFeatureDialog}
+            onClose={() => setOpenFeatureDialog(false)}
+            title="Feature"
+            selectedFeature={selectedFeature}
+            size="large"
+            allFeatures={features}
+            feature_IconMap={feature_IconMap}
           />
         )}
         {/* table header */}
@@ -314,14 +227,13 @@ const Features = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-auto h-[calc(100vh-250px)] pr-5">
           {localData.map((feature: any) => {
             const isAdded = feature.mandatory || orgFeatures.some((f: any) => f._id === feature._id);
-
+            const isPurchased = orgFeatures.some((f: any) => f._id === feature._id);
             return (
               <div
                 key={feature._id}
                 onClick={() => {
-                  if (feature.mandatory) return;
-
-                  alert("Yh you just purchased");
+                  setSelectedFeature(feature);
+                  setOpenFeatureDialog(true);
                 }}
                 className={`rounded-xl border-2 p-6 cursor-pointer transition-all hover:shadow-lg ${
                   isAdded ? "border-indigo-300 bg-indigo-50/70" : "border-slate-200 hover:border-indigo-200 bg-white"
@@ -334,10 +246,16 @@ const Features = () => {
                       className="h-6 w-6 text-indigo-600"
                     />
                   </div>
-                  {isAdded && (
+                  {feature.mandatory && (
                     <CustomBadge variant="success">
                       <Check className="h-3 w-3 mr-1" />
                       Added
+                    </CustomBadge>
+                  )}
+                  {isPurchased && !feature.mandatory && (
+                    <CustomBadge variant="success">
+                      <Check className="h-3 w-3 mr-1" />
+                      Purchased
                     </CustomBadge>
                   )}
                   {feature.availability === "Launching Soon" && (
@@ -353,7 +271,7 @@ const Features = () => {
 
                 {feature.tabs.length > 0 && (
                   <div className="mb-5">
-                    <p className="text-xs text-slate-500 mb-2">Included Tabs:</p>
+                    <p className="text-xs text-slate-500 mb-2">Included Tab(s):</p>
                     <div className="flex flex-wrap gap-1">
                       {feature.tabs.map((tab: string) => (
                         <CustomBadge key={tab} variant="info">
@@ -367,9 +285,7 @@ const Features = () => {
                 <div className="space-y-2">
                   <div className="flex items-baseline gap-2">
                     <p className="text-2xl font-bold text-indigo-600">{makeHumanReadable(feature.price, "USD")}</p>
-                    <p className="text-xs text-slate-500">
-                      per month + usage - <strong>{feature.mandatory && "covered by app cost"}</strong>
-                    </p>
+                    <p className="text-xs text-slate-500">per month + usage</p>
                   </div>
 
                   <div className="flex items-center gap-3">
@@ -390,7 +306,7 @@ const Features = () => {
 
                 {feature.requirements.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-slate-200">
-                    <p className="text-xs text-slate-500 mb-1">Required Feature(s):</p>
+                    <p className="text-xs text-slate-500 mb-1">Required Non Mandatory Feature(s):</p>
                     <div className="flex flex-wrap gap-1">
                       {feature.requirements.map((requiredFeature: any) => {
                         return (
