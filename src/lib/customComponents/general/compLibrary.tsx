@@ -10,6 +10,7 @@ import type { LucideIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { FaSearch } from "react-icons/fa";
 import { CgTrash } from "react-icons/cg";
+import { MdBorderColor } from "react-icons/md";
 export const InputComponent = ({
   type = "text",
   title,
@@ -364,9 +365,7 @@ export const LoaderDiv = ({
   return (
     <div className="flex justify-center gap-10 items-center z-10">
       {type !== "spinner" && <span className={`ml-2 animate-pulse whitespace-nowrap`}>{text}</span>}
-      <div
-        className={`inline-flex animate-spin rounded-full ${dimension} border-b-2 border-r-2 border-foregroundColor-2`}
-      ></div>
+      <div className={`inline-flex animate-spin rounded-full ${dimension} border-b-2 border-r-2`}></div>
     </div>
   );
 };
@@ -481,6 +480,7 @@ export const CustomButton = ({
   size = "md",
   disabled = false,
   className = "",
+  isLoading = false,
   fullWidth = false
 }: {
   children: React.ReactNode;
@@ -488,6 +488,7 @@ export const CustomButton = ({
   variant?: "primary" | "secondary" | "ghost" | "danger" | "warning";
   size?: "sm" | "md" | "lg";
   disabled?: boolean;
+  isLoading?: boolean;
   className?: string;
   fullWidth?: boolean;
 }) => {
@@ -516,6 +517,11 @@ export const CustomButton = ({
       } ${className}`}
     >
       {children}
+      {isLoading && (
+        <div className="ml-5">
+          <LoaderDiv type="spinner" dimension="w-7 h-7" />
+        </div>
+      )}
     </button>
   );
 };

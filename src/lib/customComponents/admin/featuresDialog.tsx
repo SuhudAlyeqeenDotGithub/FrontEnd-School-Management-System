@@ -1,5 +1,5 @@
 import { AlertTriangle, Check, Database, X } from "lucide-react";
-import { CustomBadge, CustomButton, CustomModal, ErrorDiv, IconFormatter } from "../general/compLibrary";
+import { CustomBadge, CustomButton, CustomModal, ErrorDiv, IconFormatter, LoaderDiv } from "../general/compLibrary";
 import {
   dollarToNaira,
   dollarToPounds,
@@ -34,6 +34,7 @@ export const FeatureDialog = ({
   const { orgFeatures, featuresFromQuery } = reusableQueries();
   const dispatch = useAppDispatch();
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [openRemoveFeatureDialog, setOpenRemoveFeatureDialog] = useState(false);
   const isMandatory = selectedFeature.mandatory;
   const isAdded = orgFeatures.some((f: any) => f._id === selectedFeature._id);
@@ -74,6 +75,7 @@ export const FeatureDialog = ({
   const handlePurchase = async () => {
     if (!featureIsValidated()) return;
     setError("");
+    setLoading(true);
     try {
       const updatedOrAccount = await handleApiRequest("post", "alyeqeenschoolapp/api/admin/feature/purchase", {
         _id: selectedFeature._id
@@ -82,9 +84,11 @@ export const FeatureDialog = ({
 
       if (data) {
         dispatch(updateOrgInAccount(data));
+        setLoading(false);
       }
     } catch (error: any) {
       setError(error.response?.data.message || error.message || "Error adding feature");
+      setLoading(false);
     }
   };
 
@@ -263,7 +267,14 @@ export const FeatureDialog = ({
             )}
 
             {!isAdded && !isMandatory && !isLaunchingSoon && (
-              <CustomButton onClick={handlePurchase} variant="primary" size="lg" fullWidth>
+              <CustomButton
+                disabled={loading}
+                isLoading={loading}
+                onClick={handlePurchase}
+                variant="primary"
+                size="lg"
+                fullWidth
+              >
                 <Check className="h-5 w-5" />
                 Add Feature
               </CustomButton>
@@ -301,6 +312,7 @@ export const RemoveFeatureDialog = ({
   removeAndDeleteData: () => void;
   removeAndKeepData: () => void;
 }) => {
+  const [loading, setLoading] = useState(false);
   return (
     <CustomModal isOpen={openModal} onClose={onClose} title="Remove Feature Confirmation">
       <div className="space-y-6">
@@ -321,7 +333,10 @@ export const RemoveFeatureDialog = ({
           <p className="font-semibold text-slate-900">Please choose how to proceed:</p>
 
           <button
-            onClick={removeAndDeleteData}
+            onClick={() => {
+              setLoading(true);
+              removeAndDeleteData();
+            }}
             className="w-full p-4 border-2 border-rose-300 rounded-lg text-left hover:bg-rose-50 transition-colors group"
           >
             <div className="flex items-start gap-3">
@@ -339,7 +354,10 @@ export const RemoveFeatureDialog = ({
           </button>
 
           <button
-            onClick={removeAndKeepData}
+            onClick={() => {
+              setLoading(true);
+              removeAndKeepData();
+            }}
             className="w-full p-4 border-2 border-indigo-300 rounded-lg text-left hover:bg-indigo-50 transition-colors group"
           >
             <div className="flex items-start gap-3">
@@ -359,9 +377,14 @@ export const RemoveFeatureDialog = ({
             </div>
           </button>
         </div>
-
+        {loading && (
+          <div className="flex items-center justify-center gap-4">
+            <p className="animate-pulse">Removing Feature...</p>
+            <LoaderDiv type="spinner" dimension="w-7 h-7" />
+          </div>
+        )}
         <div className="flex gap-3 pt-4 border-t border-slate-200">
-          <CustomButton onClick={onClose} variant="primary" fullWidth>
+          <CustomButton disabled={loading} onClick={onClose} variant="primary" fullWidth>
             Cancel
           </CustomButton>
         </div>
