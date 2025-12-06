@@ -1,6 +1,6 @@
 "use client";
 import { checkDataType, handledDeleteImage } from "@/lib/shortFunctions/shortFunctions";
-import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { useAppSelector } from "@/redux/hooks";
 import { useEffect, useState } from "react";
 import {
   ActionButtons,
@@ -9,22 +9,14 @@ import {
   InputComponent,
   LoaderDiv,
   NextButton,
-  PreviousButton,
-  StatusFormatter
+  PreviousButton
 } from "@/lib/customComponents/general/compLibrary";
 import { LuArrowUpDown } from "react-icons/lu";
-import { CgTrash } from "react-icons/cg";
-import {
-  DisallowedActionDialog,
-  ConfirmActionByInputDialog,
-  CustomFilterComponent
-} from "@/lib/customComponents/general/compLibrary2";
-import { MdContentCopy, MdAdd, MdNavigateNext, MdNavigateBefore } from "react-icons/md";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ConfirmActionByInputDialog, CustomFilterComponent } from "@/lib/customComponents/general/compLibrary2";
+import { MdContentCopy, MdAdd } from "react-icons/md";
 import {
   defaultButtonStyle,
   ghostbuttonStyle,
-  paginationButtonStyle,
   paginationContainerStyle,
   sortableTableHeadCellStyle,
   tableCellStyle,
@@ -34,13 +26,15 @@ import {
   tableRowStyle,
   tableTopStyle
 } from "@/lib/generalStyles";
+import { useRouter } from "next/navigation";
 import reusableQueries from "@/tanStack/reusables/reusableQueries";
 import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import { StudentProfileDialogComponent } from "@/lib/customComponents/student/studentProfileDialogComp";
 
 const StudentProfile = () => {
-  const { hasActionAccess, useReusableInfiniteQuery } = reusableQueries();
+  const { hasActionAccess, useReusableInfiniteQuery, orgFeaturesInString } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
+  const router = useRouter();
   const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/student/profile");
 
   // const { student, isLoading: isFetching } = useAppSelector((state) => state.studentData);
@@ -137,6 +131,11 @@ const StudentProfile = () => {
         </a>
       </div>
     );
+  }
+
+  if (!orgFeaturesInString.includes("Student Profile & Enrollment")) {
+    router.push("/nofeatureaccess");
+    return;
   }
 
   if (!accountData) {

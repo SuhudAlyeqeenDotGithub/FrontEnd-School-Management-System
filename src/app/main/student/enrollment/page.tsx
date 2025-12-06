@@ -15,7 +15,8 @@ import {
 import { LuArrowUpDown } from "react-icons/lu";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 import { ConfirmActionByInputDialog, CustomFilterComponent } from "@/lib/customComponents/general/compLibrary2";
-import { MdContentCopy, MdAdd, MdNavigateNext, MdNavigateBefore } from "react-icons/md";
+import { MdContentCopy, MdAdd } from "react-icons/md";
+import { useRouter } from "next/navigation";
 import {
   defaultButtonStyle,
   ghostbuttonStyle,
@@ -33,8 +34,9 @@ import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import StudentEnrollmentDialog from "@/lib/customComponents/student/studentEnrollmentDialogComp";
 
 const StudentEnrollments = () => {
-  const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
+  const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess, orgFeaturesInString } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
+  const router = useRouter();
   const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/student/enrollment");
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
@@ -198,6 +200,11 @@ const StudentEnrollments = () => {
         </a>
       </div>
     );
+  }
+
+  if (!orgFeaturesInString.includes("Student Profile & Enrollment")) {
+    router.push("/nofeatureaccess");
+    return;
   }
 
   if (!accountData) {

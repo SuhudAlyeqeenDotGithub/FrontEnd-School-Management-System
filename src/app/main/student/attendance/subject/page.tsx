@@ -2,6 +2,7 @@
 import { checkDataType } from "@/lib/shortFunctions/shortFunctions";
 import { useAppSelector } from "@/redux/hooks";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ActionButtons,
   CustomHeading,
@@ -34,8 +35,9 @@ import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import StudentSubjectAttendanceDialog from "@/lib/customComponents/student/studentSubjectAttendanceDialogComp";
 
 const StudentSubjectAttendances = () => {
-  const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
+  const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess, orgFeaturesInString } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
+  const router = useRouter();
   const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/student/attendance/subjectattendance");
   const { accountData } = useAppSelector((state: any) => state.accountData);
   const [localData, setLocalData] = useState<any>([]);
@@ -310,6 +312,11 @@ const StudentSubjectAttendances = () => {
         </a>
       </div>
     );
+  }
+
+  if (!orgFeaturesInString.includes("Student Attendance")) {
+    router.push("/nofeatureaccess");
+    return;
   }
   if (!accountData) {
     return (

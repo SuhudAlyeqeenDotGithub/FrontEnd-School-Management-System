@@ -31,7 +31,7 @@ export const FeatureDialog = ({
   allFeatures: any[];
   feature_IconMap: any;
 }) => {
-  const { orgFeatures, featuresFromQuery } = reusableQueries();
+  const { orgFeatures, featuresFromQuery, orgFeaturesInString } = reusableQueries();
   const dispatch = useAppDispatch();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,9 +41,7 @@ export const FeatureDialog = ({
   const isLaunchingSoon = selectedFeature.availability === "Launching Soon";
 
   const featureIsValidated = () => {
-    const orgFeaturesInString = orgFeatures.map((f: any) => f.name);
     const selectedFeatureRequirements = selectedFeature.requirements;
-
     if (selectedFeatureRequirements.length === 0) return true;
     if (selectedFeatureRequirements.every((f: any) => orgFeaturesInString.includes(f))) {
       return true;
@@ -57,7 +55,6 @@ export const FeatureDialog = ({
 
   const isRequirementForExistingFeature = () => {
     const nonMandatoryFeatures = featuresFromQuery.filter((f: any) => !f.mandatory);
-    const orgFeaturesInString = orgFeatures.map((f: any) => f.name);
     const dependentFeatures = nonMandatoryFeatures.filter(
       (f: any) => orgFeaturesInString.includes(f.name) && f.requirements.includes(selectedFeature.name)
     );

@@ -17,10 +17,14 @@ export const tanFetchAny = async (accountData: any, permittedActions: string[], 
     throw new Error(msg);
   }
 
-  const res = await handleApiRequest("get", url);
-  const responseData = res?.data;
-  if (responseData) {
-    console.log("fetched", responseData);
-    return res?.data;
+  try {
+    const res = await handleApiRequest("get", url);
+    const responseData = res?.data;
+    if (responseData) {
+      console.log("fetched", responseData);
+      return res?.data;
+    }
+  } catch (error: any) {
+    throw new Error(error.response?.data.message || error.message || "Error fetching data");
   }
 };

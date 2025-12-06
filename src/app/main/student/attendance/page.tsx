@@ -13,6 +13,8 @@ import {
   PreviousButton,
   StatusFormatter
 } from "@/lib/customComponents/general/compLibrary";
+
+import { useRouter } from "next/navigation";
 import { LuArrowUpDown } from "react-icons/lu";
 import { formatDate } from "@/lib/shortFunctions/shortFunctions";
 import { ConfirmActionByInputDialog, CustomFilterComponent } from "@/lib/customComponents/general/compLibrary2";
@@ -34,7 +36,8 @@ import { useReusableMutations } from "@/tanStack/reusables/mutations";
 import StudentDayAttendanceDialog from "@/lib/customComponents/student/studentDayAttendanceDialogComp";
 
 const StudentDayAttendances = () => {
-  const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess } = reusableQueries();
+  const router = useRouter();
+  const { useReusableQuery, useReusableInfiniteQuery, hasActionAccess, orgFeaturesInString } = reusableQueries();
   const { tanMutateAny } = useReusableMutations();
   const deleteMutation = tanMutateAny("delete", "alyeqeenschoolapp/api/student/attendance/dayattendance");
   const { accountData } = useAppSelector((state: any) => state.accountData);
@@ -260,6 +263,11 @@ const StudentDayAttendances = () => {
         </a>
       </div>
     );
+  }
+
+  if (!orgFeaturesInString.includes("Student Attendance")) {
+    router.push("/nofeatureaccess");
+    return;
   }
 
   if (!accountData) {

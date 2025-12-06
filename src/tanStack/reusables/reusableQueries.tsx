@@ -40,6 +40,7 @@ const reusableQueries = () => {
   };
   // get features purchased by organisation
   const features = accountData.organisationId.features;
+  const orgFeaturesInString = features?.map((f: any) => f.name);
   // get the tabs included in all features
   const allowedTabsFromFeatures = features?.flatMap((feature: any) => feature.tabs);
   // get the groups included in all features by mapping the tabs
@@ -178,7 +179,8 @@ const reusableQueries = () => {
     featuresFromQuery,
     isOwnerAccount,
     isAbsoluteAdmin,
-    orgFeatures: features
+    orgFeatures: features,
+    orgFeaturesInString
   };
 };
 
