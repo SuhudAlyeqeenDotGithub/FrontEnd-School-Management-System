@@ -105,9 +105,12 @@ export const FeatureDialog = ({
 
       if (data) {
         dispatch(updateOrgInAccount(data));
+        setOpenRemoveFeatureDialog(false);
+        onClose();
       }
     } catch (error: any) {
-      setError(error.response?.data.message || error.message || "Error adding feature");
+      setError(error.response?.data.message || error.message || "Error removing feature");
+      setOpenRemoveFeatureDialog(false);
     }
   };
 

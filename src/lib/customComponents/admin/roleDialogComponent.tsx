@@ -55,7 +55,6 @@ export const RoleDialog = ({
   const [recommendedGroups, setRecommendedGroups] = useState<any>([]);
   const [unsaved, setUnsaved] = useState(false);
   const [openUnsavedDialog, setOpenUnsavedDialog] = useState(false);
-  const [openTabActionDialog, setOpenTabActionDialog] = useState(false);
   const [openDisallowedDeleteDialog, setOpenDisallowedDeleteDialog] = useState(false);
   const [openNewGroupTabDialog, setOpenNewGroupTabDialog] = useState(false);
   const [openEditGroupTabDialog, setOpenEditGroupTabDialog] = useState(false);
@@ -64,10 +63,8 @@ export const RoleDialog = ({
   const [onEditMode, setOnEditMode] = useState(type === "edit");
   const [onViewMode, setOnViewMode] = useState(type === "view");
   const [onCreateMode, setOnCreateMode] = useState(type === "new");
-  const [searchValue, setSearchValue] = useState("");
   const [error, setError] = useState("");
-  const [sortOrderTracker, setSortOrderTracker] = useState<any>({});
-  const { roleId, roleName, roleDescription, groups } = localData;
+  const { roleName, roleDescription, groups } = localData;
 
   useEffect(() => {
     const assignedGroups = groups.map((group: any) => group.group);
@@ -416,7 +413,7 @@ export const RoleDialog = ({
 
             {/* table data */}
             <div className="flex flex-col gap-2">
-              {groups.length < 1 && searchValue ? (
+              {groups.length < 1 ? (
                 <div className="flex justify-center mt-6">No search result found</div>
               ) : groups.length < 1 ? (
                 <div className="flex justify-center mt-6">No Group has been added for this role</div>
